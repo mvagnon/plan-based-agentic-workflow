@@ -1,7 +1,7 @@
 interface:
   display_name: "Implement PM"
-  short_description: "Implement PM tasks in a git worktree."
-  default_prompt: "Use $implement-pm to create a worktree under ~/Developer/worktrees and implement the referenced PM tasks."
+  short_description: "Implement PM tasks in the current checkout."
+  default_prompt: "Use $implement-pm to create one dedicated branch and draft PR for this invocation, then implement the referenced PM tasks directly in the current repository checkout."
 dependencies:
   tools:
     - type: "mcp"

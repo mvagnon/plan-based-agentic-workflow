@@ -1,10 +1,10 @@
 # Implementation Protocol
 
-This protocol keeps implementation isolated from the user's current worktree and makes the resulting changes easy to inspect.
+This protocol implements PM tasks directly in the current repository checkout while preserving unrelated local changes. Each invocation uses one dedicated branch and one draft PR.
 
-## Worktree Setup
+## Current Checkout Setup
 
-Preflight from the original repository:
+Preflight from the repository:
 
 ```bash
 git rev-parse --show-toplevel
@@ -13,48 +13,47 @@ git branch --show-current
 git remote -v
 ```
 
-Create the worktree root:
+Direct implementation rules:
 
-```bash
-mkdir -p ~/Developer/worktrees
-```
-
-Create a branch/worktree:
-
-```bash
-git fetch --all --prune
-git worktree add -b <branch> ~/Developer/worktrees/<repo-slug>-<task-slug> <base-ref>
-```
-
-Reuse rules:
-
-- If the path exists, inspect `git -C <path> status --short --branch` and `git -C <path> rev-parse --show-toplevel`.
-- Reuse only when the branch and existing changes clearly belong to the same task batch.
-- Otherwise choose a distinct suffix, for example `-2` or a short date.
+- Do not create a secondary checkout.
+- Treat the current checkout as the implementation location.
+- Preserve unrelated user changes; do not move, stage, commit, revert, or delete them.
+- Fetch remote refs only when needed for task resolution or implementation context.
+- If the task requires a different base branch than the current checkout, ask how to proceed unless the user already authorized branch changes.
+- If existing local changes overlap with the requested implementation, inspect them and work with them when possible. Ask only when the conflict makes safe implementation impossible.
 
 Branch naming:
 
-```text
-agent/<task-ids>-<short-slug>
-```
+- Create or switch to one dedicated branch per new invocation, using a focused name like `agent/<task-ids>-<short-slug>`.
+- Reuse a branch only when continuing the same invocation and the branch clearly matches the same task batch.
+- Do not switch away from the invocation branch while implementing unless the user asks.
 
-Examples:
+## Draft PR First
 
-- `agent/123-124-workspace-invites`
-- `agent/notion-abc123-billing-entitlements`
+Before implementation edits:
+
+1. Push the dedicated branch.
+2. Open a draft PR against the intended base branch.
+3. Write a detailed PR description covering task links, expected behavior, acceptance criteria, implementation plan, validation plan, known risks, and open questions.
+
+If the hosting provider cannot create a no-diff draft PR, create a single empty setup commit only to make the branch eligible for PR creation. Do not include implementation changes in that commit.
+
+If authentication, remote configuration, or the PM/Git hosting tool prevents draft PR creation, stop before implementation and report the blocker.
 
 ## Implementation Loop
 
-Inside the worktree:
+Inside the repository checkout on the invocation branch:
 
 1. Read project instructions in scope.
-2. Install nothing unless dependencies already exist and setup requires it.
-3. Use Serena or targeted search to locate existing patterns.
-4. Implement the smallest correct change for the task contract.
-5. Keep shared logic centralized and reuse existing validation, types, services, hooks, repositories, and UI primitives.
-6. Update directly affected docs only when setup, commands, env vars, architecture, endpoints, or data models changed.
-7. Run focused checks.
-8. Self-review the diff.
+2. Confirm the draft PR exists before code edits.
+3. Install nothing unless dependencies already exist and setup requires it.
+4. Use Serena or targeted search to locate existing patterns.
+5. Implement the smallest correct change for the task contract.
+6. Keep shared logic centralized and reuse existing validation, types, services, hooks, repositories, and UI primitives.
+7. Update directly affected docs only when setup, commands, env vars, architecture, endpoints, or data models changed.
+8. Run focused checks.
+9. Self-review the diff.
+10. Stage and push only changes that belong to this invocation. Leave unrelated concurrent user edits unstaged unless the user explicitly includes them.
 
 ## Task Batch Handling
 
@@ -62,8 +61,9 @@ When multiple tasks are requested:
 
 - Respect dependency order.
 - Implement shared prerequisites first.
-- Keep commits optional; do not commit unless the user asks.
-- Do not create separate worktrees per task unless tasks are explicitly independent and the user requests parallelization.
+- Keep commits focused and scoped to the invocation branch.
+- Do not mix unrelated manual edits into implementation commits.
+- Do not create separate branches or checkouts per task unless tasks are explicitly independent and the user requests it.
 - If one task becomes blocked, continue with independent tasks and report the blocker.
 
 ## Verification
@@ -88,7 +88,7 @@ Do not update PM status, add comments, or assign/move tasks unless the user requ
 
 When updates are requested, use concise factual comments:
 
-- branch/worktree path;
+- repository path and branch;
 - completed acceptance criteria;
 - checks run;
 - blockers or scope changes.
@@ -96,7 +96,9 @@ When updates are requested, use concise factual comments:
 ## Final Response Template
 
 ```markdown
-Implemented in `<worktree-path>` on branch `<branch>`.
+Implemented in `<repository-path>` on branch `<branch>`.
+
+Draft PR: <url>
 
 Tasks: <urls or ids>
 

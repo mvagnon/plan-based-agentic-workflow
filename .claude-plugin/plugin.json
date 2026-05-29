@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "plan-based-agentic-workflow",
   "displayName": "Plan Based Agentic Workflow",
-  "description": "Plan-based agentic workflow skills for turning product scope into technical PM tasks and implementing those tasks in isolated git worktrees.",
+  "description": "Plan-based agentic workflow skills for turning product scope into technical PM tasks and implementing those tasks directly in the current checkout.",
   "version": "0.1.0",
   "author": {
     "name": "mvagnon",
@@ -16,6 +16,6 @@
     "github-issues",
     "notion",
     "serena",
-    "worktrees"
+    "implementation"
   ]
 }

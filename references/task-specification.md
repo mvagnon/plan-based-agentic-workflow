@@ -8,7 +8,7 @@ Aim for tasks with comparable review weight:
 
 - One coherent behavior, contract, or infrastructure step per task.
 - Review should usually fit in a focused PR review session, roughly 20-45 minutes for a senior engineer.
-- The implementation should fit in one branch/worktree without unrelated refactors.
+- The implementation should fit in one focused checkout or branch without unrelated refactors.
 - A task can touch several files when it is a vertical slice, but avoid combining unrelated risks.
 
 Split tasks when they mix:

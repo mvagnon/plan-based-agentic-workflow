@@ -109,7 +109,7 @@ Use the task rubric from `task-specification.md`.
 
 Principles:
 
-- Keep tasks similarly sized: one coherent implementation unit that can fit in one branch/worktree and one focused code review.
+- Keep tasks similarly sized: one coherent implementation unit that can fit in one focused checkout or branch and one focused code review.
 - Prefer vertical slices when they preserve correctness; use horizontal infrastructure tasks only when later tasks depend on them.
 - Keep business rules centralized. If multiple future tasks need the same rule/schema/service, create one prerequisite task for that shared foundation.
 - Align each task with the responsibility map. Every task should name the owner layer/folder for its core changes and avoid placing logic in a consumer layer that should only orchestrate or render.

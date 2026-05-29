@@ -12,7 +12,7 @@ Use Serena as the primary code-intelligence layer when it is installed. The goal
    - pattern search;
    - diagnostics;
    - memory read/write when the project has durable conventions.
-3. Activate the repository root or worktree path as the Serena project.
+3. Activate the repository root as the Serena project.
 4. If onboarding is requested, perform only durable project-memory work that helps future tasks. Do not store task-local findings as memories.
 
 ## Exploration Order
