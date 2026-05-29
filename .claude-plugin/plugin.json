@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "plan-based-agentic-workflow",
+  "displayName": "Plan Based Agentic Workflow",
+  "description": "Plan-based agentic workflow skills for turning product scope into technical PM tasks and implementing those tasks in isolated git worktrees.",
+  "version": "0.1.0",
+  "author": {
+    "name": "mvagnon",
+    "url": "https://github.com/mvagnon"
+  },
+  "homepage": "https://github.com/mvagnon/plan-based-agentic-workflow",
+  "repository": "https://github.com/mvagnon/plan-based-agentic-workflow",
+  "keywords": [
+    "agentic-workflow",
+    "planning",
+    "github-issues",
+    "notion",
+    "serena",
+    "worktrees"
+  ]
+}

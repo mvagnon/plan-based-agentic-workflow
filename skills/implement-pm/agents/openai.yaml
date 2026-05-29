@@ -1,0 +1,17 @@
+interface:
+  display_name: "Implement PM"
+  short_description: "Implement PM tasks in a git worktree."
+  default_prompt: "Use $implement-pm to create a worktree under ~/Developer/worktrees and implement the referenced PM tasks."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "serena"
+      description: "Semantic code exploration and symbol/reference analysis."
+    - type: "mcp"
+      value: "github"
+      description: "GitHub Issues or Projects task retrieval when available."
+    - type: "mcp"
+      value: "notion"
+      description: "Optional Notion task retrieval when requested."
+policy:
+  allow_implicit_invocation: false
