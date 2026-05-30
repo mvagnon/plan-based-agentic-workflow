@@ -1,12 +1,12 @@
 interface:
   display_name: "Review PR"
-  short_description: "Review a PR, reconcile its description, and mark strong draft PRs ready."
-  default_prompt: "Use $review-pr to review this PR, reconcile the PR description with the diff, append a review recap, and mark it ready for review only if the score is greater than 18/20."
+  short_description: "Review a PR, reconcile its description, add review comments, and mark strong draft PRs ready."
+  default_prompt: "Use $review-pr to review this PR, reconcile the PR description with the diff, add one concise score/details PR comment, add inline comments for actionable fixes, mark it ready for review only if the score is greater than 18/20, then ask for explicit approval before closing associated issues or moving tickets to done."
 dependencies:
   tools:
     - type: "cli"
       value: "gh"
-      description: "GitHub PR diff, body edit, and ready-for-review operations."
+      description: "GitHub PR diff, body edit, review comment, and ready-for-review operations."
     - type: "mcp"
       value: "serena"
       description: "Optional semantic code exploration and symbol/reference analysis."

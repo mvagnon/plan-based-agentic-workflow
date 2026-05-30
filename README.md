@@ -4,7 +4,7 @@ Agent Skills for a plan-first development workflow:
 
 - `feed-pm`: analyze a repository, decompose requested work, and draft reviewable technical PM tasks.
 - `implement-pm`: fetch approved PM tasks, create one dedicated branch from the currently selected branch, open a draft PR per invocation, then implement the requested work directly in the current repository checkout while preserving staged and unstaged changes.
-- `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, append a review recap, and mark strong draft PRs ready for review.
+- `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, add a concise score/details comment plus inline action comments, mark strong draft PRs ready for review, and ask before closing associated PM items.
 
 The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
 
@@ -104,15 +104,16 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 5. Update the PR body when it drifted from the implementation:
    - add extra completed work that is present in the diff but missing from the description;
    - add unfinished promised work as struck-through items without deleting the original text.
-6. Append or replace a review recap at the end of the PR body.
+6. Add one concise score/details PR comment and inline review comments for actionable fixes, not review details in the PR body.
 7. If the final score is greater than `18/20`, mark a draft PR ready for review.
-8. Report score, verdict, findings, PR body updates, checks reviewed, and residual risks.
+8. If this review promoted the PR from draft to ready/open, ask whether to close associated issues or move associated PM tickets to done.
+9. Report score, verdict, findings, PR body updates, PR comments, checks reviewed, and residual risks.
 
 ## Safety Rules
 
 - `feed-pm` must not create, edit, label, or move PM items before explicit approval.
 - `implement-pm` must create its invocation branch from the currently selected branch and preserve staged, unstaged, and unrelated local changes in the current checkout.
-- `review-pr` may edit the PR body and mark a draft PR ready only as described by its review workflow.
+- `review-pr` may edit the PR body, add review comments, mark a draft PR ready, and offer PM item closure/status updates only as described by its review workflow.
 - No skill should add dependencies, create logs, merge PRs, or update PM statuses unless explicitly requested.
 - Tests are not created by default. Existing tests may be updated only when directly affected or explicitly required by the task.
 
