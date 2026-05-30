@@ -3,7 +3,7 @@
 Agent Skills for a plan-first development workflow:
 
 - `feed-pm`: analyze a repository, decompose requested work, and draft reviewable technical PM tasks.
-- `implement-pm`: fetch approved PM tasks, create one dedicated branch and draft PR per invocation, then implement the requested work directly in the current repository checkout.
+- `implement-pm`: fetch approved PM tasks, create one dedicated branch from the currently selected branch, open a draft PR per invocation, then implement the requested work directly in the current repository checkout while preserving staged and unstaged changes.
 - `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, append a review recap, and mark strong draft PRs ready for review.
 
 The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
@@ -87,9 +87,9 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 ### Implementation With `implement-pm`
 
 1. Resolve exact PM task references.
-2. Check the current repository status and preserve unrelated local changes.
-3. Create or switch to one dedicated branch for the invocation.
-4. Open a draft PR with the expected scope before implementation edits.
+2. Check the current repository status and preserve staged, unstaged, and unrelated local changes.
+3. Create or switch to one dedicated branch from the currently selected branch for the invocation.
+4. Open a draft PR against that source branch with the concerned task reference at the top of the description.
 5. Implement directly in the current repository checkout.
 6. Use Serena MCP or targeted search to reuse existing code before adding new code.
 7. Run relevant checks from the target repository.
@@ -111,7 +111,7 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 ## Safety Rules
 
 - `feed-pm` must not create, edit, label, or move PM items before explicit approval.
-- `implement-pm` must preserve unrelated local changes in the current checkout.
+- `implement-pm` must create its invocation branch from the currently selected branch and preserve staged, unstaged, and unrelated local changes in the current checkout.
 - `review-pr` may edit the PR body and mark a draft PR ready only as described by its review workflow.
 - No skill should add dependencies, create logs, merge PRs, or update PM statuses unless explicitly requested.
 - Tests are not created by default. Existing tests may be updated only when directly affected or explicitly required by the task.

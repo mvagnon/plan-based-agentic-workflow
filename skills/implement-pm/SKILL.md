@@ -1,7 +1,6 @@
 ---
 name: implement-pm
-description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current repository checkout. It fetches the referenced tasks, creates one dedicated branch and draft PR per invocation before implementation, studies the repository with Serena MCP when available, preserves unrelated local changes, implements all requested tasks in the current checkout, runs relevant checks, and reports the repository path, branch, draft PR, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement `#123`, or continue the plan-based agentic workflow.
-disable-model-invocation: true
+description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current repository checkout. It fetches the referenced tasks, creates one dedicated branch from the currently selected branch, opens a draft PR per invocation before implementation, studies the repository with Serena MCP when available, preserves staged, unstaged, and unrelated local changes, implements all requested tasks in the current checkout, runs relevant checks, and reports the repository path, branch, draft PR, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement `#123`, or continue the plan-based agentic workflow.
 ---
 
 # Implement PM
@@ -13,7 +12,7 @@ This skill must work in Codex, Claude Code, Antigravity CLI, and other Agent Ski
 - Do not rely on runner-specific environment variables or path substitutions.
 - Resolve bundled references relative to this `SKILL.md` file.
 - Read invocation input from the host runner's normal mechanism: `$ARGUMENTS`, slash-command arguments, command arguments, injected raw arguments, or the surrounding user message.
-- Keep current-checkout safety in the instructions, not in platform-specific frontmatter. Implement directly in the current repository checkout on a dedicated invocation branch while preserving unrelated user changes.
+- Keep current-checkout safety in the instructions, not in platform-specific frontmatter. Implement directly in the current repository checkout on a dedicated invocation branch created from the currently selected branch while preserving staged, unstaged, and unrelated user changes.
 
 ## Input Contract
 
@@ -50,12 +49,15 @@ Implement directly in the repository root for the current checkout. Do not creat
 Before editing:
 
 - Check the repository root, current branch, remotes, and status.
-- Do not move, stage, commit, revert, or delete unrelated user changes.
+- Record the currently selected branch before any branch operation and treat it as the source/base branch for this invocation.
+- Create the dedicated invocation branch from the currently selected branch and current `HEAD`, not from `main`, `master`, the default branch, or a freshly fetched remote ref unless the user explicitly authorizes that branch change.
+- Preserve the existing index and working tree when creating the branch. Staged and unstaged changes are part of the current checkout state; do not stash, unstage, stage, commit, revert, or delete them unless they belong to the requested implementation or the user explicitly asks.
 - Fetch remote refs only when needed for task resolution or implementation context.
 - Create or switch to one dedicated branch for this invocation before implementation. Reuse a branch only when continuing the same invocation and the branch clearly matches the same task batch.
-- If a task body requires a different base branch than the current checkout, ask how to proceed unless the user already authorized branch changes.
+- If a task body requires a different base branch than the currently selected branch, ask how to proceed unless the user already authorized branch changes.
 - If existing local changes overlap with the requested implementation, inspect them and work with them when possible. Ask only when the conflict makes safe implementation impossible.
-- Open a draft PR for the dedicated branch before implementation edits. The PR description must detail the requested tasks, expected behavior, acceptance criteria, implementation plan, validation plan, and known risks or open questions.
+- Open a draft PR from the dedicated branch to the recorded source/base branch before implementation edits, unless the user explicitly authorized a different base.
+- Start the PR description with the concerned task reference: use one canonical identifier per task according to context, preferring the task or issue URL when available, otherwise the task ID or associated issue ID. Then detail the requested tasks, expected behavior, acceptance criteria, implementation plan, validation plan, and known risks or open questions.
 - If the hosting provider cannot create a no-diff draft PR, create a single empty setup commit only to open the draft PR; do not include implementation changes in that commit.
 - If authentication, remote configuration, or the PM/Git hosting tool prevents draft PR creation, stop before implementation and report the blocker.
 

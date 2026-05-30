@@ -1,7 +1,6 @@
 ---
 name: feed-pm
 description: Use this skill when the user wants an agentic planning workflow that turns a product request, feature scope, bug epic, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the current repository, loads matching architecture skills when available, prioritizes Serena MCP semantic exploration when available, decomposes the work into similarly sized technical tasks, drafts concise but complete issue descriptions for senior-engineer review, and only creates PM items after explicit human approval. Trigger on phrases like feed PM, create issues from this plan, split this work into tickets, prepare GitHub Issues or Notion tasks, or plan-based agentic workflow.
-disable-model-invocation: true
 ---
 
 # Feed PM

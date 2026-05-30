@@ -1,6 +1,6 @@
 # Implementation Protocol
 
-This protocol implements PM tasks directly in the current repository checkout while preserving unrelated local changes. Each invocation uses one dedicated branch and one draft PR. Use `review-pr` after implementation when the PR needs production-readiness review, PR body reconciliation, and possible promotion out of draft.
+This protocol implements PM tasks directly in the current repository checkout while preserving staged, unstaged, and unrelated local changes. Each invocation uses one dedicated branch created from the currently selected branch and one draft PR. Use `review-pr` after implementation when the PR needs production-readiness review, PR body reconciliation, and possible promotion out of draft.
 
 ## Current Checkout Setup
 
@@ -17,15 +17,18 @@ Direct implementation rules:
 
 - Do not create a secondary checkout.
 - Treat the current checkout as the implementation location.
-- Preserve unrelated user changes; do not move, stage, commit, revert, or delete them.
+- Record the currently selected branch before any branch operation and use it as the source/base branch for this invocation.
+- Create the dedicated invocation branch from the currently selected branch and current `HEAD`, not from `main`, `master`, the default branch, or a freshly fetched remote ref unless the user explicitly authorizes that branch change.
+- Preserve the existing index and working tree. Staged and unstaged changes are part of the current checkout state; do not stash, unstage, stage, commit, revert, or delete them unless they belong to the requested implementation or the user explicitly asks.
 - Fetch remote refs only when needed for task resolution or implementation context.
-- If the task requires a different base branch than the current checkout, ask how to proceed unless the user already authorized branch changes.
+- If the task requires a different base branch than the currently selected branch, ask how to proceed unless the user already authorized branch changes.
 - If existing local changes overlap with the requested implementation, inspect them and work with them when possible. Ask only when the conflict makes safe implementation impossible.
 
 Branch naming:
 
 - Create or switch to one dedicated branch per new invocation, using a focused name like `agent/<task-ids>-<short-slug>`.
 - Reuse a branch only when continuing the same invocation and the branch clearly matches the same task batch.
+- When creating a new invocation branch, use the recorded source branch as the start point. Do not switch to `main`, `master`, or the repository default branch first.
 - Do not switch away from the invocation branch while implementing unless the user asks.
 
 ## Draft PR First
@@ -33,8 +36,9 @@ Branch naming:
 Before implementation edits:
 
 1. Push the dedicated branch.
-2. Open a draft PR against the intended base branch.
-3. Write a detailed PR description covering task links, expected behavior, acceptance criteria, implementation plan, validation plan, known risks, and open questions.
+2. Open a draft PR against the recorded source/base branch unless the user explicitly authorized a different base.
+3. Start the PR description with the concerned task reference: use one canonical identifier per task according to context, preferring the task or issue URL when available, otherwise the task ID or associated issue ID.
+4. Write a detailed PR description covering expected behavior, acceptance criteria, implementation plan, validation plan, known risks, and open questions.
 
 If the hosting provider cannot create a no-diff draft PR, create a single empty setup commit only to make the branch eligible for PR creation. Do not include implementation changes in that commit.
 
