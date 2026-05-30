@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when a pull request exists, was just created, or the user intends to create, open, submit, merge, or review a PR in the plan-based agentic workflow. It performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline review comments for actionable fixes, marks high-scoring draft PRs ready for review, and asks for explicit approval before merging the PR and closing associated issues or moving tickets to done.
+description: Use when a pull request exists, was just created, or the user intends to create, open, submit, merge, or review a PR in the plan-based agentic workflow. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline review comments for actionable fixes, marks high-scoring draft PRs ready for review, and asks for explicit approval before merging the PR and closing associated issues or moving tickets to done.
 ---
 
 # Review PR
@@ -48,14 +48,17 @@ If a PR description exists, use it as the stated implementation contract. Do not
 
 Before scoring:
 
-1. Identify the diff source: `gh pr diff`, `gh pr view`, or local `git diff` when no PR exists yet.
-2. When a PR exists, read its title, body, draft state, URL, base, and head, for example with `gh pr view --json number,title,body,url,isDraft,baseRefName,headRefName`.
-3. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant `README.md` files.
-4. Identify the actual architecture style or styles used by the touched area before judging the diff. It may be hexagonal, clean architecture, MVC, feature-sliced, vertical slice, modular monolith, framework-native routing, package-based component architecture, a custom project convention, or a mix. Do not assume `domain`/`application`/`infrastructure` layers unless the repository actually uses them.
-5. Discover and load any available architecture skills that match the actual touched architecture before judging architecture. Examples include hexagonal/clean architecture skills only when those layers exist, React/frontend architecture skills for feature and hook boundaries, monorepo/Turborepo skills for package-boundary changes, design-system skills for UI package/theme/component-library changes, framework skills for routing/data-fetching layers, and domain-specific integration skills such as payments when touched. If a relevant architecture skill exists, consult it before scoring. If discovery is unavailable or no relevant skill exists, say so briefly and proceed from repo evidence.
-6. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
-7. Prefer existing project conventions over generic preferences.
-8. If architecture must be inferred from code, say it is an inference and name the evidence used.
+1. Check `git status --short` in the PR repository before reading or reviewing the diff.
+2. If there are any local changes, including staged, unstaged, or untracked non-ignored files, commit and push all of them before continuing. Stage every local change with the repository's normal Git workflow, create a concise commit that describes the pending work, and push the current branch to its upstream or the PR head remote. Do not proceed to diff inspection, PR description reconciliation, scoring, comments, readiness promotion, merge, or PM follow-up until the working tree is clean and the commit has been pushed.
+3. If commit or push fails because of conflicts, missing identity, missing upstream, rejected push, authentication, failing pre-commit hooks, branch protection, or any other blocker, stop the review flow and report the blocker with the exact command that failed. Do not silently skip local changes or review an unpushed worktree.
+4. Identify the diff source: `gh pr diff`, `gh pr view`, or a committed branch comparison such as `git diff <base>...HEAD` when no PR exists yet.
+5. When a PR exists, read its title, body, draft state, URL, base, and head, for example with `gh pr view --json number,title,body,url,isDraft,baseRefName,headRefName`.
+6. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant `README.md` files.
+7. Identify the actual architecture style or styles used by the touched area before judging the diff. It may be hexagonal, clean architecture, MVC, feature-sliced, vertical slice, modular monolith, framework-native routing, package-based component architecture, a custom project convention, or a mix. Do not assume `domain`/`application`/`infrastructure` layers unless the repository actually uses them.
+8. Discover and load any available architecture skills that match the actual touched architecture before judging architecture. Examples include hexagonal/clean architecture skills only when those layers exist, React/frontend architecture skills for feature and hook boundaries, monorepo/Turborepo skills for package-boundary changes, design-system skills for UI package/theme/component-library changes, framework skills for routing/data-fetching layers, and domain-specific integration skills such as payments when touched. If a relevant architecture skill exists, consult it before scoring. If discovery is unavailable or no relevant skill exists, say so briefly and proceed from repo evidence.
+9. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
+10. Prefer existing project conventions over generic preferences.
+11. If architecture must be inferred from code, say it is an inference and name the evidence used.
 
 Do not invent architecture rules, and do not force hexagonal or layered expectations onto a repo that uses a different architecture. If the repo has no explicit architecture documentation, judge against the actual boundaries and patterns visible in the codebase, and use relevant architecture skills only to interpret those boundaries more rigorously.
 
