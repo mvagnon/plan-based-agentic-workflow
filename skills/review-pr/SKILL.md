@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when a pull request exists, was just created, or the user intends to create, open, submit, merge, or review a PR in the plan-based agentic workflow. It performs strict production-readiness review, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline review comments for actionable fixes, marks high-scoring draft PRs ready for review, and asks for explicit approval before closing associated issues or moving tickets to done.
+description: Use when a pull request exists, was just created, or the user intends to create, open, submit, merge, or review a PR in the plan-based agentic workflow. It performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline review comments for actionable fixes, marks high-scoring draft PRs ready for review, and asks for explicit approval before merging the PR and closing associated issues or moving tickets to done.
 ---
 
 # Review PR
@@ -8,6 +8,8 @@ description: Use when a pull request exists, was just created, or the user inten
 ## Purpose
 
 Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes.
+
+Be especially strict about architecture in the diff. Changed code must respect existing boundaries, dependency direction, ownership model, naming, shared abstractions, and framework-specific conventions. Treat architecture drift as a production-readiness risk, not a style preference.
 
 ## Trigger Discipline
 
@@ -49,11 +51,24 @@ Before scoring:
 1. Identify the diff source: `gh pr diff`, `gh pr view`, or local `git diff` when no PR exists yet.
 2. When a PR exists, read its title, body, draft state, URL, base, and head, for example with `gh pr view --json number,title,body,url,isDraft,baseRefName,headRefName`.
 3. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant `README.md` files.
-4. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
-5. Prefer existing project conventions over generic preferences.
-6. If architecture must be inferred from code, say it is an inference.
+4. Identify the actual architecture style or styles used by the touched area before judging the diff. It may be hexagonal, clean architecture, MVC, feature-sliced, vertical slice, modular monolith, framework-native routing, package-based component architecture, a custom project convention, or a mix. Do not assume `domain`/`application`/`infrastructure` layers unless the repository actually uses them.
+5. Discover and load any available architecture skills that match the actual touched architecture before judging architecture. Examples include hexagonal/clean architecture skills only when those layers exist, React/frontend architecture skills for feature and hook boundaries, monorepo/Turborepo skills for package-boundary changes, design-system skills for UI package/theme/component-library changes, framework skills for routing/data-fetching layers, and domain-specific integration skills such as payments when touched. If a relevant architecture skill exists, consult it before scoring. If discovery is unavailable or no relevant skill exists, say so briefly and proceed from repo evidence.
+6. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
+7. Prefer existing project conventions over generic preferences.
+8. If architecture must be inferred from code, say it is an inference and name the evidence used.
 
-Do not invent architecture rules. If the repo has no explicit architecture documentation, judge against the actual boundaries and patterns visible in the codebase.
+Do not invent architecture rules, and do not force hexagonal or layered expectations onto a repo that uses a different architecture. If the repo has no explicit architecture documentation, judge against the actual boundaries and patterns visible in the codebase, and use relevant architecture skills only to interpret those boundaries more rigorously.
+
+When reviewing architecture, explicitly verify the diff against:
+
+- Architecture identification: name the architecture style or local convention that governs the changed area before assigning architecture points.
+- Ownership boundaries: the project’s actual owners for routes/controllers, pages/views, components, hooks, state, services/use cases, models/entities, schemas/DTOs, repositories/adapters, persistence, integrations, shared packages, and design-system primitives. Use only the owners that exist in this repo.
+- Dependency direction: enforce the dependency rules implied by the actual architecture. For example, core/shared contracts must not import app-local UI, runtime adapters, framework request objects, or persistence details unless the repo already establishes that pattern; feature, route, MVC, or framework-native structures must not bypass their established owners.
+- Business-rule placement: validations, permission checks, transformations, formatting, query keys, DTO mapping, and workflow rules stay in their existing owners and are not duplicated into UI, route, controller, or other orchestration code unless that is the established owner.
+- Shared abstraction reuse: existing components, hooks, repositories, services, schemas, utilities, tokens, and variants are reused or extended instead of recreated.
+- Package boundaries: shared packages do not import app-local code; app features do not bypass shared package/public exports; cross-package changes remain compatible with all consumers.
+- Framework conventions: data fetching, routing, mutations, loading/error states, and server actions follow the project’s established patterns.
+- File/module shape: new files belong in the owning area, module, package, or framework location, use local naming conventions, and avoid generic abstractions whose only consumer is the current diff.
 
 ## Review Standard
 
@@ -62,13 +77,15 @@ Review as if the code will be deployed to production immediately after merge.
 Check at least:
 
 - PR description alignment when applicable: stated goals, acceptance criteria, exclusions, validation plan, and whether the diff implements the promised scope without adding risky unannounced behavior.
-- Architecture: boundaries, layering, feature ownership, data flow, public APIs, dependency direction, reuse of existing patterns.
+- Architecture: boundaries, ownership model, feature/module ownership, data flow, public APIs, dependency direction, reuse of existing patterns. This is a hard review axis: a diff that violates the repo’s architecture should lose meaningful score even when behavior appears to work.
 - Correctness: business logic, edge cases, regressions, error paths, async/race behavior, idempotency, migrations, backwards compatibility.
 - Security: authentication, authorization, multi-tenancy isolation, input validation, injection, XSS, CSRF, SSRF, path traversal, file uploads, secrets, PII, logging, webhook verification, payment integrity, rate limits.
 - Production readiness: observability, explicit errors, retries/timeouts where appropriate, transactional consistency, resource cleanup, N+1 queries, performance cliffs, rollout and rollback safety.
 - Tests and verification: behavior coverage for changed logic, meaningful assertions, migration tests, security-sensitive tests, relevant static checks.
 - Maintainability: clear names, type safety, dead code, duplication, unnecessary abstractions, hidden side effects, consistency with local style.
 - Frontend impact when applicable: user experience, loading/error/empty/disabled states, accessibility, responsive behavior, state ownership, no fragile UI assumptions.
+
+For architecture-heavy diffs, be skeptical by default. Do not award near-full architecture points unless you can name the governing architecture or local convention and verify that the changed files belong to the right owners. A change is not production-ready if it works by bypassing the established architecture, duplicating ownership, weakening package boundaries, or placing future changes in the wrong place. Prefer a lower score with clear refactoring instructions over accepting architecture drift as harmless.
 
 For frontend changes, explicitly verify and note the user experience:
 
@@ -139,13 +156,14 @@ If the PR was a draft and this review marked it ready for review, treat the PR a
 At the end of the review response:
 
 - Identify associated PM items from the PR body, issue-closing keywords, linked issues, branch name, task URLs, or project metadata.
-- Ask the user one concise question before taking PM side effects: whether they want to close associated GitHub issues or move associated tickets to done, depending on the PM tool context.
-- Require explicit approval in the user's next response before acting. A successful score, PR promotion, or generic request to review is not approval.
-- If the user says no or declines, do not close issues, move tickets, comment on PM items, or update statuses.
-- If the user explicitly approves, use the available official tool for the context, such as `gh issue close` for GitHub Issues, GitHub Projects field updates, Notion MCP status updates, or another configured PM tool.
-- Report exactly which issues or tickets were updated. If associated items are ambiguous, ask for the exact items instead of guessing.
+- Ask the user one concise question before taking merge or PM side effects: whether they want to merge the PR and close associated GitHub issues or move associated tickets to done, depending on the PM tool context. Example: `The PR was promoted from draft to ready. Do you want me to merge the PR and close GitHub issues #2 and #3?`
+- Require explicit approval in the user's next response before acting. A successful score, PR promotion, or generic request to review is not approval to merge, close issues, move tickets, comment on PM items, or update statuses.
+- If the user says no or declines, do not merge the PR, close issues, move tickets, comment on PM items, or update statuses.
+- If the user explicitly approves merging, use the available official tool for the context, such as `gh pr merge` for GitHub PRs. Respect branch protection, required checks, merge conflicts, and repository merge policy; if the host blocks merge, report the blocker and do not force it.
+- If the user explicitly approves PM closure/status updates, use the available official tool for the context, such as `gh issue close` for GitHub Issues, GitHub Projects field updates, Notion MCP status updates, or another configured PM tool. If GitHub closing keywords will close the issues automatically on merge, say that and avoid duplicate manual closure unless the user explicitly asks.
+- Report exactly which PR was merged and which issues or tickets were updated. If associated items are ambiguous, ask for the exact items instead of guessing.
 
-Do not offer PM closure/status updates when the PR was already ready/open before this review, when the PR stayed draft, or when no PR exists.
+Do not offer merge or PM closure/status updates when the PR was already ready/open before this review, when the PR stayed draft, or when no PR exists.
 
 ## Severity Rules
 
@@ -162,21 +180,37 @@ Score caps:
 - Any data loss/corruption or production outage risk: maximum `10/20`.
 - Any missing server-side authorization check on protected data/actions: maximum `8/20`.
 - Any unsafe migration that can break existing production data: maximum `10/20`.
+- Any clear architecture violation that puts business logic, security, persistence, UI, or integration ownership in the wrong owner area and is likely to spread: maximum `12/20`.
+- Any cross-package or dependency-direction violation that can break consumers or make future changes unsafe: maximum `13/20`.
+- Any architecture-sensitive diff where the governing architecture cannot be identified from docs, code, or a stated inference: maximum `16/20`.
+- Any failure to consult an available, directly relevant architecture skill before scoring an architecture-sensitive diff: maximum `15/20`, unless the architecture can be fully validated from explicit project instructions and the omission is corrected before finalizing.
+- Any architecture score of `3/6` or lower: maximum `17/20` and the verdict cannot be `PROD READY`.
+- Any architecture score of `2/6` or lower: maximum `12/20`.
 - Any untested high-risk behavior change in a repo with a test setup: maximum `15/20`.
 - If the diff cannot be inspected, do not fabricate a score. State what is missing and how to obtain it.
 
 ## Scoring Rubric
 
-Start from 20 and subtract for concrete code risks only:
+Start from 20 and subtract for concrete code risks only. Apply architecture deductions rigorously:
 
-- Architecture and boundaries: 4 points.
+- Architecture and boundaries: 6 points.
 - Correctness and regression risk: 4 points.
 - Security and privacy: 4 points.
-- Production readiness and reliability: 3 points.
-- Tests and verification: 3 points.
+- Production readiness and reliability: 2 points.
+- Tests and verification: 2 points.
 - Maintainability and best practices: 2 points.
 
 For frontend PRs, include user experience issues in the most relevant scored category. Responsiveness, broken layout, missing loading states, inaccessible controls, or unusable interaction states are concrete code risks, not polish, when they affect real user flows.
+
+Architecture and boundaries scoring guidance:
+
+- `6/6`: The diff clearly follows the actual architecture used by the touched area, uses the correct owners, reuses local abstractions, and preserves package/dependency direction.
+- `5/6`: One small, localized ownership or reuse weakness that is unlikely to spread and has an obvious fix.
+- `4/6`: Minor architecture drift or a missed existing abstraction, but the main ownership model and dependency direction remain intact.
+- `3/6`: Meaningful architecture drift, duplicated ownership, misplaced rules, or bypassed feature/shared abstractions. Treat this as a fix-before-merge risk.
+- `2/6`: Major boundary violation across owners or packages, or a diff that makes future work likely to duplicate business logic or bypass validation/security paths.
+- `1/6`: Severe architecture break that still has a narrow blast radius, such as a single high-risk owner inversion or app/shared dependency violation.
+- `0/6`: Severe architecture break that makes the system hard to operate safely, such as UI importing persistence-only code, core/shared contracts importing presentation/framework/runtime details, bypassed server authz, unsafe persistence ownership, or shared packages depending on app-local modules.
 
 Score bands:
 
@@ -218,11 +252,11 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 
 ### Score Breakdown
 
-- Architecture and boundaries: <x>/4
+- Architecture and boundaries: <x>/6
 - Correctness and regression risk: <x>/4
 - Security and privacy: <x>/4
-- Production readiness and reliability: <x>/3
-- Tests and verification: <x>/3
+- Production readiness and reliability: <x>/2
+- Tests and verification: <x>/2
 - Maintainability and best practices: <x>/2
 
 ### Improvement Plan
@@ -234,10 +268,11 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 ### Non-Scored Notes
 
 - <optional notes about PR metadata, missing context, or commands not run>
+- <mention the architecture style or local convention identified, plus relevant architecture skills loaded for this review, or `No relevant architecture skill was available/discovered.`>
 
 ### PM Follow-Up
 
-- <if this review promoted a draft PR to ready/open: ask whether to close associated issues or move associated tickets to done; otherwise write `Not applicable.`>
+- <if this review promoted a draft PR to ready/open: ask whether to merge the PR and close associated issues or move associated tickets to done; otherwise write `Not applicable.`>
 ```
 
 If there are no findings, write `No blocking or major findings found.` under `Findings`, then still provide the score breakdown and any residual risk.
