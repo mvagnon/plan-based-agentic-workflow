@@ -1,7 +1,7 @@
 interface:
   display_name: "Implement PM"
   short_description: "Implement PM tasks in the current checkout."
-  default_prompt: "Use $implement-pm to create one dedicated branch from the currently selected branch, preserve staged and unstaged checkout changes, open a draft PR whose description starts with the concerned task reference, then implement the referenced PM tasks directly in the current repository checkout."
+  default_prompt: "Use $implement-pm to create one dedicated branch from the currently selected branch, preserve staged and unstaged checkout changes, open a draft PR whose description starts with every concerned task reference and links every concerned GitHub issue natively, then implement the referenced PM tasks directly in the current repository checkout."
 dependencies:
   tools:
     - type: "mcp"

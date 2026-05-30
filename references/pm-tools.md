@@ -81,6 +81,14 @@ For GitHub:
 gh issue view <number-or-url> --repo <owner/repo> --json number,title,body,state,labels,assignees,milestone,comments,url
 ```
 
+When creating the implementation PR for GitHub Issues, connect the PR to every concerned issue with GitHub-native linked-issue syntax in the PR body. Use a supported closing keyword for each issue reference, for example:
+
+```markdown
+Resolves #123, resolves #124, resolves owner/other-repo#125
+```
+
+Do not use a bare issue list such as `#123 #124`, and do not write `Resolves #123, #124`; repeat the keyword for every issue so each issue is linked. This linkage is required PR metadata, not permission to add issue comments, labels, status changes, or manual closure during `implement-pm`.
+
 For Notion or other MCP tools, retrieve the equivalent title, body/content, status, comments, dependencies, and URL.
 
 Never implement from a title alone unless the user explicitly provides the full desired change in the prompt.

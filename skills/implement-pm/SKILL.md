@@ -39,7 +39,7 @@ Load these references when doing the corresponding part of the workflow:
 
 1. Identify the repository root and current remote.
 2. Resolve `pm_tool` and `project` with the same defaults as `feed-pm`.
-3. Fetch every referenced PM task, including title, body, labels/status, comments that change scope, dependencies, and linked tasks.
+3. Fetch every referenced PM task, including title, body, labels/status, comments that change scope, dependencies, and linked tasks. Preserve the complete resolved task set for the branch name, draft PR body, implementation scope, and final report; never collapse a multi-task invocation to the first task only.
 4. Refuse ambiguous task references. If a dependency is required but missing from the requested task set, explain the dependency and ask whether to include it.
 
 ### 2. Prepare The Branch And Draft PR
@@ -57,7 +57,10 @@ Before editing:
 - If a task body requires a different base branch than the currently selected branch, ask how to proceed unless the user already authorized branch changes.
 - If existing local changes overlap with the requested implementation, inspect them and work with them when possible. Ask only when the conflict makes safe implementation impossible.
 - Open a draft PR from the dedicated branch to the recorded source/base branch before implementation edits, unless the user explicitly authorized a different base.
-- Start the PR description with the concerned task reference: use one canonical identifier per task according to context, preferring the task or issue URL when available, otherwise the task ID or associated issue ID. Then detail the requested tasks, expected behavior, acceptance criteria, implementation plan, validation plan, and known risks or open questions.
+- Start the PR description with all concerned task references, one canonical identifier per task according to context, preferring the task or issue URL when available, otherwise the task ID or associated issue ID. Do not use a single representative task when several tasks or issues are in scope.
+- For GitHub Issues, link the draft PR to every concerned issue using GitHub-native linked-issue syntax in the PR description, not plain text only. Use a closing keyword for each issue reference, for example `Resolves #123, resolves #124` or `Resolves owner/repo#123, resolves owner/repo#124`; repeat the keyword for every issue instead of writing `Resolves #123, #124`. If the PR targets a non-default branch and GitHub will not create linked issues from closing keywords, use the available GitHub tooling to manually link every issue to the PR; if that cannot be done, stop before implementation and report the linking blocker. Treat this linkage as required PR metadata, while still avoiding separate issue comments, labels, status changes, or manual closure unless the user asks.
+- After the linked task block, detail the requested tasks, expected behavior, acceptance criteria, implementation plan, validation plan, and known risks or open questions.
+- After creating or updating the draft PR, re-read the PR body or PR metadata and confirm every resolved task is present. For GitHub Issues, confirm every concerned issue is represented in the linked-issue syntax or manual linked-issues metadata before starting implementation edits.
 - If the hosting provider cannot create a no-diff draft PR, create a single empty setup commit only to open the draft PR; do not include implementation changes in that commit.
 - If authentication, remote configuration, or the PM/Git hosting tool prevents draft PR creation, stop before implementation and report the blocker.
 

@@ -37,8 +37,10 @@ Before implementation edits:
 
 1. Push the dedicated branch.
 2. Open a draft PR against the recorded source/base branch unless the user explicitly authorized a different base.
-3. Start the PR description with the concerned task reference: use one canonical identifier per task according to context, preferring the task or issue URL when available, otherwise the task ID or associated issue ID.
-4. Write a detailed PR description covering expected behavior, acceptance criteria, implementation plan, validation plan, known risks, and open questions.
+3. Start the PR description with all concerned task references, using one canonical identifier per task according to context, preferring the task or issue URL when available, otherwise the task ID or associated issue ID. Do not shorten a multi-task invocation to one issue or task reference.
+4. For GitHub Issues, link the PR to every concerned issue using GitHub-native linked-issue syntax in the PR description, not plain text only. Use a closing keyword for each issue reference, for example `Resolves #123, resolves #124` or `Resolves owner/repo#123, resolves owner/repo#124`; repeat the keyword for every issue instead of writing `Resolves #123, #124`. If the PR targets a non-default branch and GitHub will not create linked issues from closing keywords, use available GitHub tooling to manually link every issue to the PR; if that cannot be done, stop before implementation and report the linking blocker. Treat this linkage as required PR metadata, while still avoiding separate issue comments, labels, status changes, or manual closure unless the user asks.
+5. Write a detailed PR description covering expected behavior, acceptance criteria, implementation plan, validation plan, known risks, and open questions.
+6. After creating or updating the draft PR, re-read the PR body or PR metadata and confirm every resolved task is present. For GitHub Issues, confirm every concerned issue is represented in the linked-issue syntax or manual linked-issues metadata before starting implementation edits.
 
 If the hosting provider cannot create a no-diff draft PR, create a single empty setup commit only to make the branch eligible for PR creation. Do not include implementation changes in that commit.
 

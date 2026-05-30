@@ -89,11 +89,12 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 1. Resolve exact PM task references.
 2. Check the current repository status and preserve staged, unstaged, and unrelated local changes.
 3. Create or switch to one dedicated branch from the currently selected branch for the invocation.
-4. Open a draft PR against that source branch with the concerned task reference at the top of the description.
-5. Implement directly in the current repository checkout.
-6. Use Serena MCP or targeted search to reuse existing code before adding new code.
-7. Run relevant checks from the target repository.
-8. Report repository path, branch, draft PR, changed files, checks, and remaining risks.
+4. Open a draft PR against that source branch with every concerned task reference at the top of the description.
+5. For GitHub Issues, link the PR to every concerned issue with GitHub-native linked-issue syntax, not plain text only.
+6. Implement directly in the current repository checkout.
+7. Use Serena MCP or targeted search to reuse existing code before adding new code.
+8. Run relevant checks from the target repository.
+9. Report repository path, branch, draft PR, changed files, checks, and remaining risks.
 
 ### Review With `review-pr`
 
