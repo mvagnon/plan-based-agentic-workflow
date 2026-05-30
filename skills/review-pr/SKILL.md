@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when a pull request exists, was just created, or the user intends to create, open, submit, merge, or review a PR in the plan-based agentic workflow. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline review comments for actionable fixes, marks high-scoring draft PRs ready for review, and asks for explicit approval before merging the PR and closing associated issues or moving tickets to done.
+description: Use when a pull request exists, was just created, or the user intends to create, open, submit, merge, or review a PR in the plan-based agentic workflow. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline review comments for actionable fixes, marks high-scoring draft PRs ready for review, and asks for explicit approval before merging the PR and closing associated issues or moving tickets to done. After approved merge and PM follow-up actions finish, it checks out the PR's base/default branch and pulls the latest changes.
 ---
 
 # Review PR
@@ -165,6 +165,9 @@ At the end of the review response:
 - If the user explicitly approves merging, use the available official tool for the context, such as `gh pr merge` for GitHub PRs. Respect branch protection, required checks, merge conflicts, and repository merge policy; if the host blocks merge, report the blocker and do not force it.
 - If the user explicitly approves PM closure/status updates, use the available official tool for the context, such as `gh issue close` for GitHub Issues, GitHub Projects field updates, Notion MCP status updates, or another configured PM tool. If GitHub closing keywords will close the issues automatically on merge, say that and avoid duplicate manual closure unless the user explicitly asks.
 - Report exactly which PR was merged and which issues or tickets were updated. If associated items are ambiguous, ask for the exact items instead of guessing.
+- After the explicitly approved merge and PM closure/status updates have completed successfully, return the local repository to the PR base branch and pull the latest changes from its upstream, for example with `git checkout <baseRefName>` followed by `git pull --ff-only`. Treat the PR base branch as the main branch for that PR; if no PR base is known, resolve the repository default branch first with an official tool such as `gh repo view --json defaultBranchRef` or `git remote show origin`.
+- If checkout or pull fails because of local changes, a missing branch, missing upstream, authentication, conflicts, or another blocker, report the exact command that failed and the blocker. Do not stash, reset, delete branches, or force-pull unless the user explicitly asks.
+- Include the checkout and pull result in the same follow-up response as the merge and PM update report.
 
 Do not offer merge or PM closure/status updates when the PR was already ready/open before this review, when the PR stayed draft, or when no PR exists.
 
@@ -276,6 +279,7 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 ### PM Follow-Up
 
 - <if this review promoted a draft PR to ready/open: ask whether to merge the PR and close associated issues or move associated tickets to done; otherwise write `Not applicable.`>
+- <after explicitly approved merge and PM updates have been performed: report the checkout to the PR base/default branch and pull result.>
 ```
 
 If there are no findings, write `No blocking or major findings found.` under `Findings`, then still provide the score breakdown and any residual risk.
