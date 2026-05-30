@@ -1,6 +1,6 @@
 # Implementation Protocol
 
-This protocol implements PM tasks directly in the current repository checkout while preserving unrelated local changes. Each invocation uses one dedicated branch and one draft PR.
+This protocol implements PM tasks directly in the current repository checkout while preserving unrelated local changes. Each invocation uses one dedicated branch and one draft PR. Use `review-pr` after implementation when the PR needs production-readiness review, PR body reconciliation, and possible promotion out of draft.
 
 ## Current Checkout Setup
 
@@ -112,4 +112,7 @@ Checks:
 
 Remaining:
 - <blocker/risk or "none">
+
+Next:
+- Run `review-pr pr="<url>"` when the draft PR is ready for production-readiness review.
 ```

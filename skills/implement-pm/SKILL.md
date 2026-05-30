@@ -75,7 +75,7 @@ Implementation rules:
 - Keep business logic in one place. If multiple tasks need the same rule or schema, implement the shared foundation once.
 - Keep handlers/controllers thin, validate at boundaries, and enforce server-side authorization for protected operations.
 - Before committing or pushing implementation changes, review the diff and stage only changes that belong to this invocation. Leave unrelated concurrent user edits unstaged unless the user explicitly includes them.
-- Do not add dependencies, create logs, mark PRs ready, merge PRs, or update PM statuses unless explicitly requested.
+- Do not add dependencies, create logs, mark PRs ready, merge PRs, or update PM statuses unless explicitly requested. Use `review-pr` as the normal follow-up for PR review and draft-to-ready promotion.
 - Do not create tests by default. Add or update tests only when the task/user/project explicitly requires them or when directly affected existing tests must change.
 
 ### 4. Verify
@@ -95,5 +95,6 @@ Finish with:
 - Checks run and results.
 - Files changed.
 - Known risks, skipped items, and any PM task comments/status changes made.
+- Suggested next command: `review-pr pr="<draft-pr-url>"`.
 
 Do not switch away from the invocation branch, mark the PR ready, merge, or update PM statuses unless the user asks.
