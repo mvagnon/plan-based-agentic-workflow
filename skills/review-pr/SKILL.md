@@ -7,23 +7,13 @@ description: Use when a pull request exists and the user intends to polish or me
 
 ## Purpose
 
-Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes. Use `fix-pr` as the follow-up skill for implementing fixes, clarifying review comments, and resolving PR conversations. For production-ready PRs, propose merge finalization and perform it only after explicit user approval.
+Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes.
+
+Use `fix-pr` as the follow-up skill for implementing fixes, clarifying review comments, and resolving PR conversations. For production-ready PRs, propose merge finalization and perform it only after explicit user approval.
 
 This skill is intentionally side-effectful for real PR reviews: it may update the PR body, submit one PR review with inline comments, resolve stale conversations that are already addressed by the current diff, mark strong draft PRs ready according to the rules below, and complete an explicitly approved production-ready merge finalization.
 
 Be especially strict about architecture in the diff. Changed code must respect existing boundaries, dependency direction, ownership model, naming, shared abstractions, and framework-specific conventions. Treat architecture drift as a production-readiness risk, not a style preference.
-
-## Trigger Discipline
-
-Use this skill immediately when:
-
-- A PR is created or already exists.
-- The user asks to create, open, submit, publish, or review a PR.
-- The user asks for a strict review, security review, architecture review, prod-ready check, merge readiness check, or best-practices review.
-- The user asks to merge a PR after review or says to merge if it is production-ready.
-- The user is continuing the plan-based agentic workflow after `implement-pm`.
-
-If the user is creating a PR, review the code diff before the final PR response whenever possible. If the PR was already created, review the created PR diff.
 
 ## Input Contract
 
@@ -33,10 +23,19 @@ Read the arguments below or equivalent invocation input as a loose key-value con
 
 Infer:
 
-- `PR`: optional. Accept a PR URL, PR number, or branch name. If omitted, infer the PR from the current branch with `gh pr view`.
-- `Repository`: optional. Accept an URL, `owner/repo` or infer it from the current git remote.
+- `PR`: optional. Accept a PR URL, PR number, or branch name. If omitted, infer the PR from the current branch.
+- `Repository`: optional. Accept a URL or repository identifier. Infer it from repository context when safe.
 
 Ask one concise question only when the PR cannot be resolved or multiple PRs match the provided input.
+
+## Required References
+
+Load these bundled references as needed:
+
+- `references/github-pr-review.md`: concrete PR metadata, diff, checks, prior comments, review-thread, PR-body reconciliation, review submission, and ready-for-review mechanics.
+- `references/merge-finalization.md`: final state checks, merge commands, non-GitHub PM completion rules, and post-merge checkout mechanics.
+
+References are intentionally technical. Keep the skill body focused on review policy and consult the references for commands, payloads, and tool-specific details.
 
 ## Non-Scored Scope
 
@@ -55,31 +54,35 @@ If a PR description exists, use it as the stated implementation contract. Do not
 
 Before scoring:
 
-1. Check `git status --short` in the PR repository before reading or reviewing the diff.
-2. If there are any local changes, including staged, unstaged, or untracked non-ignored files, commit and push all of them before continuing. Stage every local change with the repository's normal Git workflow, create a concise commit that describes the pending work, and push the current branch to its upstream or the PR head remote. Do not proceed to diff inspection, PR description reconciliation, scoring, comments, readiness promotion, merge, or PM follow-up until the working tree is clean and the commit has been pushed.
-3. If commit or push fails because of conflicts, missing identity, missing upstream, rejected push, authentication, failing pre-commit hooks, branch protection, or any other blocker, stop the review flow and report the blocker with the exact command that failed. Do not silently skip local changes or review an unpushed worktree.
-4. Identify the diff source: `gh pr diff`, `gh pr view`, or a committed branch comparison such as `git diff <base>...HEAD` when no PR exists yet.
-5. When a PR exists, read its title, body, draft state, URL, base, and head, for example with `gh pr view --json number,title,body,url,isDraft,baseRefName,headRefName`.
-6. Read unresolved review threads, issue comments, and prior review comments before adding a new review. If a prior concern is already resolved by the current diff, resolve the conversation when the API supports it or add a concise explanation when resolution is unavailable. If it is still unresolved and has no clear explanation, carry it into the new findings instead of duplicating stale comments.
+1. Check local repository status before reading or reviewing the diff.
+2. If there are any local changes, including staged, unstaged, or untracked non-ignored files, commit and push all of them before continuing. Do not proceed to diff inspection, PR description reconciliation, scoring, comments, readiness promotion, merge, or PM follow-up until the working tree is clean and pushed.
+3. If commit or push fails because of conflicts, missing identity, missing upstream, rejected push, authentication, failing hooks, branch protection, or another blocker, stop the review flow and report the blocker with the exact failed operation.
+4. Identify the diff source from the PR when one exists, or from a committed branch comparison when no PR exists yet.
+5. When a PR exists, read title, body, draft state, URL, base, and head.
+6. Read unresolved review threads, issue comments, and prior review comments before adding a new review. Resolve only prior concerns already addressed by the current diff or fully explained by existing discussion.
 7. Use Serena MCP for changed-file and nearby-symbol exploration. If Serena is unavailable, stop and report the missing required dependency instead of scoring the PR from local search alone.
-8. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant `README.md` files.
-9. Identify the actual architecture style or styles used by the touched area before judging the diff. It may be hexagonal, clean architecture, MVC, feature-sliced, vertical slice, modular monolith, framework-native routing, package-based component architecture, a custom project convention, or a mix. Do not assume `domain`/`application`/`infrastructure` layers unless the repository actually uses them.
-10. Discover and load any available architecture skills that match the actual touched architecture before judging architecture. Examples include hexagonal/clean architecture skills only when those layers exist, React/frontend architecture skills for feature and hook boundaries, monorepo/Turborepo skills for package-boundary changes, design-system skills for UI package/theme/component-library changes, framework skills for routing/data-fetching layers, and domain-specific integration skills such as payments when touched. If a relevant architecture skill exists, consult it before scoring. If discovery is unavailable or no relevant skill exists, say so briefly and proceed from repo evidence.
+8. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant package docs.
+9. Identify the actual architecture style or local convention used by the touched area before judging the diff.
+10. Discover and load any available architecture skills that match the actual touched architecture before judging architecture.
 11. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
 12. Prefer existing project conventions over generic preferences.
 13. If architecture must be inferred from code, say it is an inference and name the evidence used.
 
-Do not invent architecture rules, and do not force hexagonal or layered expectations onto a repo that uses a different architecture. If the repo has no explicit architecture documentation, judge against the actual boundaries and patterns visible in the codebase, and use relevant architecture skills only to interpret those boundaries more rigorously.
+Use `references/github-pr-review.md` for concrete metadata, diff, checks, prior discussion, review thread, and PR update operations.
 
-When reviewing architecture, explicitly verify the diff against:
+## Architecture Review Standard
+
+Do not invent architecture rules, and do not force layered expectations onto a repository that uses a different architecture. If the repo has no explicit architecture documentation, judge against the actual boundaries and patterns visible in the codebase, and use relevant architecture skills only to interpret those boundaries more rigorously.
+
+Explicitly verify:
 
 - Architecture identification: name the architecture style or local convention that governs the changed area before assigning architecture points.
-- Ownership boundaries: the project’s actual owners for routes/controllers, pages/views, components, hooks, state, services/use cases, models/entities, schemas/DTOs, repositories/adapters, persistence, integrations, shared packages, and design-system primitives. Use only the owners that exist in this repo.
-- Dependency direction: enforce the dependency rules implied by the actual architecture. For example, core/shared contracts must not import app-local UI, runtime adapters, framework request objects, or persistence details unless the repo already establishes that pattern; feature, route, MVC, or framework-native structures must not bypass their established owners.
-- Business-rule placement: validations, permission checks, transformations, formatting, query keys, DTO mapping, and workflow rules stay in their existing owners and are not duplicated into UI, route, controller, or other orchestration code unless that is the established owner.
+- Ownership boundaries: the project's actual owners for routes/controllers, pages/views, components, hooks, state, services/use cases, models/entities, schemas/DTOs, repositories/adapters, persistence, integrations, shared packages, and design-system primitives.
+- Dependency direction: enforce dependency rules implied by the actual architecture.
+- Business-rule placement: validations, permission checks, transformations, formatting, query keys, DTO mapping, and workflow rules stay in their existing owners.
 - Shared abstraction reuse: existing components, hooks, repositories, services, schemas, utilities, tokens, and variants are reused or extended instead of recreated.
 - Package boundaries: shared packages do not import app-local code; app features do not bypass shared package/public exports; cross-package changes remain compatible with all consumers.
-- Framework conventions: data fetching, routing, mutations, loading/error states, and server actions follow the project’s established patterns.
+- Framework conventions: data fetching, routing, mutations, loading/error states, and server actions follow the project's established patterns.
 - File/module shape: new files belong in the owning area, module, package, or framework location, use local naming conventions, and avoid generic abstractions whose only consumer is the current diff.
 
 ## Review Standard
@@ -88,76 +91,32 @@ Review as if the code will be deployed to production immediately after merge.
 
 Check at least:
 
-- PR description alignment when applicable: stated goals, acceptance criteria, exclusions, validation plan, and whether the diff implements the promised scope without adding risky unannounced behavior.
-- Architecture: boundaries, ownership model, feature/module ownership, data flow, public APIs, dependency direction, reuse of existing patterns. This is a hard review axis: a diff that violates the repo’s architecture should lose meaningful score even when behavior appears to work.
-- Correctness: business logic, edge cases, regressions, error paths, async/race behavior, idempotency, migrations, backwards compatibility.
-- Security: authentication, authorization, multi-tenancy isolation, input validation, injection, XSS, CSRF, SSRF, path traversal, file uploads, secrets, PII, logging, webhook verification, payment integrity, rate limits.
-- Production readiness: observability, explicit errors, retries/timeouts where appropriate, transactional consistency, resource cleanup, N+1 queries, performance cliffs, rollout and rollback safety.
-- Tests and verification: behavior coverage for changed logic, meaningful assertions, migration tests, security-sensitive tests, relevant static checks.
-- Maintainability: clear names, type safety, dead code, duplication, unnecessary abstractions, hidden side effects, consistency with local style.
-- Frontend impact when applicable: user experience, loading/error/empty/disabled states, accessibility, responsive behavior, state ownership, no fragile UI assumptions.
+- PR description alignment when applicable;
+- architecture, boundaries, ownership model, feature/module ownership, data flow, public APIs, dependency direction, and reuse of existing patterns;
+- correctness, edge cases, regressions, error paths, async/race behavior, idempotency, migrations, and backwards compatibility;
+- security, authentication, authorization, multi-tenancy isolation, input validation, injection, XSS, CSRF, SSRF, path traversal, file uploads, secrets, PII, logging, webhook verification, payment integrity, and rate limits;
+- production readiness, observability, explicit errors, retries/timeouts where appropriate, transactional consistency, resource cleanup, obvious query cliffs, rollout, and rollback safety;
+- tests and verification for changed behavior;
+- maintainability, names, type safety, dead code, duplication, unnecessary abstractions, hidden side effects, and consistency with local style;
+- frontend UX when applicable: responsive behavior, loading/error/empty/disabled states, accessibility, state ownership, and layout stability.
 
-For architecture-heavy diffs, be skeptical by default. Do not award near-full architecture points unless you can name the governing architecture or local convention and verify that the changed files belong to the right owners. A change is not production-ready if it works by bypassing the established architecture, duplicating ownership, weakening package boundaries, or placing future changes in the wrong place. Prefer a lower score with clear refactoring instructions over accepting architecture drift as harmless.
+For architecture-heavy diffs, be skeptical by default. Do not award near-full architecture points unless you can name the governing architecture or local convention and verify that the changed files belong to the right owners.
 
-For frontend changes, explicitly verify and note the user experience:
+For frontend changes, explicitly verify and note responsiveness, loading states, duplicate-submit protection, error/empty/disabled/hover/focus/active states, text/control overflow, keyboard access, focus visibility, labels, semantic elements, contrast, and screen-reader-friendly feedback.
 
-- Responsiveness across mobile, tablet, and desktop breakpoints affected by the diff.
-- Loading states that match the interaction scale:
-  - Buttons and small components use spinners.
-  - Medium and large components use skeletons that preserve layout stability.
-  - Whole pages use a top loading bar, mostly for SSR/page transitions, when the project has that pattern.
-- Async actions disable unsafe duplicate submissions and keep visible feedback.
-- Error, empty, disabled, hover, focus, and active states are handled intentionally.
-- Text, controls, dialogs, tables, and cards do not overflow, overlap, jump, or become unusable on narrow screens.
-- Accessibility basics are preserved: keyboard access, focus visibility, labels, semantic elements, contrast, and screen-reader-friendly loading/error feedback.
+## PR Updates
 
-## PR Description Reconciliation And Review Comments
+When a PR exists, reconcile its description after inspecting the diff and before finishing. Preserve author content; only replace sections previously generated by this skill.
 
-When a PR exists, update its description after inspecting the diff and before finishing. Preserve the author's original content; only replace sections previously generated by this skill.
+Use `references/github-pr-review.md` for the exact reconciliation block and PR body update mechanics.
 
-Use a generated reconciliation block near the end of the PR body:
+Before posting new review comments:
 
-```markdown
-<!-- review-pr:reconciliation:start -->
+- resolve only conversations that are already addressed by the current diff or fully explained by existing discussion;
+- do not resolve conversations that still need code changes, reviewer confirmation, or user decisions;
+- avoid posting duplicate inline comments for a concern already present in an unresolved thread.
 
-## Review PR Reconciliation
-
-### Additional Completed Work
-
-- <behavior or file area present in the diff but missing from the PR description>
-
-### Not Completed
-
-- ~~<promised task, checklist item, acceptance criterion, or scope item not implemented by the diff>~~ - <short factual reason>
-<!-- review-pr:reconciliation:end -->
-```
-
-Rules:
-
-- If the current PR body already matches the diff, either omit the reconciliation block or replace an old block with `No description drift detected.`
-- If extra work was done beyond the existing PR description, add it under `Additional Completed Work`.
-- If promised tasks, checklist items, or acceptance criteria were not done, mention them under `Not Completed` and strike them through with Markdown `~~...~~`. Do not delete or rewrite the original task text elsewhere in the PR body.
-- Keep the reconciliation factual. Do not invent intent, and do not use it to hide risk.
-- Use `gh pr edit <number-or-url> --body-file <file>` or an equivalent official PR tool to write the updated body.
-- Do not add the review summary, score, or line-level findings to the PR description. If a legacy `review-pr:recap` block generated by this skill already exists in the PR body, remove it while preserving non-generated author content.
-
-Before posting new review comments, account for prior unresolved conversations:
-
-- Resolve only conversations that are already addressed by the current diff or fully explained by existing discussion.
-- Do not resolve conversations that still need code changes, reviewer confirmation, or user decisions.
-- Avoid posting duplicate inline comments for a concern already present in an unresolved thread; reference or carry forward the existing concern in the top-level review instead.
-
-After the review is complete, submit exactly one PR review comment with the score and a few high-signal details:
-
-```markdown
-Review score: <N>/20 - <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
-
-<2-4 bullets max: main risks, checks reviewed, or `No blocking or major findings found.`>
-```
-
-Prefer a single official PR review submission with `event=COMMENT`, a concise review `body`, and inline `comments` when line comments are needed. For GitHub, use the Pull Request Reviews API through `gh api /repos/<owner>/<repo>/pulls/<number>/reviews` with a JSON payload containing `event`, `body`, and `comments`, or an equivalent MCP/hosting tool. If the review API is unavailable, use `gh pr comment <number-or-url> --body-file <file>` for the score/details comment and report that inline comments could not be posted.
-
-For each actionable finding that can be anchored to a changed line, add an inline PR review comment on the most relevant line.
+After the review is complete, submit exactly one PR review comment with the score and a few high-signal details. Add inline PR review comments for actionable findings that can be anchored to changed lines.
 
 Inline comment rules:
 
@@ -168,9 +127,9 @@ Inline comment rules:
 - If a finding cannot be anchored to a changed line, include it in the top-level PR comment instead of forcing a line comment.
 - Avoid duplicate inline comments for the same finding in the same review run.
 
-If the final score is strictly greater than `18/20` and the PR is still a draft, mark it ready for review with `gh pr ready <number-or-url>` or the equivalent official tool. Do not mark PRs ready when the score is `18/20` or lower, when the score could not be produced, or when no PR exists.
+If the final score is strictly greater than `18/20` and the PR is still a draft, mark it ready for review. Do not mark PRs ready when the score is `18/20` or lower, when the score could not be produced, or when no PR exists.
 
-Do not implement fixes from this skill. Resolve review conversations only when they are already addressed or fully clarified before this review. When the review finds actionable feedback, recommend `fix-pr` as the follow-up from the PR branch.
+Do not implement fixes from this skill. When the review finds actionable feedback, recommend `fix-pr` as the follow-up from the PR branch.
 
 ## Approved Merge Finalization
 
@@ -181,16 +140,9 @@ Merge finalization is allowed only when all of these are true:
 - the user explicitly approved merge/finalization in the current request or after seeing the review result;
 - the final pre-merge state still has no blockers.
 
-If the PR is `PROD READY` but approval is missing, do not merge. In the final `Next Step`, propose that the user approve finalization to merge the PR, update non-GitHub PM tasks to `Done` when applicable, then checkout the PR base branch and pull.
+If the PR is `PROD READY` but approval is missing, do not merge. Propose approval-gated finalization in the output.
 
-When approval is present, perform this sequence:
-
-1. Re-read the PR state, draft state, mergeability/check status when available, base ref, head ref, and body immediately before merging. Do not merge if the PR is closed, not mergeable, still draft after the ready step, has required failing checks, or has new blocking review feedback.
-2. For PRs linked to GitHub Issues, rely on the GitHub-native closing keywords or linked-issue metadata created by `implement-pm`; do not manually close issues as a separate action.
-3. For PRs linked to Notion or another non-GitHub PM tool, extract every concerned task URL from the PR description before merging, inspect the PM schema/status values, and confirm a safe `Done` target exists. If any concerned task URL or `Done` status cannot be resolved safely, stop before merging and report the missing PM finalization data instead of guessing.
-4. Merge the PR with official GitHub tooling, normally `gh pr merge <number-or-url>`, using the repository/default merge behavior unless the user requested a specific merge method. Do not use admin, force, or branch deletion flags unless the user explicitly requested them.
-5. After a successful merge, move every non-GitHub concerned PM task to `Done` using the discovered PM tool/status field. If a PM update fails after merge, report the exact task URL and failure; do not invent a substitute status.
-6. Checkout the PR base branch and pull from its upstream, for example `git checkout <base-ref>` then `git pull --ff-only`. If local changes would make checkout or pull unsafe, stop and report the blocker without stashing, overwriting, or resetting.
+When approval is present, use `references/merge-finalization.md` for final state checks, GitHub Issue handling, non-GitHub PM completion, merge, and post-merge checkout mechanics.
 
 ## Severity Rules
 
@@ -247,7 +199,7 @@ Score bands:
 - `8-11`: high-risk PR. Merge should be blocked.
 - `0-7`: severe production or security risk.
 
-Do not award points for PR description quality. Do not remove points for PR size. When the implementation and PR description disagree, score the resulting code risk in the most relevant category, usually correctness, tests and verification, or maintainability.
+Do not award points for PR description quality. Do not remove points for PR size. When implementation and PR description disagree, score the resulting code risk in the most relevant category.
 
 ## Output Format
 
@@ -271,20 +223,15 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 
 ### PR Updates
 
-- <summarize PR description reconciliation changes, top-level score/details comment creation, inline review comments added, and whether the PR was marked ready for review; for no PR, write `No PR body updates or comments applied.`>
+- <summarize PR description reconciliation changes, top-level score/details comment creation, inline review comments added, stale thread resolution, and whether the PR was marked ready; for no PR, write `No PR body updates or comments applied.`>
 
 ### Finalization
 
-Write exactly one bullet:
-
-- <if verdict is `PROD READY` and approval was not provided: `Approval needed to merge <url>, update non-GitHub PM tasks to Done when applicable, then checkout <base-ref> and pull.`>
-- <if verdict is `PROD READY` and approval was provided: summarize merge result, non-GitHub PM task status updates, checkout, and pull>
-- <if verdict is `PROD READY` and approval was provided but finalization was blocked: summarize the blocker and whether merge did or did not happen>
-- <if verdict is not `PROD READY`: `Not run because the PR is not production-ready.`>
+- <merge/finalization result, approval needed, blocker, or `Not run because the PR is not production-ready.`>
 
 ### Frontend UX Notes
 
-- <required for frontend PRs: responsiveness, loading states, interaction states, accessibility, and layout stability summary; for non-frontend PRs, write `Not applicable.`>
+- <required for frontend PRs; for non-frontend PRs, write `Not applicable.`>
 
 ### Score Breakdown
 
@@ -303,19 +250,13 @@ Write exactly one bullet:
 
 ### Non-Scored Notes
 
-- <optional notes about PR metadata, missing context, or commands not run>
-- <mention the architecture style or local convention identified, plus relevant architecture skills loaded for this review, or `No relevant architecture skill was available/discovered.`>
+- <optional notes about PR metadata, missing context, commands not run, architecture style identified, and relevant architecture skills loaded>
 
 ### Next Step
 
-Write exactly one bullet:
-
-- <if verdict is `FIX BEFORE MERGE` or `DO NOT MERGE`: `Run fix-pr from the PR branch to implement fixes or clarify reviewer comments.`>
-- <if verdict is `PROD READY` and approval was not provided: `Approve finalization to merge <url>, update non-GitHub PM tasks to Done when applicable, then checkout <base-ref> and pull.`>
-- <if verdict is `PROD READY` and approved finalization completed: `None.`>
-- <if verdict is `PROD READY` and approved finalization was blocked: state the exact blocker to resolve, then rerun or approve finalization again>
+- <exactly one next step>
 ```
 
-If there are no findings, write `No blocking or major findings found.` under `Findings`, then still provide the score breakdown and any residual risk.
+If there are no findings, write `No blocking or major findings found.` under `Findings`, then still provide the score breakdown and residual risk.
 
-Keep findings specific and code-grounded. Prefer file and line references. Avoid vague advice such as "improve quality" unless tied to a concrete code path.
+Keep findings specific and code-grounded. Prefer file and line references. Avoid vague advice unless tied to a concrete code path.

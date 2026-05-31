@@ -9,6 +9,8 @@ Agent Skills for a plan-first development workflow:
 
 The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
 
+Each skill follows the standard Agent Skills layout: `SKILL.md` contains the workflow and safety rules, while bundled resources live inside the same skill directory. Technical references are intentionally stored under `skills/<skill-name>/references/` so copying or symlinking one skill directory imports the references it needs.
+
 ## Prerequisites
 
 Required:
@@ -27,20 +29,33 @@ plan-based-agentic-workflow/
 |-- .claude-plugin/
 |   `-- plugin.json
 |-- README.md
-|-- references/
-|   |-- implementation-protocol.md
-|   |-- pm-tools.md
-|   |-- serena-codebase-analysis.md
-|   `-- task-specification.md
 `-- skills/
     |-- feed-pm/
-    |   `-- SKILL.md
+    |   |-- SKILL.md
+    |   |-- agents/
+    |   `-- references/
+    |       |-- codebase-analysis.md
+    |       |-- pm-tools.md
+    |       `-- task-specification.md
     |-- implement-pm/
-    |   `-- SKILL.md
+    |   |-- SKILL.md
+    |   |-- agents/
+    |   `-- references/
+    |       |-- implementation-git-github.md
+    |       |-- pm-task-retrieval.md
+    |       `-- verification.md
     |-- review-pr/
-    |   `-- SKILL.md
+    |   |-- SKILL.md
+    |   |-- agents/
+    |   `-- references/
+    |       |-- github-pr-review.md
+    |       `-- merge-finalization.md
     `-- fix-pr/
-        `-- SKILL.md
+        |-- SKILL.md
+        |-- agents/
+        `-- references/
+            |-- github-feedback.md
+            `-- remediation-git-github.md
 ```
 
 For runners that scan a `skills/` directory, point them at this repository or copy/symlink the four skill directories. For Claude Code, the `.claude-plugin/plugin.json` manifest enables plugin installation and namespaced skill invocation. The core workflow does not depend on the Claude plugin manifest.
@@ -56,7 +71,7 @@ pm_tool=<github|notion|other> project=<repo|project-url|database> tasks="<scope 
 Defaults:
 
 - `pm_tool`: `github`
-- `project`: inferred from the current repository git remote when possible
+- `project`: inferred from the current repository remote when possible
 - `tasks`: required for `feed-pm` and `implement-pm` unless the user message already contains the full scope
 - `pr`: optional for `review-pr` and `fix-pr`; infer it from the current branch when omitted
 - `scope`: optional for `fix-pr`; defaults to all unresolved actionable feedback
@@ -144,7 +159,15 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 
 ## Bundled References
 
-- `references/serena-codebase-analysis.md`: semantic exploration protocol and fallbacks.
-- `references/task-specification.md`: issue body template and task decomposition rubric.
-- `references/pm-tools.md`: GitHub, Notion, and other PM tool conventions.
-- `references/implementation-protocol.md`: current-checkout implementation, verification, and reporting protocol.
+References are bundled per skill, not at the repository root. This matches the standard skill resource model and keeps symlinked/imported skill directories self-contained.
+
+- `skills/feed-pm/references/codebase-analysis.md`: Serena startup, evidence collection, and responsibility-map mechanics.
+- `skills/feed-pm/references/task-specification.md`: proposal table, issue template, task sizing, and quality checklist.
+- `skills/feed-pm/references/pm-tools.md`: GitHub, Notion, and other PM task creation mechanics.
+- `skills/implement-pm/references/pm-task-retrieval.md`: exact PM task retrieval and dependency resolution.
+- `skills/implement-pm/references/implementation-git-github.md`: branch, draft PR, linkage, staging, commit, and push mechanics.
+- `skills/implement-pm/references/verification.md`: check-command discovery and verification reporting.
+- `skills/review-pr/references/github-pr-review.md`: PR inspection, review threads, body reconciliation, review submission, and ready-for-review mechanics.
+- `skills/review-pr/references/merge-finalization.md`: final state checks, merge, PM completion, and post-merge checkout mechanics.
+- `skills/fix-pr/references/github-feedback.md`: feedback collection and ledger template.
+- `skills/fix-pr/references/remediation-git-github.md`: checkout, remediation commit/push, thread replies, resolution, and fallback comment mechanics.
