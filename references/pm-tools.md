@@ -92,3 +92,9 @@ Do not use a bare issue list such as `#123 #124`, and do not write `Resolves #12
 For Notion or other MCP tools, retrieve the equivalent title, body/content, status, comments, dependencies, and URL.
 
 Never implement from a title alone unless the user explicitly provides the full desired change in the prompt.
+
+## Completion After Approved Merge
+
+For GitHub Issues, prefer PR closing keywords and linked-issue metadata. During approved `review-pr` merge finalization, do not manually close GitHub Issues as a separate PM action.
+
+For Notion or other non-GitHub PM tools, use the task URLs recorded in the PR description by `implement-pm`. Before merging, inspect the target schema/status options and confirm that a `Done` value or equivalent completed state exists. If the concerned task URLs or completed status cannot be resolved safely, stop before merging and ask for the missing PM target/status instead of guessing.

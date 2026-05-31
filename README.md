@@ -4,8 +4,8 @@ Agent Skills for a plan-first development workflow:
 
 - `feed-pm`: analyze a repository with Serena MCP, clarify remaining non-discoverable intent and tradeoffs, decompose requested work, and draft reviewable technical PM tasks.
 - `implement-pm`: fetch approved PM tasks, create one dedicated branch from the currently selected branch, open a draft PR per invocation, then implement the requested work directly in the current repository checkout while preserving staged and unstaged changes.
-- `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, resolve stale already-addressed conversations, add a concise score/details comment plus inline action comments, and mark strong draft PRs ready for review.
-- `fix-pr`: analyze PR review feedback, use Plan-mode structured clarification when available for ambiguous fixes, apply focused fixes, push the PR branch, and reply to or resolve handled review conversations.
+- `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, resolve stale already-addressed conversations, add a concise score/details comment plus inline action comments, mark strong draft PRs ready for review, and propose or perform approval-gated merge finalization for production-ready PRs.
+- `fix-pr`: infer the PR from the current branch, analyze PR review feedback, use Plan-mode structured clarification when available for ambiguous fixes, apply focused fixes, push the PR branch, and reply to or resolve handled review conversations.
 
 The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
 
@@ -58,7 +58,7 @@ Defaults:
 - `pm_tool`: `github`
 - `project`: inferred from the current repository git remote when possible
 - `tasks`: required for `feed-pm` and `implement-pm` unless the user message already contains the full scope
-- `pr`: optional for `review-pr`; infer it from the current branch when omitted
+- `pr`: optional for `review-pr` and `fix-pr`; infer it from the current branch when omitted
 - `scope`: optional for `fix-pr`; defaults to all unresolved actionable feedback
 
 Examples:
@@ -72,11 +72,11 @@ implement-pm pm_tool=github project=owner/repo tasks="#123 #124 #125"
 ```
 
 ```text
-review-pr pr="https://github.com/owner/repo/pull/456"
+review-pr
 ```
 
 ```text
-fix-pr pr="https://github.com/owner/repo/pull/456" scope="all review comments"
+fix-pr
 ```
 
 ## Workflow
@@ -116,12 +116,14 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
    - add unfinished promised work as struck-through items without deleting the original text.
 6. Add one concise score/details PR comment and inline review comments for actionable fixes, not review details in the PR body.
 7. If the final score is greater than `18/20`, mark a draft PR ready for review.
-8. If fixes or clarifications are needed, recommend `fix-pr pr="<url>"`.
-9. Report score, verdict, findings, PR body updates, PR comments, checks reviewed, and residual risks.
+8. If fixes or clarifications are needed, recommend `fix-pr` from the PR branch.
+9. If the PR is production-ready but merge approval is missing, propose finalization: merge the PR, update non-GitHub PM tasks to `Done` when applicable, then checkout the PR base branch and pull.
+10. If merge approval is present, re-check the PR state, merge with GitHub tooling, update non-GitHub PM tasks to `Done`, then checkout the PR base branch and pull.
+11. Report score, verdict, findings, PR body updates, PR comments, finalization status, checks reviewed, and residual risks.
 
 ### Fix Review Feedback With `fix-pr`
 
-1. Resolve the PR from the current branch, PR URL, PR number, or branch name.
+1. Resolve the PR from the current branch by default; use a PR URL, PR number, or branch name only when provided as an override.
 2. Read the PR body, diff, checks, reviews, issue comments, review comments, unresolved review threads, and cited lines.
 3. Build a feedback ledger that maps every actionable comment to a code fix, clarification, already-fixed status, obsolete status, or user decision.
 4. Use Plan-mode structured clarification when available for ambiguous fixes, or ask concise chat questions only when a user decision is required.
@@ -135,9 +137,9 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 
 - `feed-pm` must not create, edit, label, or move PM items before explicit post-proposal approval.
 - `implement-pm` must create its invocation branch from the currently selected branch and preserve staged, unstaged, and unrelated local changes in the current checkout.
-- `review-pr` is intentionally side-effectful: it may edit the PR body, add review comments, resolve stale already-addressed conversations, and mark a draft PR ready only as described by its review workflow.
+- `review-pr` is intentionally side-effectful: it may edit the PR body, add review comments, resolve stale already-addressed conversations, mark a draft PR ready, and complete explicitly approved merge finalization only as described by its review workflow.
 - `fix-pr` may commit and push focused remediation changes, reply to review feedback, and resolve handled review threads. It must not merge PRs, close issues, mark PM items done, or mark PRs ready unless explicitly requested.
-- No skill should add dependencies, create logs, merge PRs, or update PM statuses unless explicitly requested.
+- No skill should add dependencies, create logs, merge PRs, or update PM statuses unless explicitly requested. For `review-pr`, explicit merge/finalization approval may be given before the review or after a `PROD READY` result.
 - Tests are not created by default. Existing tests may be updated only when directly affected or explicitly required by the task.
 
 ## Bundled References

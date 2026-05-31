@@ -101,6 +101,6 @@ Finish with:
 - Checks run and results.
 - Files changed.
 - Known risks, skipped items, and any PM task comments/status changes made.
-- Suggested next command: `review-pr pr="<draft-pr-url>"`.
+- Suggested next command: `review-pr` from the PR branch.
 
 Do not switch away from the invocation branch, mark the PR ready, merge, or update PM statuses unless the user asks.

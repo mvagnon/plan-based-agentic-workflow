@@ -1,15 +1,15 @@
 ---
 name: review-pr
-description: Use when a pull request exists, was just created, or the user intends to create, open, submit, publish, or review a PR in the plan-based agentic workflow. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline review comments for actionable fixes, and marks high-scoring draft PRs ready for review.
+description: Use when a pull request exists, was just created, or the user intends to create, open, submit, publish, review, or merge a PR in the plan-based agentic workflow. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs.
 ---
 
 # Review PR
 
 ## Purpose
 
-Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes. Use `fix-pr` as the follow-up skill for implementing fixes, clarifying review comments, and resolving PR conversations.
+Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes. Use `fix-pr` as the follow-up skill for implementing fixes, clarifying review comments, and resolving PR conversations. For production-ready PRs, propose merge finalization and perform it only after explicit user approval.
 
-This skill is intentionally side-effectful for real PR reviews: it may update the PR body, submit one PR review with inline comments, resolve stale conversations that are already addressed by the current diff, and mark strong draft PRs ready according to the rules below.
+This skill is intentionally side-effectful for real PR reviews: it may update the PR body, submit one PR review with inline comments, resolve stale conversations that are already addressed by the current diff, mark strong draft PRs ready according to the rules below, and complete an explicitly approved production-ready merge finalization.
 
 Be especially strict about architecture in the diff. Changed code must respect existing boundaries, dependency direction, ownership model, naming, shared abstractions, and framework-specific conventions. Treat architecture drift as a production-readiness risk, not a style preference.
 
@@ -20,6 +20,7 @@ Use this skill immediately when:
 - A PR is created or already exists.
 - The user asks to create, open, submit, publish, or review a PR.
 - The user asks for a strict review, security review, architecture review, prod-ready check, merge readiness check, or best-practices review.
+- The user asks to merge a PR after review or says to merge if it is production-ready.
 - The user is continuing the plan-based agentic workflow after `implement-pm`.
 
 If the user is creating a PR, review the code diff before the final PR response whenever possible. If the PR was already created, review the created PR diff.
@@ -162,7 +163,27 @@ Inline comment rules:
 
 If the final score is strictly greater than `18/20` and the PR is still a draft, mark it ready for review with `gh pr ready <number-or-url>` or the equivalent official tool. Do not mark PRs ready when the score is `18/20` or lower, when the score could not be produced, or when no PR exists.
 
-Do not implement fixes, merge PRs, close linked issues, or update PM statuses from this skill. Resolve review conversations only when they are already addressed or fully clarified before this review. When the review finds actionable feedback, recommend `fix-pr pr="<url>"` as the follow-up.
+Do not implement fixes from this skill. Resolve review conversations only when they are already addressed or fully clarified before this review. When the review finds actionable feedback, recommend `fix-pr` as the follow-up from the PR branch.
+
+## Approved Merge Finalization
+
+Merge finalization is allowed only when all of these are true:
+
+- the verdict is `PROD READY`;
+- a PR exists and was inspected successfully;
+- the user explicitly approved merge/finalization in the current request or after seeing the review result;
+- the final pre-merge state still has no blockers.
+
+If the PR is `PROD READY` but approval is missing, do not merge. In the final `Next Step`, propose that the user approve finalization to merge the PR, update non-GitHub PM tasks to `Done` when applicable, then checkout the PR base branch and pull.
+
+When approval is present, perform this sequence:
+
+1. Re-read the PR state, draft state, mergeability/check status when available, base ref, head ref, and body immediately before merging. Do not merge if the PR is closed, not mergeable, still draft after the ready step, has required failing checks, or has new blocking review feedback.
+2. For PRs linked to GitHub Issues, rely on the GitHub-native closing keywords or linked-issue metadata created by `implement-pm`; do not manually close issues as a separate action.
+3. For PRs linked to Notion or another non-GitHub PM tool, extract every concerned task URL from the PR description before merging, inspect the PM schema/status values, and confirm a safe `Done` target exists. If any concerned task URL or `Done` status cannot be resolved safely, stop before merging and report the missing PM finalization data instead of guessing.
+4. Merge the PR with official GitHub tooling, normally `gh pr merge <number-or-url>`, using the repository/default merge behavior unless the user requested a specific merge method. Do not use admin, force, or branch deletion flags unless the user explicitly requested them.
+5. After a successful merge, move every non-GitHub concerned PM task to `Done` using the discovered PM tool/status field. If a PM update fails after merge, report the exact task URL and failure; do not invent a substitute status.
+6. Checkout the PR base branch and pull from its upstream, for example `git checkout <base-ref>` then `git pull --ff-only`. If local changes would make checkout or pull unsafe, stop and report the blocker without stashing, overwriting, or resetting.
 
 ## Severity Rules
 
@@ -245,6 +266,15 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 
 - <summarize PR description reconciliation changes, top-level score/details comment creation, inline review comments added, and whether the PR was marked ready for review; for no PR, write `No PR body updates or comments applied.`>
 
+### Finalization
+
+Write exactly one bullet:
+
+- <if verdict is `PROD READY` and approval was not provided: `Approval needed to merge <url>, update non-GitHub PM tasks to Done when applicable, then checkout <base-ref> and pull.`>
+- <if verdict is `PROD READY` and approval was provided: summarize merge result, non-GitHub PM task status updates, checkout, and pull>
+- <if verdict is `PROD READY` and approval was provided but finalization was blocked: summarize the blocker and whether merge did or did not happen>
+- <if verdict is not `PROD READY`: `Not run because the PR is not production-ready.`>
+
 ### Frontend UX Notes
 
 - <required for frontend PRs: responsiveness, loading states, interaction states, accessibility, and layout stability summary; for non-frontend PRs, write `Not applicable.`>
@@ -271,7 +301,12 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 
 ### Next Step
 
-- <if verdict is `FIX BEFORE MERGE` or `DO NOT MERGE`: `Run fix-pr pr="<url>" to implement fixes or clarify reviewer comments.`; otherwise write `Not applicable.`>
+Write exactly one bullet:
+
+- <if verdict is `FIX BEFORE MERGE` or `DO NOT MERGE`: `Run fix-pr from the PR branch to implement fixes or clarify reviewer comments.`>
+- <if verdict is `PROD READY` and approval was not provided: `Approve finalization to merge <url>, update non-GitHub PM tasks to Done when applicable, then checkout <base-ref> and pull.`>
+- <if verdict is `PROD READY` and approved finalization completed: `None.`>
+- <if verdict is `PROD READY` and approved finalization was blocked: state the exact blocker to resolve, then rerun or approve finalization again>
 ```
 
 If there are no findings, write `No blocking or major findings found.` under `Findings`, then still provide the score breakdown and any residual risk.

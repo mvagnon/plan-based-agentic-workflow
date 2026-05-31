@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. It analyzes the whole PR and review feedback, uses Plan-mode structured clarification when available for ambiguous fixes that need user decisions, applies focused corrections in the current checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with gh CLI/API when possible.
+description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. By default it fixes the PR associated with the current branch, analyzes the whole PR and review feedback, uses Plan-mode structured clarification when available for ambiguous fixes that need user decisions, applies focused corrections in the current checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with gh CLI/API when possible.
 ---
 
 # Fix PR
@@ -23,9 +23,11 @@ This skill must work in Codex, Claude Code, Antigravity CLI, and other Agent Ski
 
 ## Input Contract
 
-Read `$ARGUMENTS` or equivalent invocation input as a loose key-value contract:
+No argument is required for the normal workflow. Resolve the PR from the current branch first with `gh pr view`; this keeps remediation anchored to the branch the user is already working on.
 
-- `PR`: optional. Accept a PR URL, PR number, or branch name. If omitted, infer the PR from the current branch with `gh pr view`.
+Read `$ARGUMENTS` or equivalent invocation input as optional overrides:
+
+- `PR`: optional override. Accept a PR URL, PR number, or branch name only when the user wants to fix a PR other than the one associated with the current branch.
 - `Repository`: optional. Accept `owner/repo` or infer it from the current git remote.
 - `Scope`: optional. Accept a subset such as `blockers only`, `all review comments`, a reviewer name, a comment URL, or a review thread URL. Default to all unresolved actionable feedback.
 
@@ -36,7 +38,7 @@ Ask one concise question only when the PR cannot be resolved or multiple PRs mat
 Before deciding what to fix:
 
 1. Identify the repository root, current branch, remotes, and local status.
-2. Resolve the PR number, repository owner/name, URL, state, draft state, base ref, head ref, and head repository.
+2. Resolve the PR number, repository owner/name, URL, state, draft state, base ref, head ref, and head repository from the current branch unless the user provided an explicit `PR` override.
 3. Read the PR title, body, changed files, diff, reviews, issue comments, review comments, review threads, and checks.
 4. Use Serena MCP to inspect cited lines plus nearby code, tests, schemas, services, routes, components, or docs needed to understand the feedback. If Serena is unavailable, stop and report the missing required dependency instead of applying fixes from local search alone.
 5. Read project instructions in scope, such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and directly relevant package docs.
@@ -198,7 +200,7 @@ Commit: <sha or "none">
 
 ### Next
 
-- Run `review-pr pr="<url>"` again if a fresh production-readiness score is needed.
+- Run `review-pr` again from the PR branch if a fresh production-readiness score is needed.
 ```
 
 Keep the final answer concise and factual. Do not claim a thread was resolved unless the GitHub operation succeeded.
