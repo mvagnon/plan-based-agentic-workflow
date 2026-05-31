@@ -9,6 +9,8 @@ description: Use when a pull request exists, was just created, or the user inten
 
 Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes. Use `fix-pr` as the follow-up skill for implementing fixes, clarifying review comments, and resolving PR conversations.
 
+This skill is intentionally side-effectful for real PR reviews: it may update the PR body, submit one PR review with inline comments, resolve stale conversations that are already addressed by the current diff, and mark strong draft PRs ready according to the rules below.
+
 Be especially strict about architecture in the diff. Changed code must respect existing boundaries, dependency direction, ownership model, naming, shared abstractions, and framework-specific conventions. Treat architecture drift as a production-readiness risk, not a style preference.
 
 ## Trigger Discipline
@@ -53,12 +55,14 @@ Before scoring:
 3. If commit or push fails because of conflicts, missing identity, missing upstream, rejected push, authentication, failing pre-commit hooks, branch protection, or any other blocker, stop the review flow and report the blocker with the exact command that failed. Do not silently skip local changes or review an unpushed worktree.
 4. Identify the diff source: `gh pr diff`, `gh pr view`, or a committed branch comparison such as `git diff <base>...HEAD` when no PR exists yet.
 5. When a PR exists, read its title, body, draft state, URL, base, and head, for example with `gh pr view --json number,title,body,url,isDraft,baseRefName,headRefName`.
-6. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant `README.md` files.
-7. Identify the actual architecture style or styles used by the touched area before judging the diff. It may be hexagonal, clean architecture, MVC, feature-sliced, vertical slice, modular monolith, framework-native routing, package-based component architecture, a custom project convention, or a mix. Do not assume `domain`/`application`/`infrastructure` layers unless the repository actually uses them.
-8. Discover and load any available architecture skills that match the actual touched architecture before judging architecture. Examples include hexagonal/clean architecture skills only when those layers exist, React/frontend architecture skills for feature and hook boundaries, monorepo/Turborepo skills for package-boundary changes, design-system skills for UI package/theme/component-library changes, framework skills for routing/data-fetching layers, and domain-specific integration skills such as payments when touched. If a relevant architecture skill exists, consult it before scoring. If discovery is unavailable or no relevant skill exists, say so briefly and proceed from repo evidence.
-9. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
-10. Prefer existing project conventions over generic preferences.
-11. If architecture must be inferred from code, say it is an inference and name the evidence used.
+6. Read unresolved review threads, issue comments, and prior review comments before adding a new review. If a prior concern is already resolved by the current diff, resolve the conversation when the API supports it or add a concise explanation when resolution is unavailable. If it is still unresolved and has no clear explanation, carry it into the new findings instead of duplicating stale comments.
+7. Use Serena MCP for changed-file and nearby-symbol exploration. If Serena is unavailable, stop and report the missing required dependency instead of scoring the PR from local search alone.
+8. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant `README.md` files.
+9. Identify the actual architecture style or styles used by the touched area before judging the diff. It may be hexagonal, clean architecture, MVC, feature-sliced, vertical slice, modular monolith, framework-native routing, package-based component architecture, a custom project convention, or a mix. Do not assume `domain`/`application`/`infrastructure` layers unless the repository actually uses them.
+10. Discover and load any available architecture skills that match the actual touched architecture before judging architecture. Examples include hexagonal/clean architecture skills only when those layers exist, React/frontend architecture skills for feature and hook boundaries, monorepo/Turborepo skills for package-boundary changes, design-system skills for UI package/theme/component-library changes, framework skills for routing/data-fetching layers, and domain-specific integration skills such as payments when touched. If a relevant architecture skill exists, consult it before scoring. If discovery is unavailable or no relevant skill exists, say so briefly and proceed from repo evidence.
+11. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
+12. Prefer existing project conventions over generic preferences.
+13. If architecture must be inferred from code, say it is an inference and name the evidence used.
 
 Do not invent architecture rules, and do not force hexagonal or layered expectations onto a repo that uses a different architecture. If the repo has no explicit architecture documentation, judge against the actual boundaries and patterns visible in the codebase, and use relevant architecture skills only to interpret those boundaries more rigorously.
 
@@ -129,6 +133,12 @@ Rules:
 - Use `gh pr edit <number-or-url> --body-file <file>` or an equivalent official PR tool to write the updated body.
 - Do not add the review summary, score, or line-level findings to the PR description. If a legacy `review-pr:recap` block generated by this skill already exists in the PR body, remove it while preserving non-generated author content.
 
+Before posting new review comments, account for prior unresolved conversations:
+
+- Resolve only conversations that are already addressed by the current diff or fully explained by existing discussion.
+- Do not resolve conversations that still need code changes, reviewer confirmation, or user decisions.
+- Avoid posting duplicate inline comments for a concern already present in an unresolved thread; reference or carry forward the existing concern in the top-level review instead.
+
 After the review is complete, submit exactly one PR review comment with the score and a few high-signal details:
 
 ```markdown
@@ -152,7 +162,7 @@ Inline comment rules:
 
 If the final score is strictly greater than `18/20` and the PR is still a draft, mark it ready for review with `gh pr ready <number-or-url>` or the equivalent official tool. Do not mark PRs ready when the score is `18/20` or lower, when the score could not be produced, or when no PR exists.
 
-Do not implement fixes, resolve review conversations, merge PRs, close linked issues, or update PM statuses from this skill. When the review finds actionable feedback, recommend `fix-pr pr="<url>"` as the follow-up.
+Do not implement fixes, merge PRs, close linked issues, or update PM statuses from this skill. Resolve review conversations only when they are already addressed or fully clarified before this review. When the review finds actionable feedback, recommend `fix-pr pr="<url>"` as the follow-up.
 
 ## Severity Rules
 

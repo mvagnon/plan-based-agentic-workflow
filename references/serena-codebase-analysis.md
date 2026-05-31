@@ -1,6 +1,6 @@
 # Serena Codebase Analysis
 
-Use Serena as the primary code-intelligence layer when it is installed. The goal is to collect enough architectural evidence for planning or implementation without loading the whole repository into context.
+Use Serena as the required code-intelligence layer for PBAW planning, implementation, and review workflows. The goal is to collect enough architectural evidence without loading the whole repository into context.
 
 ## Startup
 
@@ -72,9 +72,11 @@ For implementation tasks, capture:
 - generated files or migrations that require special commands;
 - check commands scoped to the changed modules.
 
-## Fallback When Serena Is Missing
+## When Serena Is Missing
 
-Fall back to `rg`, `rg --files`, package scripts, manifests, and targeted file reads. Preserve the same discipline:
+Stop the PBAW workflow and report that Serena MCP is required. Do not produce implementation-ready plans, implement PM tasks, or score architecture-sensitive PRs from local search alone.
+
+Use `rg`, `rg --files`, package scripts, manifests, and targeted file reads only as supplements after Serena is available or to diagnose why Serena cannot be used. Preserve the same discipline:
 
 - search first;
 - read narrow files;

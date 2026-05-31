@@ -1,7 +1,7 @@
 interface:
   display_name: "Review PR"
-  short_description: "Review a PR, reconcile its description, add review comments, and mark strong draft PRs ready."
-  default_prompt: "Use $review-pr to review this PR, reconcile the PR description with the diff, add one concise score/details PR comment, add inline comments for actionable fixes, mark it ready for review only if the score is greater than 18/20, and recommend $fix-pr when fixes or reviewer clarifications are needed."
+  short_description: "Review a PR, reconcile its description, resolve stale threads, add review comments, and mark strong draft PRs ready."
+  default_prompt: "Use $review-pr to review this PR with Serena MCP, reconcile the PR description with the diff, resolve stale already-addressed conversations, add one concise score/details PR comment, add inline comments for actionable fixes, mark it ready for review only if the score is greater than 18/20, and recommend $fix-pr when fixes or reviewer clarifications are needed."
 dependencies:
   tools:
     - type: "cli"
@@ -9,6 +9,6 @@ dependencies:
       description: "GitHub PR diff, body edit, review comment, and ready-for-review operations."
     - type: "mcp"
       value: "serena"
-      description: "Optional semantic code exploration and symbol/reference analysis."
+      description: "Required semantic code exploration and symbol/reference analysis."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

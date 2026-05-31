@@ -53,7 +53,7 @@ Inside the repository checkout on the invocation branch:
 1. Read project instructions in scope.
 2. Confirm the draft PR exists before code edits.
 3. Install nothing unless dependencies already exist and setup requires it.
-4. Use Serena or targeted search to locate existing patterns.
+4. Use Serena MCP plus targeted search to locate existing patterns.
 5. Implement the smallest correct change for the task contract.
 6. Keep shared logic centralized and reuse existing validation, types, services, hooks, repositories, and UI primitives.
 7. Update directly affected docs only when setup, commands, env vars, architecture, endpoints, or data models changed.

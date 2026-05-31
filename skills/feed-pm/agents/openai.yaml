@@ -1,12 +1,12 @@
 interface:
   display_name: "Feed PM"
   short_description: "Create PM-ready engineering tasks."
-  default_prompt: "Use $feed-pm to analyze this repo, ask focused question or clarification prompts to lock down the user's goal, scope, tradeoffs, and task granularity, then turn the requested work into concise technical GitHub Issues only after approval."
+  default_prompt: "Use $feed-pm in Plan mode when available to analyze this repo with Serena MCP, use built-in structured question or clarification prompts for remaining non-discoverable scope decisions, then turn the requested work into concise technical GitHub Issues only after explicit post-proposal approval."
 dependencies:
   tools:
     - type: "mcp"
       value: "serena"
-      description: "Semantic code exploration and symbol/reference analysis."
+      description: "Required semantic code exploration and symbol/reference analysis."
     - type: "mcp"
       value: "github"
       description: "GitHub Issues or Projects task creation when available."
@@ -14,4 +14,4 @@ dependencies:
       value: "notion"
       description: "Optional Notion task creation when requested."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

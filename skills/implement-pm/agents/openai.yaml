@@ -6,7 +6,7 @@ dependencies:
   tools:
     - type: "mcp"
       value: "serena"
-      description: "Semantic code exploration and symbol/reference analysis."
+      description: "Required semantic code exploration and symbol/reference analysis."
     - type: "mcp"
       value: "github"
       description: "GitHub Issues or Projects task retrieval when available."
@@ -14,4 +14,4 @@ dependencies:
       value: "notion"
       description: "Optional Notion task retrieval when requested."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

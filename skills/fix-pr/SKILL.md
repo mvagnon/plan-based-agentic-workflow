@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. It analyzes the whole PR and review feedback, asks necessary question or clarification prompts before ambiguous fixes, applies focused corrections in the current checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with gh CLI/API when possible.
+description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. It analyzes the whole PR and review feedback, uses Plan-mode structured clarification when available for ambiguous fixes that need user decisions, applies focused corrections in the current checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with gh CLI/API when possible.
 ---
 
 # Fix PR
@@ -18,7 +18,8 @@ This skill must work in Codex, Claude Code, Antigravity CLI, and other Agent Ski
 - Do not rely on runner-specific environment variables or path substitutions.
 - Resolve bundled references relative to this `SKILL.md` file.
 - Read invocation input from the host runner's normal mechanism: `$ARGUMENTS`, slash-command arguments, command arguments, injected raw arguments, or the surrounding user message.
-- Use the runner's `question`, `clarification`, or equivalent user-input tool when available. If no such tool is available, ask concise questions in the chat and wait for answers before editing ambiguous items.
+- If Plan mode is available, use the built-in structured question or clarification tool for ambiguous fixes that need user decisions.
+- If Plan mode or structured clarification tools are not available, proceed using available context for unambiguous fixes. Ask concise chat questions and wait for answers before editing ambiguous items.
 
 ## Input Contract
 
@@ -37,7 +38,7 @@ Before deciding what to fix:
 1. Identify the repository root, current branch, remotes, and local status.
 2. Resolve the PR number, repository owner/name, URL, state, draft state, base ref, head ref, and head repository.
 3. Read the PR title, body, changed files, diff, reviews, issue comments, review comments, review threads, and checks.
-4. Inspect cited lines plus nearby code, tests, schemas, services, routes, components, or docs needed to understand the feedback.
+4. Use Serena MCP to inspect cited lines plus nearby code, tests, schemas, services, routes, components, or docs needed to understand the feedback. If Serena is unavailable, stop and report the missing required dependency instead of applying fixes from local search alone.
 5. Read project instructions in scope, such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and directly relevant package docs.
 6. Discover existing code, validation, typing, business logic, and design-system patterns before adding anything new.
 7. Treat outdated review threads as context: verify whether the concern is already fixed by the current head before deciding no action is needed.

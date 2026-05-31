@@ -1,6 +1,6 @@
 ---
 name: feed-pm
-description: Use this skill when the user wants an agentic planning workflow that turns a product request, feature scope, bug epic, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the current repository, uses question or clarification tools to refine the user's intent and tradeoffs before task drafting, loads matching architecture skills when available, prioritizes Serena MCP semantic exploration when available, decomposes the work into similarly sized technical tasks, drafts concise but complete issue descriptions for senior-engineer review, and only creates PM items after explicit human approval. Trigger on phrases like feed PM, create issues from this plan, split this work into tickets, prepare GitHub Issues or Notion tasks, or plan-based agentic workflow.
+description: Use this skill when the user wants an agentic planning workflow that turns a product request, feature scope, bug epic, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the current repository with Serena MCP, loads matching architecture skills when available, uses Plan-mode structured clarification when available to refine remaining product intent and tradeoffs, decomposes the work into similarly sized technical tasks, drafts concise but complete issue descriptions for senior-engineer review, and only creates PM items after explicit post-proposal approval. Trigger on phrases like feed PM, create issues from this plan, split this work into tickets, prepare GitHub Issues or Notion tasks, or plan-based agentic workflow.
 ---
 
 # Feed PM
@@ -12,7 +12,9 @@ This skill must work in Codex, Claude Code, Antigravity CLI, and other Agent Ski
 - Do not rely on runner-specific environment variables or path substitutions.
 - Resolve bundled references relative to this `SKILL.md` file.
 - Read invocation input from the host runner's normal mechanism: `$ARGUMENTS`, slash-command arguments, command arguments, injected raw arguments, or the surrounding user message.
-- Use the runner's `question`, `clarification`, or equivalent user-input tool to refine product intent, scope boundaries, and implementation preferences before drafting PM items. If no such tool is available, ask concise questions in chat.
+- Before asking questions, analyze discoverable context with Serena MCP for codebase exploration and symbol-aware analysis. Use local filesystem and search tools such as `rg` only as targeted supplements.
+- If Plan mode is available, use the built-in structured question or clarification tool to gather as much information as needed about non-discoverable product intent, scope boundaries, and implementation preferences.
+- If Plan mode or structured clarification tools are not available, proceed using available context and conservative assumptions. Ask a concise chat question only when the missing answer would make the task plan misleading or unsafe.
 - Keep all side-effect safety in the instructions, not in platform-specific frontmatter. Never create PM items until the user explicitly approves the proposed tasks.
 
 ## Input Contract
@@ -29,7 +31,7 @@ Accept natural language too. If `pm_tool` or `project` are omitted, infer them. 
 
 Use clarification aggressively for product and planning intent, but not for facts that can be discovered from the repository or PM tool.
 
-Before drafting PM items, clarify every material ambiguity that would change task boundaries, acceptance criteria, dependencies, implementation risk, or review size. Prefer the runner's `question` or `clarification` tool and batch questions when possible.
+Before drafting PM items, analyze the repository and PM target first, then clarify every remaining material ambiguity that would change task boundaries, acceptance criteria, dependencies, implementation risk, or review size. If Plan mode is available, prefer the built-in structured question or clarification tool and batch questions when possible. If Plan mode or structured clarification tools are not available, proceed from available context unless the missing answer would make the plan misleading or unsafe.
 
 Clarify at least:
 
@@ -68,19 +70,17 @@ Load these references when doing the corresponding part of the workflow:
    - If a GitHub Project is provided, create issues in the repo and add them to the project when the available tooling supports it.
    - If the repo or PM target is not discoverable, stop before planning side effects and ask for the missing target.
 
-### 2. Clarify User Intent
+### 2. Capture User Intent
 
-After resolving the PM target and before broad architecture exploration, extract the user's stated goal, constraints, and desired output from the invocation. Then ask all currently known product, scope, and planning questions that meet the clarification policy.
+After resolving the PM target, extract the user's stated goal, constraints, and desired output from the invocation. Record the initial planning contract without asking broad product or planning questions yet, unless the missing answer blocks safe PM target resolution or would make repository exploration misleading.
 
-Use answers as the planning contract. Record:
+Record:
 
-- confirmed goal and success criteria;
-- confirmed non-goals and excluded areas;
-- chosen task granularity and PM output preference;
-- assumptions accepted by the user or chosen as conservative defaults;
-- open questions that must appear in task bodies if still unresolved.
-
-If repository exploration later exposes new product or architecture ambiguity that materially changes task boundaries, pause and ask another focused clarification before final decomposition.
+- stated goal and success criteria;
+- stated non-goals and excluded areas;
+- requested task granularity and PM output preference;
+- assumptions already implied by the user;
+- missing product or scope decisions to revisit after repository and PM exploration.
 
 ### 3. Discover And Load Architecture Skills
 
@@ -109,7 +109,7 @@ If the requested scope spans multiple repositories or layers, repeat this step f
 
 ### 4. Explore The Codebase
 
-Use Serena first when available. Call Serena's initial instructions/config tools if they have not already been loaded, activate the current repository, then use symbol and reference queries before broad file reads.
+Use Serena first, including in Plan mode. Call Serena's initial instructions/config tools if they have not already been loaded, activate the current repository, then use symbol and reference queries before broad file reads. If Serena is unavailable, stop and report the missing required dependency instead of producing implementation-ready PM tasks from local search alone.
 
 Explore only enough to produce implementation-grade tasks:
 
@@ -122,7 +122,21 @@ Explore only enough to produce implementation-grade tasks:
 
 Record evidence as file paths, symbols, commands, and discovered conventions. Do not paste large code excerpts into task bodies.
 
-### 5. Build The Architecture Responsibility Map
+### 5. Clarify Remaining Intent
+
+After loading relevant architecture skills and exploring discoverable repository and PM facts, ask all currently known product, scope, and planning questions that meet the clarification policy.
+
+Use answers as the planning contract. Record:
+
+- confirmed goal and success criteria;
+- confirmed non-goals and excluded areas;
+- chosen task granularity and PM output preference;
+- assumptions accepted by the user or chosen as conservative defaults;
+- open questions that must appear in task bodies if still unresolved.
+
+If repository exploration later exposes new product or architecture ambiguity that materially changes task boundaries, pause and ask another focused clarification before final decomposition.
+
+### 6. Build The Architecture Responsibility Map
 
 Before decomposing tasks, produce a concise responsibility map for the affected area. This map is mandatory because the issue descriptions must guide implementation agents toward the correct ownership boundaries instead of encouraging ad hoc code placement.
 
@@ -137,7 +151,7 @@ Capture:
 
 Keep the map short enough for review, but concrete enough to answer "where should this code live, and why?" for every proposed task.
 
-### 6. Decompose Into Reviewable Tasks
+### 7. Decompose Into Reviewable Tasks
 
 Use the task rubric from `task-specification.md`.
 
@@ -151,7 +165,7 @@ Principles:
 - Separate risky migrations, permission changes, public API changes, and UI-only polish when reviewing them together would dilute attention.
 - Each task must include enough technical detail for an implementation agent to start without rediscovering the whole plan, while the digest remains scannable by a senior engineer.
 
-### 7. Draft The PM Items
+### 8. Draft The PM Items
 
 Before creating anything, show a proposal table:
 
@@ -170,13 +184,13 @@ The first screen of each task must be digestible:
 
 Put deeper implementation details after that: contracts, schemas, state transitions, pseudocode, Mermaid diagrams, migration notes, and verification guidance.
 
-### 8. Human Approval Gate
+### 9. Human Approval Gate
 
 Do not create, edit, or move PM items until the user explicitly approves the proposed tasks.
 
 If the user asks for changes, revise the proposal first. If they approve only part of the plan, create only the approved items and keep dependencies valid.
 
-### 9. Create PM Items
+### 10. Create PM Items
 
 After approval:
 

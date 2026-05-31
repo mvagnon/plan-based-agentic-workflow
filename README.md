@@ -2,10 +2,10 @@
 
 Agent Skills for a plan-first development workflow:
 
-- `feed-pm`: analyze a repository, clarify the user's intent and tradeoffs, decompose requested work, and draft reviewable technical PM tasks.
+- `feed-pm`: analyze a repository with Serena MCP, clarify remaining non-discoverable intent and tradeoffs, decompose requested work, and draft reviewable technical PM tasks.
 - `implement-pm`: fetch approved PM tasks, create one dedicated branch from the currently selected branch, open a draft PR per invocation, then implement the requested work directly in the current repository checkout while preserving staged and unstaged changes.
-- `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, add a concise score/details comment plus inline action comments, and mark strong draft PRs ready for review.
-- `fix-pr`: analyze PR review feedback, ask for needed clarification, apply focused fixes, push the PR branch, and reply to or resolve handled review conversations.
+- `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, resolve stale already-addressed conversations, add a concise score/details comment plus inline action comments, and mark strong draft PRs ready for review.
+- `fix-pr`: analyze PR review feedback, use Plan-mode structured clarification when available for ambiguous fixes, apply focused fixes, push the PR branch, and reply to or resolve handled review conversations.
 
 The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
 
@@ -15,7 +15,7 @@ Required:
 
 - Git.
 - A skill runner that can load `skills/<skill-name>/SKILL.md` directories, such as Codex, Claude Code, Antigravity CLI, or another Agent Skills compatible tool.
-- Serena MCP configured for best results when exploring codebases.
+- Serena MCP configured. PBAW depends on Serena for reliable codebase analysis.
 - `gh` authenticated for GitHub Issues and Pull Requests, or the matching MCP for the selected PM/Git hosting tool.
 
 ## Installation
@@ -84,8 +84,8 @@ fix-pr pr="https://github.com/owner/repo/pull/456" scope="all review comments"
 ### Planning With `feed-pm`
 
 1. Infer or resolve the PM target.
-2. Ask focused question or clarification prompts to lock down the goal, scope, non-goals, tradeoffs, acceptance criteria, and desired task granularity.
-3. Explore the codebase, preferring Serena MCP when available.
+2. Load relevant architecture skills and explore the codebase with Serena MCP.
+3. Use Plan-mode structured question or clarification prompts when available to lock down remaining non-discoverable scope decisions.
 4. Reuse existing project architecture, validation, typing, and design-system patterns.
 5. Decompose the requested work into similarly sized technical tasks.
 6. Show a proposal table and full task bodies.
@@ -101,7 +101,7 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 4. Open a draft PR against that source branch with every concerned task reference at the top of the description.
 5. For GitHub Issues, link the PR to every concerned issue with GitHub-native linked-issue syntax, not plain text only.
 6. Implement directly in the current repository checkout.
-7. Use Serena MCP or targeted search to reuse existing code before adding new code.
+7. Use Serena MCP plus targeted search to reuse existing code before adding new code.
 8. Run relevant checks from the target repository.
 9. Report repository path, branch, draft PR, changed files, checks, and remaining risks.
 
@@ -124,7 +124,7 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 1. Resolve the PR from the current branch, PR URL, PR number, or branch name.
 2. Read the PR body, diff, checks, reviews, issue comments, review comments, unresolved review threads, and cited lines.
 3. Build a feedback ledger that maps every actionable comment to a code fix, clarification, already-fixed status, obsolete status, or user decision.
-4. Ask all needed questions through the runner's question or clarification tool before editing ambiguous items.
+4. Use Plan-mode structured clarification when available for ambiguous fixes, or ask concise chat questions only when a user decision is required.
 5. Checkout the PR head branch safely, preserving staged, unstaged, and unrelated local changes.
 6. Apply focused corrections using existing project architecture, validation, typing, business logic, and design-system patterns.
 7. Run relevant existing checks for the touched area.
@@ -133,9 +133,9 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 
 ## Safety Rules
 
-- `feed-pm` must not create, edit, label, or move PM items before explicit approval.
+- `feed-pm` must not create, edit, label, or move PM items before explicit post-proposal approval.
 - `implement-pm` must create its invocation branch from the currently selected branch and preserve staged, unstaged, and unrelated local changes in the current checkout.
-- `review-pr` may edit the PR body, add review comments, and mark a draft PR ready only as described by its review workflow.
+- `review-pr` is intentionally side-effectful: it may edit the PR body, add review comments, resolve stale already-addressed conversations, and mark a draft PR ready only as described by its review workflow.
 - `fix-pr` may commit and push focused remediation changes, reply to review feedback, and resolve handled review threads. It must not merge PRs, close issues, mark PM items done, or mark PRs ready unless explicitly requested.
 - No skill should add dependencies, create logs, merge PRs, or update PM statuses unless explicitly requested.
 - Tests are not created by default. Existing tests may be updated only when directly affected or explicitly required by the task.

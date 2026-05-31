@@ -1,7 +1,7 @@
 interface:
   display_name: "Fix PR"
   short_description: "Fix PR review feedback and update PR conversations."
-  default_prompt: "Use $fix-pr to analyze this PR's review comments, inline threads, checks, and cited lines; ask every necessary question before ambiguous fixes; apply focused corrections in the current checkout; run relevant checks; commit and push the PR branch; then reply to and resolve handled GitHub review threads when possible."
+  default_prompt: "Use $fix-pr to analyze this PR's review comments, inline threads, checks, and cited lines with Serena MCP; use Plan-mode structured clarification when available for ambiguous fixes that need user decisions; apply focused corrections in the current checkout; run relevant checks; commit and push the PR branch; then reply to and resolve handled GitHub review threads when possible."
 dependencies:
   tools:
     - type: "cli"
@@ -9,6 +9,6 @@ dependencies:
       description: "GitHub PR inspection, comments, review threads, checks, and push-related operations."
     - type: "mcp"
       value: "serena"
-      description: "Optional semantic code exploration and symbol/reference analysis."
+      description: "Required semantic code exploration and symbol/reference analysis."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

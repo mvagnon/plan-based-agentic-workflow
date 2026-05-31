@@ -63,7 +63,7 @@ When the tool is unavailable:
 
 ## Human Approval Gate
 
-Any action that creates, edits, comments on, moves, labels, or assigns PM items requires explicit user approval unless the user already requested that exact side effect in the current turn.
+Any action that creates, edits, comments on, moves, labels, or assigns PM items requires explicit user approval unless the user already requested that exact side effect in the current turn. `feed-pm` is stricter: it must always present the proposed tasks first and receive explicit post-proposal approval before creating, editing, labeling, moving, or assigning PM items.
 
 The approval prompt should summarize:
 

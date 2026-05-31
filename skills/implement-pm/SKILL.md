@@ -1,6 +1,6 @@
 ---
 name: implement-pm
-description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current repository checkout. It fetches the referenced tasks, creates one dedicated branch from the currently selected branch, opens a draft PR per invocation before implementation, studies the repository with Serena MCP when available, preserves staged, unstaged, and unrelated local changes, implements all requested tasks in the current checkout, runs relevant checks, and reports the repository path, branch, draft PR, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement `#123`, or continue the plan-based agentic workflow.
+description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current repository checkout. It fetches the referenced tasks, creates one dedicated branch from the currently selected branch, opens a draft PR per invocation before implementation, studies the repository with Serena MCP, preserves staged, unstaged, and unrelated local changes, implements all requested tasks in the current checkout, runs relevant checks, and reports the repository path, branch, draft PR, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement `#123`, or continue the plan-based agentic workflow.
 ---
 
 # Implement PM
@@ -68,11 +68,12 @@ Before editing:
 
 Work inside the current repository checkout on the dedicated invocation branch, after the draft PR exists.
 
-Use Serena first for exploration when available:
+Use Serena first for exploration:
 
 - Activate the repository root as the Serena project.
 - Use symbol overview, symbol lookup, reference lookup, diagnostics, and pattern search before reading whole files.
 - Reuse existing components, hooks, services, schemas, validators, DTOs, and design-system primitives before creating anything new.
+- If Serena is unavailable, stop and report the missing required dependency instead of implementing from local search alone.
 
 Implementation rules:
 
