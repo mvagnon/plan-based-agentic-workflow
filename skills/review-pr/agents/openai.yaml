@@ -1,7 +1,7 @@
 interface:
   display_name: "Review PR"
   short_description: "Review a PR, reconcile its description, add review comments, and mark strong draft PRs ready."
-  default_prompt: "Use $review-pr to review this PR, reconcile the PR description with the diff, add one concise score/details PR comment, add inline comments for actionable fixes, mark it ready for review only if the score is greater than 18/20, then ask for explicit approval before closing associated issues or moving tickets to done."
+  default_prompt: "Use $review-pr to review this PR, reconcile the PR description with the diff, add one concise score/details PR comment, add inline comments for actionable fixes, mark it ready for review only if the score is greater than 18/20, and recommend $fix-pr when fixes or reviewer clarifications are needed."
 dependencies:
   tools:
     - type: "cli"

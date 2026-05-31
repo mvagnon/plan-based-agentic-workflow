@@ -1,6 +1,6 @@
 # Implementation Protocol
 
-This protocol implements PM tasks directly in the current repository checkout while preserving staged, unstaged, and unrelated local changes. Each invocation uses one dedicated branch created from the currently selected branch and one draft PR. Use `review-pr` after implementation when the PR needs production-readiness review, PR body reconciliation, and possible promotion out of draft.
+This protocol implements PM tasks directly in the current repository checkout while preserving staged, unstaged, and unrelated local changes. Each invocation uses one dedicated branch created from the currently selected branch and one draft PR. Use `review-pr` after implementation when the PR needs production-readiness review, PR body reconciliation, and possible promotion out of draft. Use `fix-pr` after review when reviewer feedback needs code fixes, clarification, or thread resolution.
 
 ## Current Checkout Setup
 
@@ -121,4 +121,5 @@ Remaining:
 
 Next:
 - Run `review-pr pr="<url>"` when the draft PR is ready for production-readiness review.
+- Run `fix-pr pr="<url>"` when review feedback needs code fixes, clarification, or review thread resolution.
 ```

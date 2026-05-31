@@ -1,7 +1,7 @@
 interface:
   display_name: "Feed PM"
   short_description: "Create PM-ready engineering tasks."
-  default_prompt: "Use $feed-pm to analyze this repo and turn the requested work into concise technical GitHub Issues."
+  default_prompt: "Use $feed-pm to analyze this repo, ask focused question or clarification prompts to lock down the user's goal, scope, tradeoffs, and task granularity, then turn the requested work into concise technical GitHub Issues only after approval."
 dependencies:
   tools:
     - type: "mcp"

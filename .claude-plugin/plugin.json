@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "plan-based-agentic-workflow",
   "displayName": "Plan Based Agentic Workflow",
-  "description": "Plan-based agentic workflow skills for turning product scope into technical PM tasks, implementing those tasks directly in the current checkout, and reviewing PRs before they leave draft.",
+  "description": "Plan-based agentic workflow skills for turning product scope into technical PM tasks, implementing tasks directly in the current checkout, reviewing PRs, and fixing PR review feedback.",
   "version": "0.1.0",
   "author": {
     "name": "mvagnon",
@@ -18,6 +18,8 @@
     "serena",
     "implementation",
     "pull-request",
-    "review"
+    "review",
+    "fix",
+    "feedback"
   ]
 }

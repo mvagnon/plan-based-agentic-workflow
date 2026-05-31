@@ -1,0 +1,14 @@
+interface:
+  display_name: "Fix PR"
+  short_description: "Fix PR review feedback and update PR conversations."
+  default_prompt: "Use $fix-pr to analyze this PR's review comments, inline threads, checks, and cited lines; ask every necessary question before ambiguous fixes; apply focused corrections in the current checkout; run relevant checks; commit and push the PR branch; then reply to and resolve handled GitHub review threads when possible."
+dependencies:
+  tools:
+    - type: "cli"
+      value: "gh"
+      description: "GitHub PR inspection, comments, review threads, checks, and push-related operations."
+    - type: "mcp"
+      value: "serena"
+      description: "Optional semantic code exploration and symbol/reference analysis."
+policy:
+  allow_implicit_invocation: false
