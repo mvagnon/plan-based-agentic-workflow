@@ -1,37 +1,29 @@
 ---
 name: feed-pm
-description: Use this skill when the user wants an agentic planning workflow that turns a product request, feature scope, bug epic, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the current repository with Serena MCP, loads matching architecture skills when available, uses Plan-mode structured clarification when available to refine remaining product intent and tradeoffs, decomposes the work into similarly sized technical tasks, drafts concise but complete issue descriptions for senior-engineer review, and only creates PM items after explicit post-proposal approval. Trigger on phrases like feed PM, create issues from this plan, split this work into tickets, prepare GitHub Issues or Notion tasks, or plan-based agentic workflow.
+description: Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. It deeply analyzes the project with Serena MCP, loads matching architecture skills when available, uses clarification/question tool when available to refine the request, decomposes the work into technical tasks, drafts concise but complete issue descriptions for senior-engineer review, and only creates PM items after explicit post-proposal approval. Trigger on phrases like feed PM, create issues from this plan, split this work into tickets, prepare GitHub Issues or Notion tasks, or plan-based agentic workflow.
 ---
 
 # Feed PM
 
-## Portability Contract
-
-This skill must work in Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Treat runner-specific features as optional accelerators only.
-
-- Do not rely on runner-specific environment variables or path substitutions.
-- Resolve bundled references relative to this `SKILL.md` file.
-- Read invocation input from the host runner's normal mechanism: `$ARGUMENTS`, slash-command arguments, command arguments, injected raw arguments, or the surrounding user message.
-- Before asking questions, analyze discoverable context with Serena MCP for codebase exploration and symbol-aware analysis. Use local filesystem and search tools such as `rg` only as targeted supplements.
-- If Plan mode is available, use the built-in structured question or clarification tool to gather as much information as needed about non-discoverable product intent, scope boundaries, and implementation preferences.
-- If Plan mode or structured clarification tools are not available, proceed using available context and conservative assumptions. Ask a concise chat question only when the missing answer would make the task plan misleading or unsafe.
-- Keep all side-effect safety in the instructions, not in platform-specific frontmatter. Never create PM items until the user explicitly approves the proposed tasks.
-
 ## Input Contract
 
-Read `$ARGUMENTS` or equivalent invocation input as a loose key-value contract:
+Read the following arguments or equivalent invocation input as a loose key-value contract:
+
+`$ARGUMENTS`
+
+Infer:
 
 - `pm_tool`: optional. Default to GitHub Issues for the repository that owns the current git remote.
-- `project`: optional. For GitHub, accept `owner/repo`, a GitHub Project URL/number, or omit it and infer from `git remote`.
+- `project`: optional. Accept an URL, a name or an ID, or omit it and infer from `git remote`.
 - `tasks`: required unless the user provided scope in surrounding context. Treat it as the product goal, epic, bug, refactor, or list of work to plan.
 
 Accept natural language too. If `pm_tool` or `project` are omitted, infer them. Ask when the target PM workspace cannot be discovered safely, and use the clarification policy below to lock down the requested scope before task drafting.
 
 ## Clarification Policy
 
-Use clarification aggressively for product and planning intent, but not for facts that can be discovered from the repository or PM tool.
+Use clarification/question tools aggressively for product and planning intent, but not for facts that can be discovered from the repository or PM tool.
 
-Before drafting PM items, analyze the repository and PM target first, then clarify every remaining material ambiguity that would change task boundaries, acceptance criteria, dependencies, implementation risk, or review size. If Plan mode is available, prefer the built-in structured question or clarification tool and batch questions when possible. If Plan mode or structured clarification tools are not available, proceed from available context unless the missing answer would make the plan misleading or unsafe.
+Before drafting PM items, analyze the repository and PM target first, then clarify every remaining material ambiguity that would change task boundaries, acceptance criteria, dependencies, implementation risk, or review size.
 
 Clarify at least:
 
@@ -86,13 +78,7 @@ Record:
 
 Before exploring or decomposing the work, inspect the runner-provided skill inventory, visible skill metadata, project-local skills, commands, plugin skills, and workflow docs. Load every available skill whose trigger clearly matches the requested work, detected stack, or affected architectural layer.
 
-Load matching architecture skills even when the user did not name them. Examples:
-
-- React/frontend feature architecture: `hexagonal-react`, React/Next performance skills, frontend design-system skills, responsive-design skills, Tailwind/design-system skills.
-- Node/backend feature architecture: `hexagonal-node`, Hono/API framework skills, service/repository/controller layering skills.
-- Python/backend feature architecture: any FastAPI, clean architecture, repository, migration, validation, or service-layer skill exposed by the runner or project.
-- Monorepo/build boundaries: Turborepo, workspace, package-boundary, or build-pipeline skills.
-- Domain integrations: Stripe, Figma, Vercel, Supabase, Notion, Atlassian, or other plugin skills when the feature touches those systems.
+Load matching architecture skills, or any resource even when the user did not name them.
 
 Use the runner's normal skill-loading mechanism. In runners where skills are files, read the relevant `SKILL.md` bodies just far enough to capture constraints. In runners with explicit tool discovery, search for matching skills before broad code exploration. Do not invent unavailable skills, and do not ask the user to choose a skill merely because multiple relevant skills exist.
 
@@ -109,7 +95,7 @@ If the requested scope spans multiple repositories or layers, repeat this step f
 
 ### 4. Explore The Codebase
 
-Use Serena first, including in Plan mode. Call Serena's initial instructions/config tools if they have not already been loaded, activate the current repository, then use symbol and reference queries before broad file reads. If Serena is unavailable, stop and report the missing required dependency instead of producing implementation-ready PM tasks from local search alone.
+Use Serena first. Call Serena's initial instructions/config tools if they have not already been loaded, activate the current repository, then use symbol and reference queries before broad file reads. If Serena is unavailable, stop and report the missing required dependency instead of producing implementation-ready PM tasks from local search alone.
 
 Explore only enough to produce implementation-grade tasks:
 
@@ -124,7 +110,7 @@ Record evidence as file paths, symbols, commands, and discovered conventions. Do
 
 ### 5. Clarify Remaining Intent
 
-After loading relevant architecture skills and exploring discoverable repository and PM facts, ask all currently known product, scope, and planning questions that meet the clarification policy.
+After loading relevant architecture skills and exploring discoverable repository and PM facts, ask all currently known product, scope, and planning questions with the dedicated tool.
 
 Use answers as the planning contract. Record:
 
@@ -170,7 +156,7 @@ Principles:
 Before creating anything, show a proposal table:
 
 | Order | Title | Type | Size | Owner layer | Depends on | Main files/symbols | Risk |
-|---|---|---|---|---|---|---|---|
+| ----- | ----- | ---- | ---- | ----------- | ---------- | ------------------ | ---- |
 
 Then provide each full task body using the template from `task-specification.md`.
 
@@ -207,4 +193,4 @@ Finish with:
 - PM tool and target used.
 - Created task URLs or a clear note that only drafts were produced.
 - Dependency order.
-- Suggested next command, for example: `implement-pm tasks="#123 #124 #125"`.
+- Suggested next command, for example: `implement-pm for tasks #123 #124 #125`.

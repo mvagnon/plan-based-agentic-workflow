@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. By default it fixes the PR associated with the current branch, analyzes the whole PR and review feedback, uses Plan-mode structured clarification when available for ambiguous fixes that need user decisions, applies focused corrections in the current checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with gh CLI/API when possible.
+description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. By default it fixes the PR associated with the current branch, analyzes the whole PR and review feedback, uses structured clarification/question tool when available for ambiguous fixes that need user decisions, applies focused corrections in the current checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with gh CLI/API when possible.
 ---
 
 # Fix PR
@@ -11,24 +11,18 @@ Turn PR review feedback into a focused corrective implementation pass. Analyze t
 
 This skill is for remediation after review. It is not a replacement for `review-pr`: do not rescore the PR, approve it, merge it, close issues, or move PM items unless the user explicitly asks.
 
-## Portability Contract
-
-This skill must work in Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Treat runner-specific features as optional accelerators only.
-
-- Do not rely on runner-specific environment variables or path substitutions.
-- Resolve bundled references relative to this `SKILL.md` file.
-- Read invocation input from the host runner's normal mechanism: `$ARGUMENTS`, slash-command arguments, command arguments, injected raw arguments, or the surrounding user message.
-- If Plan mode is available, use the built-in structured question or clarification tool for ambiguous fixes that need user decisions.
-- If Plan mode or structured clarification tools are not available, proceed using available context for unambiguous fixes. Ask concise chat questions and wait for answers before editing ambiguous items.
-
 ## Input Contract
 
 No argument is required for the normal workflow. Resolve the PR from the current branch first with `gh pr view`; this keeps remediation anchored to the branch the user is already working on.
 
-Read `$ARGUMENTS` or equivalent invocation input as optional overrides:
+Read the following arguments or equivalent invocation input as optional overrides:
+
+`$ARGUMENTS`
+
+Infer:
 
 - `PR`: optional override. Accept a PR URL, PR number, or branch name only when the user wants to fix a PR other than the one associated with the current branch.
-- `Repository`: optional. Accept `owner/repo` or infer it from the current git remote.
+- `Repository`: optional. Accept an URL, `owner/repo` or infer it from the current git remote.
 - `Scope`: optional. Accept a subset such as `blockers only`, `all review comments`, a reviewer name, a comment URL, or a review thread URL. Default to all unresolved actionable feedback.
 
 Ask one concise question only when the PR cannot be resolved or multiple PRs match the provided input. Do not guess between candidate PRs.
@@ -86,6 +80,8 @@ Ask after collecting the feedback ledger, before editing ambiguous items.
 
 Ask the user when:
 
+- if available, use the built-in structured question or clarification tool for ambiguous fixes that need user decisions;
+- if not, proceed using available context for unambiguous fixes. Ask concise chat questions and wait for answers before editing ambiguous items;
 - a review comment conflicts with project instructions, architecture, or another comment;
 - the requested fix changes product behavior, API contracts, data models, migrations, permissions, pricing, billing, or user-visible copy in a non-obvious way;
 - a comment is unclear and several materially different fixes are plausible;

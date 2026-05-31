@@ -1,12 +1,12 @@
 interface:
   display_name: "Review PR"
   short_description: "Review a PR, reconcile its description, resolve stale threads, add review comments, mark strong draft PRs ready, and propose approved merge finalization."
-  default_prompt: "Use $review-pr to review this PR with Serena MCP, reconcile the PR description with the diff, resolve stale already-addressed conversations, add one concise score/details PR comment, add inline comments for actionable fixes, mark it ready for review only if the score is greater than 18/20, recommend $fix-pr from the PR branch when fixes or reviewer clarifications are needed, and for PROD READY PRs propose or perform approval-gated merge finalization."
+  default_prompt: "Use when a pull request exists and the user intends to polish or merge a PR. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs"
 dependencies:
   tools:
     - type: "cli"
       value: "gh"
-      description: "GitHub PR diff, body edit, review comment, and ready-for-review operations."
+      description: "Required GitHub PR diff, body edit, review comment, and ready-for-review operations."
     - type: "mcp"
       value: "serena"
       description: "Required semantic code exploration and symbol/reference analysis."

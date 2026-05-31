@@ -16,7 +16,11 @@ This skill must work in Codex, Claude Code, Antigravity CLI, and other Agent Ski
 
 ## Input Contract
 
-Read `$ARGUMENTS` or equivalent invocation input as a loose key-value contract:
+Read the following arguments or equivalent invocation input as a loose key-value contract:
+
+`$ARGUMENTS`
+
+Infer:
 
 - `Tasks`: required. Accept GitHub issue numbers, issue URLs, Notion page URLs, task IDs, or a small query that identifies exact PM items.
 - `PM Tool`: optional. Default to GitHub Issues for the repository that owns the current git remote.

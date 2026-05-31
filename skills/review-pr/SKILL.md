@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when a pull request exists, was just created, or the user intends to create, open, submit, publish, review, or merge a PR in the plan-based agentic workflow. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs.
+description: Use when a pull request exists and the user intends to polish or merge a PR. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs.
 ---
 
 # Review PR
@@ -27,10 +27,14 @@ If the user is creating a PR, review the code diff before the final PR response 
 
 ## Input Contract
 
-Read `$ARGUMENTS` or equivalent invocation input as a loose key-value contract:
+Read the arguments below or equivalent invocation input as a loose key-value contract:
+
+`$ARGUMENTS`
+
+Infer:
 
 - `PR`: optional. Accept a PR URL, PR number, or branch name. If omitted, infer the PR from the current branch with `gh pr view`.
-- `Repository`: optional. Accept `owner/repo` or infer it from the current git remote.
+- `Repository`: optional. Accept an URL, `owner/repo` or infer it from the current git remote.
 
 Ask one concise question only when the PR cannot be resolved or multiple PRs match the provided input.
 
@@ -115,12 +119,15 @@ Use a generated reconciliation block near the end of the PR body:
 
 ```markdown
 <!-- review-pr:reconciliation:start -->
+
 ## Review PR Reconciliation
 
 ### Additional Completed Work
+
 - <behavior or file area present in the diff but missing from the PR description>
 
 ### Not Completed
+
 - ~~<promised task, checklist item, acceptance criterion, or scope item not implemented by the diff>~~ - <short factual reason>
 <!-- review-pr:reconciliation:end -->
 ```
