@@ -71,6 +71,62 @@ gh api /repos/<owner>/<repo>/pulls/<number>/comments --paginate
 gh api /repos/<owner>/<repo>/pulls/<number>/reviews --paginate
 ```
 
+## Full Local CI Suite
+
+Run the full local CI suite in each affected repository before submitting the PR review comment. Discover repository commands from package scripts, task-runner config, language config, and CI workflows:
+
+```bash
+rg --files -g 'package.json' -g 'turbo.json' -g 'pnpm-workspace.yaml' -g 'yarn.lock' -g 'package-lock.json'
+rg --files -g 'pyproject.toml' -g 'pytest.ini' -g 'tox.ini' -g 'poetry.lock' -g 'requirements*.txt'
+rg --files -g '.github/workflows/*.yml' -g '.github/workflows/*.yaml'
+rg -n '"(lint|typecheck|check|test|format|build)"\s*:' package.json apps packages services src 2>/dev/null
+```
+
+Prefer the repository's package manager and task runner. Run repo-level commands whenever they exist, for example:
+
+```bash
+npm test
+npm run lint
+npm run typecheck
+npm run format:check
+npm run build
+pnpm test
+pnpm lint
+pnpm typecheck
+pnpm format:check
+pnpm build
+yarn test
+yarn lint
+yarn typecheck
+yarn build
+pytest
+ruff check .
+mypy .
+```
+
+For Turborepo repositories, run full-repository tasks without filters when available:
+
+```bash
+turbo run test
+turbo run lint
+turbo run typecheck
+turbo run build
+```
+
+Do not use scoped, package-only, changed-only, affected-only, or filtered commands such as `--filter`, `--affected`, path-specific test patterns, or package-directory commands when a full-repository command exists. Use a scoped command only when the repository has no full command for that check, and report that limitation in the PR comment.
+
+Do not start dev servers, watch commands, containers, or browser automation by default. If the repository's only available check requires one of those, report the command as not run with the reason unless the user explicitly approved it.
+
+For every command, record:
+
+- command and repository path;
+- pass/fail/not-run status;
+- exit code when available;
+- concise failure evidence;
+- whether the failure is caused by the PR, likely caused by the PR, or out of scope.
+
+Classify a failure as out of scope only when the failing test, file, package, service, or dependency path is demonstrably unrelated to the PR diff and directly affected code paths. When uncertain, treat the failure as likely caused by the PR for scoring and review purposes.
+
 ## Review Threads GraphQL
 
 Query unresolved review threads:
@@ -160,7 +216,7 @@ Payload shape:
 ```json
 {
   "event": "COMMENT",
-  "body": "Review score: 17/20 - FIX BEFORE MERGE\n\n- Main risk...\n- Checks reviewed...",
+  "body": "Review score: 17/20 - FIX BEFORE MERGE\n\nFull local CI suite:\n- npm test: pass\n- npm run lint: fail, out of scope: pre-existing lint error in scripts/legacy.ts\n\n- Main risk...",
   "comments": [
     {
       "path": "src/file.ts",

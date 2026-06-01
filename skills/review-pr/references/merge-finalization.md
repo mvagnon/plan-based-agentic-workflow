@@ -12,12 +12,15 @@ gh pr checks <pr>
 gh api /repos/<owner>/<repo>/pulls/<number>/reviews --paginate
 ```
 
+Confirm the full local CI suite from the review step was run against the current PR head commit. If the head changed or the prior run is missing, rerun the full local CI suite from `github-pr-review.md` before merging.
+
 Do not merge if:
 
 - the PR is closed;
 - the PR is still draft;
 - mergeability is negative or unknown in a way that cannot be resolved safely;
 - required checks are failing;
+- the full local CI suite is failing, including failures classified as out of scope;
 - new blocking review feedback exists;
 - non-GitHub PM finalization data cannot be resolved when required.
 

@@ -1,13 +1,13 @@
 ---
 name: review-pr
-description: Use when one or more pull requests exist and the user intends to polish or merge PRs. It resolves PRs from the current repository or child repositories in a multi-repo workspace, commits and pushes every staged, unstaged, or untracked local change in the affected repo before proceeding, performs strict production-readiness review with especially strict architecture-boundary checks, reconciles PR descriptions with actual diffs, adds concise score/details comments, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs.
+description: Use when one or more pull requests exist and the user intends to polish or merge PRs. It resolves PRs from the current repository or child repositories in a multi-repo workspace, commits and pushes every staged, unstaged, or untracked local change in the affected repo before proceeding, performs strict production-readiness review with especially strict architecture-boundary checks, runs the full local CI suite before commenting, reports out-of-scope CI failures in the PR comment, reconciles PR descriptions with actual diffs, adds concise score/details comments, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs.
 ---
 
 # Review PR
 
 ## Purpose
 
-Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes.
+Perform a strict production-readiness review of PR code. Judge only the changed code and directly affected code paths, run the full local CI suite, compare the implementation with the PR description when one exists, reconcile the PR body with the actual diff, then return a score out of 20 with clear fixes.
 
 Use `fix-pr` as the follow-up skill for implementing fixes, clarifying review comments, and resolving PR conversations. For production-ready PRs, propose merge finalization and perform it only after explicit user approval.
 
@@ -32,7 +32,7 @@ Ask one concise question only when the PR cannot be resolved or multiple unrelat
 
 Load these bundled references as needed:
 
-- `references/github-pr-review.md`: concrete PR metadata, diff, checks, prior comments, review-thread, PR-body reconciliation, review submission, and ready-for-review mechanics.
+- `references/github-pr-review.md`: concrete PR metadata, diff, full local CI suite discovery/execution, checks, prior comments, review-thread, PR-body reconciliation, review submission, and ready-for-review mechanics.
 - `references/merge-finalization.md`: final state checks, merge commands, non-GitHub PM completion rules, and post-merge checkout mechanics.
 
 References are intentionally technical. Keep the skill body focused on review policy and consult the references for commands, payloads, and tool-specific details.
@@ -45,8 +45,9 @@ Never lower the score because of:
 - PR title, body, description, checklist, screenshots, labels, branch name, or metadata quality.
 - Missing context in the PR description.
 - Commit history shape, unless the committed code itself creates a production risk.
+- Full-suite CI failures that are demonstrably outside the PR diff and directly affected code paths.
 
-Only score the code changes and their direct impact. A large PR can require more careful inspection, but size itself is not a defect.
+Only score the code changes and their direct impact. A large PR can require more careful inspection, but size itself is not a defect. Out-of-scope full-suite CI failures must still be mentioned in the PR comment and may block merge finalization even when they do not lower the score.
 
 If a PR description exists, use it as the stated implementation contract. Do not score the description's writing quality, completeness, or formatting. Do score concrete code risks when the diff contradicts the description, fails stated acceptance criteria, omits promised behavior, or includes meaningful unannounced behavior that changes production risk.
 
@@ -66,8 +67,11 @@ Before scoring:
 10. Identify the actual architecture style or local convention used by the touched area before judging the diff.
 11. Discover and load any available architecture skills that match the actual touched architecture before judging architecture.
 12. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
-13. Prefer existing project conventions over generic preferences.
-14. If architecture must be inferred from code, say it is an inference and name the evidence used.
+13. Discover and run the full local CI suite for every affected repository before posting the PR review comment. Include all repo-level non-interactive tests, lint, typecheck, format-check, and build commands that the repository exposes.
+14. Prefer full-repository commands over scoped, filtered, changed-only, affected-only, or package-only commands. Use scoped commands only when no full-repository command exists, and state that limitation in the PR comment and output.
+15. Classify each full-suite failure as caused by the PR, likely caused by the PR, or out of scope. Score PR-caused failures normally. Mention out-of-scope failures in the PR comment with the failing command and concise evidence, but do not lower the score for them.
+16. Prefer existing project conventions over generic preferences.
+17. If architecture must be inferred from code, say it is an inference and name the evidence used.
 
 Use `references/github-pr-review.md` for concrete metadata, diff, checks, prior discussion, review thread, and PR update operations.
 
@@ -97,7 +101,7 @@ Check at least:
 - correctness, edge cases, regressions, error paths, async/race behavior, idempotency, migrations, and backwards compatibility;
 - security, authentication, authorization, multi-tenancy isolation, input validation, injection, XSS, CSRF, SSRF, path traversal, file uploads, secrets, PII, logging, webhook verification, payment integrity, and rate limits;
 - production readiness, observability, explicit errors, retries/timeouts where appropriate, transactional consistency, resource cleanup, obvious query cliffs, rollout, and rollback safety;
-- tests and verification for changed behavior;
+- full-suite CI status, tests and verification for changed behavior;
 - maintainability, names, type safety, dead code, duplication, unnecessary abstractions, hidden side effects, and consistency with local style;
 - frontend UX when applicable: responsive behavior, loading/error/empty/disabled states, accessibility, state ownership, and layout stability.
 
@@ -117,7 +121,7 @@ Before posting new review comments:
 - do not resolve conversations that still need code changes, reviewer confirmation, or user decisions;
 - avoid posting duplicate inline comments for a concern already present in an unresolved thread.
 
-After each PR review is complete, submit exactly one PR review comment with the score and a few high-signal details. Add inline PR review comments for actionable findings that can be anchored to changed lines.
+After each PR review is complete, submit exactly one PR review comment with the score, full local CI suite status, and a few high-signal details. The top-level PR comment must list the full-suite commands that were run, summarize pass/fail status, and explicitly mention any out-of-scope failures with concise evidence. Add inline PR review comments for actionable findings that can be anchored to changed lines.
 
 Inline comment rules:
 
@@ -139,13 +143,14 @@ Merge finalization is allowed only when all of these are true:
 - the verdict is `PROD READY`;
 - a PR exists and was inspected successfully;
 - the user explicitly approved merge/finalization in the current request or after seeing the review result;
-- the final pre-merge state still has no blockers.
+- the final pre-merge state still has no blockers;
+- the full local CI suite and required GitHub checks are passing.
 
 If the PR is `PROD READY` but approval is missing, do not merge. Propose approval-gated finalization in the output.
 
 When approval is present, use `references/merge-finalization.md` for final state checks, GitHub Issue handling, non-GitHub PM completion, merge, and post-merge checkout mechanics.
 
-For a multi-repo review set, finalize each PR independently only after it is `PROD READY` and explicitly approved. Do not average scores across repositories; one blocked PR must not hide behind a production-ready PR in another child repo.
+For a multi-repo review set, finalize each PR independently only after it is `PROD READY`, the owning repository's full local CI suite is passing, and merge is explicitly approved. Do not average scores across repositories; one blocked PR must not hide behind a production-ready PR in another child repo.
 
 ## Severity Rules
 
@@ -228,7 +233,7 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 
 ### PR Updates
 
-- <summarize PR description reconciliation changes, top-level score/details comment creation, inline review comments added, stale thread resolution, and whether the PR was marked ready; for no PR, write `No PR body updates or comments applied.`>
+- <summarize PR description reconciliation changes, top-level score/details comment creation including full-suite CI results and out-of-scope failures, inline review comments added, stale thread resolution, and whether the PR was marked ready; for no PR, write `No PR body updates or comments applied.`>
 
 ### Finalization
 
@@ -255,7 +260,7 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 
 ### Non-Scored Notes
 
-- <optional notes about PR metadata, missing context, commands not run, architecture style identified, and relevant architecture skills loaded>
+- <full local CI suite commands/status, out-of-scope failures, PR metadata, missing context, commands not run, architecture style identified, and relevant architecture skills loaded>
 
 ### Next Step
 
