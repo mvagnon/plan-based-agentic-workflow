@@ -1,3 +1,5 @@
+![PBAW logo](.github/assets/pbaw-logo.png)
+
 # Plan Based Agentic Workflow
 
 Agent Skills for a plan-first development workflow:
