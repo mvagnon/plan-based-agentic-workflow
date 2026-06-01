@@ -3,9 +3,9 @@
 Agent Skills for a plan-first development workflow:
 
 - `feed-pm`: analyze a repository with Serena MCP, clarify remaining non-discoverable intent and tradeoffs, decompose requested work, and draft reviewable technical PM tasks.
-- `implement-pm`: fetch approved PM tasks, create one dedicated branch from the currently selected branch, open a draft PR per invocation, then implement the requested work directly in the current repository checkout while preserving staged and unstaged changes.
-- `review-pr`: review an implementation PR, reconcile the PR body with the actual diff, resolve stale already-addressed conversations, add a concise score/details comment plus inline action comments, mark strong draft PRs ready for review, and propose or perform approval-gated merge finalization for production-ready PRs.
-- `fix-pr`: infer the PR from the current branch, analyze PR review feedback, use Plan-mode structured clarification when available for ambiguous fixes, apply focused fixes, push the PR branch, and reply to or resolve handled review conversations.
+- `implement-pm`: fetch approved PM tasks, create dedicated branch(es) from the currently selected branch(es), open draft PR(s) before implementation, write PR backlinks to non-GitHub PM tasks, then implement the requested work directly in the current repository checkout or affected child repositories while preserving staged and unstaged changes.
+- `review-pr`: review implementation PRs from the current repo or child repos in a multi-repo workspace, reconcile PR bodies with actual diffs, resolve stale already-addressed conversations, add concise score/details comments plus inline action comments, mark strong draft PRs ready for review, and propose or perform approval-gated merge finalization for production-ready PRs.
+- `fix-pr`: infer PRs from the current branch or child repositories, analyze PR review feedback, use Plan-mode structured clarification when available for ambiguous fixes, apply focused fixes in the owning checkout, push PR branches, and reply to or resolve handled review conversations.
 
 The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
 
@@ -71,7 +71,7 @@ pm_tool=<github|notion|other> project=<repo|project-url|database> tasks="<scope 
 Defaults:
 
 - `pm_tool`: `github`
-- `project`: inferred from the current repository remote when possible
+- `project`: inferred from the current or target repository remote when possible
 - `tasks`: required for `feed-pm` and `implement-pm` unless the user message already contains the full scope
 - `pr`: optional for `review-pr` and `fix-pr`; infer it from the current branch when omitted
 - `scope`: optional for `fix-pr`; defaults to all unresolved actionable feedback
@@ -111,47 +111,49 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 ### Implementation With `implement-pm`
 
 1. Resolve exact PM task references.
-2. Check the current repository status and preserve staged, unstaged, and unrelated local changes.
-3. Create or switch to one dedicated branch from the currently selected branch for the invocation.
-4. Open a draft PR against that source branch with every concerned task reference at the top of the description.
-5. For GitHub Issues, link the PR to every concerned issue with GitHub-native linked-issue syntax, not plain text only.
-6. Implement directly in the current repository checkout.
-7. Use Serena MCP plus targeted search to reuse existing code before adding new code.
-8. Run relevant checks from the target repository.
-9. Report repository path, branch, draft PR, changed files, checks, and remaining risks.
+2. Resolve the target repository set: the current repo/monorepo, or affected child repos when the workspace contains multiple independent Git repositories.
+3. Check each affected repository status and preserve staged, unstaged, and unrelated local changes.
+4. Create or switch to one dedicated branch per affected repository from its currently selected branch.
+5. Open each draft PR against that repository's source branch with every concerned task reference at the top of the description.
+6. For GitHub Issues, link the PR to every concerned issue with GitHub-native linked-issue syntax, not plain text only.
+7. For non-GitHub PM tasks, write every draft PR URL back to the dedicated PR field, or to a task comment/description fallback when no dedicated field exists.
+8. Implement directly in the current repository checkout or affected child repositories.
+9. Use Serena MCP plus targeted search to reuse existing code before adding new code.
+10. Run relevant checks from the target repositories.
+11. Report repository paths, branches, draft PRs, changed files, checks, and remaining risks.
 
 ### Review With `review-pr`
 
-1. Resolve the PR from the current branch, PR URL, or PR number.
+1. Resolve PRs from the current branch, PR URL, PR number, or matching child repositories in a multi-repo workspace.
 2. Read the PR title, body, draft state, base/head refs, and diff.
 3. Review changed code and directly affected paths for production readiness.
 4. Compare the PR description with the actual diff.
 5. Update the PR body when it drifted from the implementation:
    - add extra completed work that is present in the diff but missing from the description;
    - add unfinished promised work as struck-through items without deleting the original text.
-6. Add one concise score/details PR comment and inline review comments for actionable fixes, not review details in the PR body.
+6. Add one concise score/details PR comment per PR and inline review comments for actionable fixes, not review details in the PR body.
 7. If the final score is greater than `18/20`, mark a draft PR ready for review.
-8. If fixes or clarifications are needed, recommend `fix-pr` from the PR branch.
+8. If fixes or clarifications are needed, recommend `fix-pr` from the PR branch or workspace containing the affected child repositories.
 9. If the PR is production-ready but merge approval is missing, propose finalization: merge the PR, update non-GitHub PM tasks to `Done` when applicable, then checkout the PR base branch and pull.
 10. If merge approval is present, re-check the PR state, merge with GitHub tooling, update non-GitHub PM tasks to `Done`, then checkout the PR base branch and pull.
-11. Report score, verdict, findings, PR body updates, PR comments, finalization status, checks reviewed, and residual risks.
+11. Report score, verdict, findings, PR body updates, PR comments, finalization status, checks reviewed, and residual risks per PR.
 
 ### Fix Review Feedback With `fix-pr`
 
-1. Resolve the PR from the current branch by default; use a PR URL, PR number, or branch name only when provided as an override.
+1. Resolve PRs from the current branch or matching child repositories by default; use a PR URL, PR number, branch name, repository, or child path when provided as an override.
 2. Read the PR body, diff, checks, reviews, issue comments, review comments, unresolved review threads, and cited lines.
 3. Build a feedback ledger that maps every actionable comment to a code fix, clarification, already-fixed status, obsolete status, or user decision.
 4. Use Plan-mode structured clarification when available for ambiguous fixes, or ask concise chat questions only when a user decision is required.
-5. Checkout the PR head branch safely, preserving staged, unstaged, and unrelated local changes.
+5. Checkout each PR head branch safely in its owning repository, preserving staged, unstaged, and unrelated local changes.
 6. Apply focused corrections using existing project architecture, validation, typing, business logic, and design-system patterns.
 7. Run relevant existing checks for the touched area.
-8. Commit and push remediation changes to the PR head branch.
+8. Commit and push remediation changes to the owning PR head branch.
 9. Reply to handled review threads or comments, resolve conversations when GitHub allows it, and add one top-level PR summary.
 
 ## Safety Rules
 
 - `feed-pm` must not create, edit, label, or move PM items before explicit post-proposal approval.
-- `implement-pm` must create its invocation branch from the currently selected branch and preserve staged, unstaged, and unrelated local changes in the current checkout.
+- `implement-pm` must create invocation branches from the currently selected branch in each affected repository and preserve staged, unstaged, and unrelated local changes in each checkout.
 - `review-pr` is intentionally side-effectful: it may edit the PR body, add review comments, resolve stale already-addressed conversations, mark a draft PR ready, and complete explicitly approved merge finalization only as described by its review workflow.
 - `fix-pr` may commit and push focused remediation changes, reply to review feedback, and resolve handled review threads. It must not merge PRs, close issues, mark PM items done, or mark PRs ready unless explicitly requested.
 - No skill should add dependencies, create logs, merge PRs, or update PM statuses unless explicitly requested. For `review-pr`, explicit merge/finalization approval may be given before the review or after a `PROD READY` result.

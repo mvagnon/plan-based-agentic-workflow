@@ -4,7 +4,7 @@ Use this reference for the concrete repository, branch, draft PR, linkage, commi
 
 ## Preflight
 
-Run from the target repository:
+Run from the target repository, or from each affected child repository in a multi-repo workspace:
 
 ```bash
 git rev-parse --show-toplevel
@@ -13,6 +13,19 @@ git branch --show-current
 git remote -v
 git remote get-url origin
 ```
+
+When the current directory is not itself the target repository, or may be a workspace containing multiple independent repositories, enumerate child Git repositories and inspect each candidate before choosing targets:
+
+```bash
+find . -mindepth 2 -maxdepth 4 -name .git -prune -print
+git -C <child-repo> status --short --branch
+git -C <child-repo> branch --show-current
+git -C <child-repo> remote -v
+```
+
+Use the parent directory of each `.git` entry as `<child-repo>`.
+
+Treat nested `.git` entries as independent child repository candidates, not monorepo packages. Do not assume a parent directory with multiple child repos has one shared branch, remote, PR, or check command.
 
 Record:
 
@@ -26,14 +39,14 @@ Do not stash, unstage, reset, delete, or commit unrelated local changes.
 
 ## Branch Creation
 
-Create one invocation branch from the currently selected branch and current `HEAD`:
+Create one invocation branch from the currently selected branch and current `HEAD` in each affected repository:
 
 ```bash
 git switch -c agent/<task-ids>-<short-slug>
 git status --short --branch
 ```
 
-When continuing the same invocation, reuse the existing matching branch:
+When continuing the same invocation, reuse the existing matching branch in that repository:
 
 ```bash
 git branch --show-current
@@ -50,13 +63,13 @@ Do not switch to the default branch first unless the user explicitly authorized 
 
 ## Draft PR Creation
 
-Push the invocation branch before implementation edits:
+Push each invocation branch before implementation edits:
 
 ```bash
 git push -u origin HEAD
 ```
 
-Create the draft PR against the recorded source branch:
+Create each draft PR against that repository's recorded source branch:
 
 ```bash
 gh pr create --draft --base <recorded-source-branch> --head <head-branch> --title "<title>" --body-file <pr-body-file>
@@ -71,6 +84,8 @@ gh pr create --draft --base <recorded-source-branch> --head <head-branch> --titl
 ```
 
 Do not include implementation changes in the setup commit.
+
+For multi-repo work, repeat draft PR creation per affected child repository and keep a task-to-PR map. A non-GitHub PM task that spans several repositories must receive every draft PR URL, not only the first one.
 
 ## Required PR Body Linkage
 
@@ -96,6 +111,28 @@ gh pr view <pr> --json number,url,body,baseRefName,headRefName,closingIssuesRefe
 ```
 
 If the PR targets a non-default branch and closing keywords do not link issues, use available GitHub tooling to create manual links. If manual linking is unavailable, stop before implementation and report the blocker.
+
+## Non-GitHub PM Backlinks
+
+After every required draft PR exists, update each non-GitHub PM task with the PR URL or URLs before implementation edits.
+
+Use the task schema discovered during PM retrieval:
+
+- write to the dedicated PR, pull request, development, URL, relation, or rich-text field when present;
+- otherwise add a task comment that lists all PR URLs and the repository each PR belongs to;
+- otherwise append or update a clearly delimited PR links section in the task description/body.
+
+Keep the fallback concise and factual:
+
+```markdown
+Implementation PRs:
+- <owner/repo>: <pr-url>
+- <owner/other-repo>: <pr-url>
+```
+
+After writing, re-read the PM task through the relevant MCP or CLI and confirm every PR URL is present. If the PM tool has no writable PR field, comment, or description path, stop before implementation and report the blocker.
+
+Do not move the PM task status while backlinking PRs unless the user explicitly requested it.
 
 ## Staging And Push
 

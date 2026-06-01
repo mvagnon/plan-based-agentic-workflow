@@ -14,6 +14,25 @@ git remote -v
 gh pr view --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author
 ```
 
+When invoked from a workspace that may contain multiple independent child repositories, enumerate and inspect child repos before deciding that no PR exists:
+
+```bash
+find . -mindepth 2 -maxdepth 4 -name .git -prune -print
+git -C <child-repo> status --short --branch
+git -C <child-repo> branch --show-current
+git -C <child-repo> remote -v
+```
+
+Use the parent directory of each `.git` entry as `<child-repo>`.
+
+Resolve PRs from each candidate child repository when they match the current branch, provided branch, explicit PR URL, or the PRs reported by a preceding multi-repo `review-pr` run:
+
+```bash
+gh -R <owner/repo> pr view <branch-or-pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup
+```
+
+Keep matching child-repository PRs in scope together. Ask only when several unrelated PRs match and no branch, URL, repository, or prior review output disambiguates them.
+
 Use an explicit PR URL, PR number, or branch only when the user provided one:
 
 ```bash

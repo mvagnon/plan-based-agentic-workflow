@@ -14,6 +14,25 @@ git remote -v
 gh pr view --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author
 ```
 
+When the current directory is a workspace that may contain multiple independent child repositories, enumerate and inspect child repos before deciding that no PR exists:
+
+```bash
+find . -mindepth 2 -maxdepth 4 -name .git -prune -print
+git -C <child-repo> status --short --branch
+git -C <child-repo> branch --show-current
+git -C <child-repo> remote -v
+```
+
+Use the parent directory of each `.git` entry as `<child-repo>`.
+
+For each candidate child repository, resolve the PR from the current branch, explicit PR, or explicit branch:
+
+```bash
+gh -R <owner/repo> pr view <branch-or-pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author
+```
+
+If several child repositories have PRs for the current branch or provided branch, keep them all in scope. If several unrelated PRs match and there is no clear branch or user-provided selector, ask before reviewing.
+
 If local changes exist, commit and push them before inspecting/scoring the PR:
 
 ```bash
@@ -24,6 +43,8 @@ git push
 ```
 
 If commit or push fails, stop the review flow and report the exact failing command.
+
+Run status, commit, and push commands in the repository that owns the PR. A parent workspace directory with child repos does not have a shared PR status.
 
 ## Diff And Context
 

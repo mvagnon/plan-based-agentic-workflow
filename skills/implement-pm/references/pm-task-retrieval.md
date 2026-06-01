@@ -51,9 +51,20 @@ Use the relevant MCP or CLI to retrieve:
 - status;
 - comments or discussion that change scope;
 - dependencies and linked tasks;
-- canonical URL.
+- canonical URL;
+- schema or properties that can store PR links, such as a dedicated pull request, development, URL, relation, or rich-text field;
+- whether comments can be added and whether the description/body can be edited.
 
 If the selected PM tool cannot provide complete task content, stop before branch/PR creation and ask for the missing task details.
+
+For non-GitHub PM tasks, record the best backlink destination before draft PR creation:
+
+1. Prefer a dedicated PR, pull request, development, URL, or relation field.
+2. If no dedicated field exists, prefer adding a task comment with the PR URL or URLs.
+3. If comments are unavailable but the description/body is writable, append or update a clearly delimited PR links section.
+4. If none of these write paths are available, treat PM backlinking as blocked and stop before implementation.
+
+Do not change PM task status while recording PR backlinks unless the user explicitly asked for a status transition.
 
 ## Resolved Task Set
 
@@ -62,6 +73,7 @@ Keep one canonical resolved task set and reuse it consistently for:
 - branch slug;
 - draft PR title and body;
 - linked issue syntax;
+- non-GitHub PM backlink destination and written PR URL or URLs;
 - implementation scope;
 - final report.
 

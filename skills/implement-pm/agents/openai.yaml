@@ -1,7 +1,7 @@
 interface:
   display_name: "Implement PM"
-  short_description: "Implement PM tasks in the current checkout."
-  default_prompt: "Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current repository checkout. It fetches the referenced tasks, creates one dedicated branch from the currently selected branch, opens a draft PR per invocation before implementation, studies the repository with Serena MCP, preserves staged, unstaged, and unrelated local changes, implements all requested tasks in the current checkout, runs relevant checks, and reports the repository path, branch, draft PR, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement `#123`, or continue the plan-based agentic workflow."
+  short_description: "Implement PM tasks in the current checkout or child repos."
+  default_prompt: "Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current checkout or a workspace containing child repositories. It fetches the referenced tasks, creates dedicated branch(es) from the currently selected branch(es), opens draft PR(s) before implementation, writes PR backlinks to non-GitHub PM tasks, studies the repository with Serena MCP, preserves staged, unstaged, and unrelated local changes, implements the requested work, runs relevant checks, and reports repository paths, branches, draft PRs, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement `#123`, or continue the plan-based agentic workflow."
 dependencies:
   tools:
     - type: "mcp"

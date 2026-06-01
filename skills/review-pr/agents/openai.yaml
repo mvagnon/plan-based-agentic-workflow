@@ -1,7 +1,7 @@
 interface:
   display_name: "Review PR"
-  short_description: "Review a PR, reconcile its description, resolve stale threads, add review comments, mark strong draft PRs ready, and propose approved merge finalization."
-  default_prompt: "Use when a pull request exists and the user intends to polish or merge a PR. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs"
+  short_description: "Review PRs, reconcile descriptions, comment, mark strong drafts ready, and propose approved merge finalization."
+  default_prompt: "Use when one or more pull requests exist and the user intends to polish or merge PRs. It resolves PRs from the current repository or child repositories in a multi-repo workspace, commits and pushes every staged, unstaged, or untracked local change in the affected repo before proceeding, performs strict production-readiness review with especially strict architecture-boundary checks, reconciles PR descriptions with actual diffs, adds concise score/details comments, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs."
 dependencies:
   tools:
     - type: "cli"

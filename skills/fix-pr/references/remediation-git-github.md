@@ -4,7 +4,7 @@ Use this reference for checkout, commit, push, replies, and thread resolution du
 
 ## Checkout
 
-Work in the current repository checkout when already on the PR head branch.
+Work in the current repository checkout or the child repository checkout that owns the PR when already on the PR head branch.
 
 Checkout the PR head only when needed and safe:
 
@@ -15,6 +15,8 @@ git status --short --branch
 ```
 
 Do not checkout if it would overwrite staged, unstaged, or unrelated local changes. If overlapping local changes exist, inspect and integrate them or ask when safe integration is ambiguous.
+
+For multi-repo remediation, repeat checkout, edit, verify, commit, push, and thread update operations per owning child repository. Do not stage or commit files from a sibling repository in the current PR's commit.
 
 ## Verify Push Access
 

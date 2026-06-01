@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when a pull request exists and the user intends to polish or merge a PR. It first commits and pushes every staged, unstaged, or untracked local change before proceeding, then performs strict production-readiness review with especially strict architecture-boundary checks, reconciles the PR description with the actual diff, adds a concise score/details PR comment, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs.
+description: Use when one or more pull requests exist and the user intends to polish or merge PRs. It resolves PRs from the current repository or child repositories in a multi-repo workspace, commits and pushes every staged, unstaged, or untracked local change in the affected repo before proceeding, performs strict production-readiness review with especially strict architecture-boundary checks, reconciles PR descriptions with actual diffs, adds concise score/details comments, adds inline comments for actionable fixes, marks high-scoring draft PRs ready for review, and proposes or performs approval-gated merge finalization for production-ready PRs.
 ---
 
 # Review PR
@@ -11,7 +11,7 @@ Perform a strict production-readiness review of PR code. Judge only the changed 
 
 Use `fix-pr` as the follow-up skill for implementing fixes, clarifying review comments, and resolving PR conversations. For production-ready PRs, propose merge finalization and perform it only after explicit user approval.
 
-This skill is intentionally side-effectful for real PR reviews: it may update the PR body, submit one PR review with inline comments, resolve stale conversations that are already addressed by the current diff, mark strong draft PRs ready according to the rules below, and complete an explicitly approved production-ready merge finalization.
+This skill is intentionally side-effectful for real PR reviews: it may update PR bodies, submit one PR review with inline comments per PR, resolve stale conversations that are already addressed by the current diff, mark strong draft PRs ready according to the rules below, and complete explicitly approved production-ready merge finalization.
 
 Be especially strict about architecture in the diff. Changed code must respect existing boundaries, dependency direction, ownership model, naming, shared abstractions, and framework-specific conventions. Treat architecture drift as a production-readiness risk, not a style preference.
 
@@ -24,9 +24,9 @@ Read the arguments below or equivalent invocation input as a loose key-value con
 Infer:
 
 - `PR`: optional. Accept a PR URL, PR number, or branch name. If omitted, infer the PR from the current branch.
-- `Repository`: optional. Accept a URL or repository identifier. Infer it from repository context when safe.
+- `Repository`: optional. Accept a URL, repository identifier, or child repository path. Infer it from repository context when safe.
 
-Ask one concise question only when the PR cannot be resolved or multiple PRs match the provided input.
+Ask one concise question only when the PR cannot be resolved or multiple unrelated PRs match the provided input. If the current workspace contains multiple child repositories and each has a PR associated with its current branch or the provided branch, treat those PRs as one multi-repo review set instead of ignoring child repos.
 
 ## Required References
 
@@ -54,19 +54,20 @@ If a PR description exists, use it as the stated implementation contract. Do not
 
 Before scoring:
 
-1. Check local repository status before reading or reviewing the diff.
-2. If there are any local changes, including staged, unstaged, or untracked non-ignored files, commit and push all of them before continuing. Do not proceed to diff inspection, PR description reconciliation, scoring, comments, readiness promotion, merge, or PM follow-up until the working tree is clean and pushed.
-3. If commit or push fails because of conflicts, missing identity, missing upstream, rejected push, authentication, failing hooks, branch protection, or another blocker, stop the review flow and report the blocker with the exact failed operation.
-4. Identify the diff source from the PR when one exists, or from a committed branch comparison when no PR exists yet.
-5. When a PR exists, read title, body, draft state, URL, base, and head.
-6. Read unresolved review threads, issue comments, and prior review comments before adding a new review. Resolve only prior concerns already addressed by the current diff or fully explained by existing discussion.
-7. Use Serena MCP for changed-file and nearby-symbol exploration. If Serena is unavailable, stop and report the missing required dependency instead of scoring the PR from local search alone.
-8. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant package docs.
-9. Identify the actual architecture style or local convention used by the touched area before judging the diff.
-10. Discover and load any available architecture skills that match the actual touched architecture before judging architecture.
-11. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
-12. Prefer existing project conventions over generic preferences.
-13. If architecture must be inferred from code, say it is an inference and name the evidence used.
+1. Resolve the repository set. In a normal repository or monorepo checkout, use the current Git repository root. In a workspace containing multiple independent child Git repositories, inspect each child repo and resolve PRs there too.
+2. Check local repository status in every affected repository before reading or reviewing the diff.
+3. If there are any local changes in an affected repository, including staged, unstaged, or untracked non-ignored files, commit and push all of them in that repository before continuing. Do not proceed to diff inspection, PR description reconciliation, scoring, comments, readiness promotion, merge, or PM follow-up until each affected working tree is clean and pushed.
+4. If commit or push fails because of conflicts, missing identity, missing upstream, rejected push, authentication, failing hooks, branch protection, or another blocker, stop the review flow and report the blocker with the exact failed operation and repository path.
+5. Identify the diff source from each PR when one exists, or from a committed branch comparison when no PR exists yet.
+6. When a PR exists, read title, body, draft state, URL, base, and head.
+7. Read unresolved review threads, issue comments, and prior review comments before adding a new review. Resolve only prior concerns already addressed by the current diff or fully explained by existing discussion.
+8. Use Serena MCP for changed-file and nearby-symbol exploration in the repository being reviewed. If Serena is unavailable, stop and report the missing required dependency instead of scoring the PR from local search alone.
+9. Read project-specific instructions such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and relevant package docs for each affected repository.
+10. Identify the actual architecture style or local convention used by the touched area before judging the diff.
+11. Discover and load any available architecture skills that match the actual touched architecture before judging architecture.
+12. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, and security utilities needed to understand impact.
+13. Prefer existing project conventions over generic preferences.
+14. If architecture must be inferred from code, say it is an inference and name the evidence used.
 
 Use `references/github-pr-review.md` for concrete metadata, diff, checks, prior discussion, review thread, and PR update operations.
 
@@ -116,7 +117,7 @@ Before posting new review comments:
 - do not resolve conversations that still need code changes, reviewer confirmation, or user decisions;
 - avoid posting duplicate inline comments for a concern already present in an unresolved thread.
 
-After the review is complete, submit exactly one PR review comment with the score and a few high-signal details. Add inline PR review comments for actionable findings that can be anchored to changed lines.
+After each PR review is complete, submit exactly one PR review comment with the score and a few high-signal details. Add inline PR review comments for actionable findings that can be anchored to changed lines.
 
 Inline comment rules:
 
@@ -129,7 +130,7 @@ Inline comment rules:
 
 If the final score is strictly greater than `18/20` and the PR is still a draft, mark it ready for review. Do not mark PRs ready when the score is `18/20` or lower, when the score could not be produced, or when no PR exists.
 
-Do not implement fixes from this skill. When the review finds actionable feedback, recommend `fix-pr` as the follow-up from the PR branch.
+Do not implement fixes from this skill. When the review finds actionable feedback, recommend `fix-pr` as the follow-up from the PR branch or workspace containing the reviewed child repositories.
 
 ## Approved Merge Finalization
 
@@ -143,6 +144,8 @@ Merge finalization is allowed only when all of these are true:
 If the PR is `PROD READY` but approval is missing, do not merge. Propose approval-gated finalization in the output.
 
 When approval is present, use `references/merge-finalization.md` for final state checks, GitHub Issue handling, non-GitHub PM completion, merge, and post-merge checkout mechanics.
+
+For a multi-repo review set, finalize each PR independently only after it is `PROD READY` and explicitly approved. Do not average scores across repositories; one blocked PR must not hide behind a production-ready PR in another child repo.
 
 ## Severity Rules
 
@@ -203,11 +206,13 @@ Do not award points for PR description quality. Do not remove points for PR size
 
 ## Output Format
 
-Return the review in this exact order:
+Return the review in this exact order. When multiple child-repository PRs are in scope, repeat this full block once per PR and include the repository path in each block; do not combine scores.
 
 ```markdown
 ## Review PR
 
+Repository: <path>
+PR: <url or "none">
 Score: <N>/20
 Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 

@@ -21,6 +21,8 @@ Do not merge if:
 - new blocking review feedback exists;
 - non-GitHub PM finalization data cannot be resolved when required.
 
+For a multi-repo review set, run this final state check separately for each PR in its owning repository. Do not merge a blocked child-repository PR because another PR in the set is ready.
+
 ## GitHub Issues
 
 For GitHub Issues, rely on the closing keywords or linked issue metadata already created by `implement-pm`.
@@ -38,9 +40,10 @@ gh pr view <pr> --json closingIssuesReferences,linkedIssues
 For Notion or another PM tool:
 
 1. Extract every concerned task URL from the PR body.
-2. Inspect the PM schema/status field and valid status values.
-3. Confirm a safe `Done` or equivalent completed state.
-4. Stop before merge when any task URL or completed status cannot be resolved safely.
+2. Inspect the PM schema/status field, valid status values, and existing PR backlink field/comment/description created by `implement-pm`.
+3. Confirm every PR URL for the task is present when the task spans multiple repositories.
+4. Confirm a safe `Done` or equivalent completed state.
+5. Stop before merge when any task URL, PR backlink, or completed status cannot be resolved safely.
 
 Do not invent a status value.
 

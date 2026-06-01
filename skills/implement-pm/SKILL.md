@@ -1,6 +1,6 @@
 ---
 name: implement-pm
-description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current repository checkout. It fetches the referenced tasks, creates one dedicated branch from the currently selected branch, opens a draft PR per invocation before implementation, studies the repository with Serena MCP, preserves staged, unstaged, and unrelated local changes, implements all requested tasks in the current checkout, runs relevant checks, and reports the repository path, branch, draft PR, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement issue references, or continue the plan-based agentic workflow.
+description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items directly in the current checkout or a workspace containing child repositories. It fetches the referenced tasks, creates dedicated branch(es) from the currently selected branch(es), opens draft PR(s) before implementation, writes PR backlinks to non-GitHub PM tasks, studies the repository with Serena MCP, preserves staged, unstaged, and unrelated local changes, implements the requested work, runs relevant checks, and reports repository paths, branches, draft PRs, changes, and remaining risks. Trigger on phrases like implement PM tasks, implement these issues, work on these tickets, implement issue references, or continue the plan-based agentic workflow.
 ---
 
 # Implement PM
@@ -14,7 +14,7 @@ Read the following arguments or equivalent invocation input as a loose key-value
 Infer:
 
 - `Tasks`: required. Accept GitHub issue numbers, issue URLs, Notion page URLs, task IDs, or a small query that identifies exact PM items.
-- `PM Tool`: optional. Default to GitHub Issues for the repository that owns the current repository remote.
+- `PM Tool`: optional. Default to GitHub Issues for the repository or child repositories that own the target remotes.
 - `Project`: optional. For GitHub, accept a repository, project URL, or project number. Infer from repository context when safe.
 
 Ask one concise question only when the task references cannot be resolved to exact PM items. Do not guess between multiple matching tasks.
@@ -39,33 +39,41 @@ Use `references/pm-task-retrieval.md` for retrieval commands, search behavior, d
 
 Preserve the complete resolved task set for the branch name, draft PR body, implementation scope, and final report. Never collapse a multi-task invocation to the first task only.
 
+Resolve the target repository set before branch work:
+
+- In a normal repository or monorepo checkout, use the current Git repository root.
+- In a workspace directory that contains multiple independent child Git repositories, inspect the child repositories and map each task to the affected repo or repos.
+- If the affected child repos cannot be inferred from task content, explicit user input, existing branch names, or file paths, ask one concise question before creating branches.
+- For multi-repo work, keep one branch and one draft PR per affected repository. Do not mix changes from different child repositories into one PR.
+
 ### 2. Prepare The Branch And Draft PR
 
-Implement directly in the current repository checkout. Do not create a secondary checkout.
+Implement directly in the current checkout or affected child repository checkout. Do not create a secondary checkout.
 
 Before editing:
 
-- identify repository root, current branch, remotes, and local status;
-- record the currently selected branch and treat it as the source/base branch for this invocation;
-- create or switch to one dedicated invocation branch from the current checkout state;
+- identify repository root, current branch, remotes, and local status for each affected repository;
+- record each currently selected branch and treat it as that repository's source/base branch for this invocation;
+- create or switch to one dedicated invocation branch per affected repository from the current checkout state;
 - preserve staged, unstaged, and unrelated local changes;
 - fetch remote refs only when needed for task resolution or implementation context;
-- open a draft PR from the dedicated branch to the recorded source/base branch before implementation edits;
+- open each draft PR from the dedicated branch to the recorded source/base branch before implementation edits;
 - put every concerned task reference at the top of the PR body;
 - for GitHub Issues, link every concerned issue using native linked-issue syntax;
-- confirm every resolved task is represented in the draft PR before implementation edits.
+- for non-GitHub PM tasks, write the draft PR URL or URLs back to the PM task's dedicated PR field when one exists, or to a task comment/description fallback when no dedicated field exists;
+- confirm every resolved task is represented in the draft PR body and, for non-GitHub PM tasks, in the PM task backlink before implementation edits.
 
 Use `references/implementation-git-github.md` for concrete branch, draft PR, linkage, and pre-edit verification mechanics.
 
-If authentication, remote configuration, linking, or hosting support prevents draft PR creation, stop before implementation and report the blocker.
+If authentication, remote configuration, PR creation, GitHub Issue linking, or non-GitHub PM backlinking prevents required linkage, stop before implementation and report the blocker.
 
 ### 3. Implement The Tasks
 
-Work inside the current checkout on the dedicated invocation branch, after the draft PR exists.
+Work inside each affected checkout on its dedicated invocation branch, after the draft PR exists and required task linkage/backlinks are confirmed.
 
 Use Serena first for exploration:
 
-- activate the repository as the Serena project;
+- activate the repository being edited as the Serena project;
 - use symbol overview, symbol lookup, reference lookup, diagnostics, and pattern search before reading whole files;
 - reuse existing components, hooks, services, schemas, validators, DTOs, repositories, utilities, and design-system primitives before creating anything new.
 
@@ -103,13 +111,13 @@ Use `references/implementation-git-github.md` for staging, commit, and push mech
 
 Finish with:
 
-- repository path and current branch name;
-- draft PR URL;
+- repository path(s) and current branch name(s);
+- draft PR URL(s);
 - implemented tasks and task URLs;
 - summary of code changes;
 - checks run and results;
 - files changed;
-- known risks, skipped items, and any PM task comments/status changes made;
-- suggested next command: `review-pr` from the PR branch.
+- known risks, skipped items, and any PM task backlink comments/description/field updates or status changes made;
+- suggested next command: `review-pr` from the PR branch or workspace containing the affected child repositories.
 
-Do not switch away from the invocation branch, mark the PR ready, merge, or update PM statuses unless the user asks.
+Do not switch away from invocation branches, mark PRs ready, merge, or update PM statuses unless the user asks.
