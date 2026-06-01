@@ -51,10 +51,24 @@ Run status, commit, and push commands in the repository that owns the PR. A pare
 Read PR metadata and diff:
 
 ```bash
-gh pr view <pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup
+gh pr view <pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup,closingIssuesReferences,linkedIssues
 gh pr diff <pr>
 gh pr checks <pr>
 ```
+
+## Linked PM Task Retrieval
+
+Treat linked PM tasks as the canonical intended scope. Resolve them before scoring coverage:
+
+- Use `closingIssuesReferences` and `linkedIssues` from `gh pr view` when available.
+- Extract additional GitHub issue references and non-GitHub PM URLs from the PR body.
+- For every GitHub issue, read the task content and comments that may change scope:
+
+```bash
+gh issue view <number-or-url> --json number,title,body,state,labels,comments,url,closed
+```
+
+For non-GitHub task URLs, use the relevant MCP or CLI already available in the workflow. If a linked task cannot be read, report the missing task context in the review and evaluate the code against the accessible PR description and diff. Do not treat an inaccessible PM task as a code risk unless it creates a concrete coverage or production-readiness uncertainty.
 
 When no PR exists yet, compare the committed branch to the intended base:
 
@@ -196,6 +210,10 @@ Generated reconciliation block:
 ### Not Completed
 
 - ~~<promised task, checklist item, acceptance criterion, or scope item not implemented by the diff>~~ - <short factual reason>
+
+### PM Task Coverage Notes
+
+- <linked task requirement, acceptance criterion, or scope item whose implementation status needs clarification>
 <!-- review-pr:reconciliation:end -->
 ```
 

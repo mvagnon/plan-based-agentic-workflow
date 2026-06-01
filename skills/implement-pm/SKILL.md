@@ -1,6 +1,6 @@
 ---
 name: implement-pm
-description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items in the current checkout or a workspace containing child repositories. It resolves the exact tasks, creates dedicated branch(es) and draft PR(s) before implementation, links every task, studies the repository with Serena MCP, preserves unrelated local work, implements focused changes, runs relevant checks, commits and pushes, then reports PRs, changes, checks, and risks.
+description: Use this skill when the user wants to implement one or more PM tasks, GitHub Issues, Notion tasks, or plan-based workflow items in the current checkout or a workspace containing child repositories. It resolves the exact tasks, creates dedicated branch(es) and draft PR(s) before implementation, links every task, writes a merged PR description with expected outcomes and validation intent, studies the repository with Serena MCP, preserves unrelated local work, implements focused changes, runs relevant checks, commits and pushes, then reports PRs, changes, checks, and risks.
 ---
 
 # Implement PM
@@ -33,6 +33,7 @@ Load only what is needed:
 - Work in the current checkout or affected child checkout. Do not create secondary checkouts.
 - Keep one branch and one draft PR per affected repository.
 - Create draft PRs and required task links before implementation edits.
+- Treat the PR body as a review handoff: include task links plus a concise merged summary of expected outcomes, validation intent, and explicit out-of-scope items derived from the resolved task set.
 - Use Serena first. If Serena is unavailable, stop instead of implementing from local search alone.
 - Reuse existing components, hooks, services, schemas, validators, DTOs, repositories, utilities, and design-system primitives before creating anything new.
 - Do not add dependencies, create logs, mark PRs ready, merge PRs, update PM statuses, or create tests by default.
@@ -43,8 +44,8 @@ Load only what is needed:
 2. Map each task to the affected repository or repositories. Ask before branch work if child-repository ownership cannot be inferred safely.
 3. Prepare each repository: identify root, current branch, remotes, status, and source/base branch. Preserve staged, unstaged, untracked, and unrelated local work.
 4. Create or switch to a dedicated invocation branch from the current checkout state.
-5. Open each draft PR to the recorded source/base branch before implementation edits. Put every task reference at the top of the PR body. Link GitHub Issues with native syntax and write non-GitHub PR backlinks where supported.
-6. Confirm every resolved task appears in the draft PR body and every required non-GitHub backlink is present. Stop before implementation if required linkage fails.
+5. Open each draft PR to the recorded source/base branch before implementation edits. Put every task reference at the top of the PR body, then synthesize the concerned tasks into expected outcomes, validation intent, and explicit out-of-scope items. Link GitHub Issues with native syntax and write non-GitHub PR backlinks where supported.
+6. Confirm every resolved task appears in the draft PR body, the merged expected outcomes are present, and every required non-GitHub backlink is present. Stop before implementation if required linkage fails.
 7. Implement the tasks using Serena and loaded repository rules. Keep business logic centralized, handlers/controllers thin, boundary validation explicit, and server-side authorization enforced.
 8. Run relevant existing checks from package scripts, task runners, or CI config. Avoid dev servers, containers, browser automation, and watch commands by default.
 9. Fix critical failures caused by your changes. Report unrelated pre-existing failures with evidence.
@@ -58,7 +59,7 @@ Load only what is needed:
 - [ ] 3. Current branch, remotes, base branch, and local status recorded for each repo.
 - [ ] 4. Dedicated branch created or selected without losing unrelated local work.
 - [ ] 5. Draft PR opened before implementation edits.
-- [ ] 6. Every task linked in the PR body; non-GitHub backlinks written and verified when required.
+- [ ] 6. Every task linked in the PR body, merged expected outcomes included, and non-GitHub backlinks written and verified when required.
 - [ ] 7. Repository explored with Serena and existing patterns reused.
 - [ ] 8. Implementation kept focused on task scope and architecture.
 - [ ] 9. Relevant existing checks run; caused failures fixed and unrelated failures reported.

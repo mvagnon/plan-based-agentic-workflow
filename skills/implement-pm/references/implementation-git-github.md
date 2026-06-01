@@ -89,7 +89,7 @@ For multi-repo work, repeat draft PR creation per affected child repository and 
 
 ## Required PR Body Linkage
 
-Start the PR body with all concerned task references.
+Start the PR body with all concerned task references. Then add a concise synthesized handoff for reviewers. The body should help a reviewer understand the combined intent without opening every task first, while the task links remain the canonical source of truth.
 
 For GitHub Issues, use one closing keyword per issue:
 
@@ -103,6 +103,31 @@ Do not write:
 Resolves #123, #124
 #123 #124
 ```
+
+After the task references, include these sections:
+
+```markdown
+## PM Task Summary
+
+- #123 <task title>: <one-sentence expected outcome>
+- #124 <task title>: <one-sentence expected outcome>
+
+## Combined Scope And Expected Outcomes
+
+- <merged behavior, API, UI, data, or workflow outcome expected across the tasks>
+- <another expected outcome when materially distinct>
+
+## Validation Plan
+
+- <existing check or manual verification that should validate the work>
+- <another relevant check, or `To be completed after implementation`>
+
+## Out Of Scope
+
+- <explicitly deferred task requirement, dependency, or non-goal, or `None identified`>
+```
+
+Keep this summary factual and short. Do not paste full task bodies or invent requirements not present in the resolved task set. For multi-repo work, each PR body should cover the tasks and expected outcomes concerned by that repository, and cross-reference sibling PRs when a task spans several repositories.
 
 After PR creation, confirm the body and linked references:
 
