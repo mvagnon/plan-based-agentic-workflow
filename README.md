@@ -1,4 +1,6 @@
-![PBAW logo](.github/assets/pbaw.png)
+<p align="center">
+  <img src=".github/assets/pbaw.png" alt="PBAW Logo" width="420" />
+</p>
 
 # Plan Based Agentic Workflow
 
