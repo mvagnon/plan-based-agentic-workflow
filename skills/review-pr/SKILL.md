@@ -31,8 +31,8 @@ Load only what is needed:
 
 - Do not implement fixes from this skill.
 - Use `fix-pr` as the follow-up for code changes and review-thread remediation.
-- Score code risk only. Do not lower the score for PR size, metadata quality, missing description context, or commit history shape unless the committed code creates production risk.
-- Treat PR-caused CI failures as scored risks. Mention demonstrably out-of-scope full-suite failures without lowering the score.
+- Score code risk only. Do not lower the score for PR size, metadata quality, missing description context, test presence or coverage, or commit history shape unless the committed code creates production risk.
+- Treat PR-caused non-test CI failures as scored risks. At least one failing test in the full local CI suite subtracts 3 points automatically and makes the PR non-mergeable. Mention demonstrably out-of-scope non-test full-suite failures without lowering the score.
 - Treat linked PM tasks as the source of truth for intended scope. Use the PR description as a reviewer-facing summary and reconcile it when it omits or misstates task coverage.
 - Use Serena for changed-file and nearby-symbol exploration. If Serena is unavailable, stop instead of scoring from local search alone.
 - Identify the actual architecture or local convention before judging architecture. Load directly relevant architecture skills when available.
@@ -77,40 +77,39 @@ Architecture checks must name the governing architecture or local convention. Ve
 Use these severities:
 
 - `Blocker`: must not merge. Examples: exploitable security, broken authz, data loss, outage risk, unsafe migration, severe regression, or architecture break that makes the system unsafe to operate.
-- `Major`: should fix before merge. Examples: likely bug, missing validation, weak tests around risky behavior, near-term maintainability risk, or meaningful architecture drift.
+- `Major`: should fix before merge. Examples: likely bug, missing validation, near-term maintainability risk, or meaningful architecture drift.
 - `Minor`: worth fixing, but not merge-blocking.
 - `Nit`: optional polish.
 
-Start from `20` and subtract concrete code risks:
+Start from `20` and subtract concrete code risks plus any automatic penalties:
 
 | Category | Points |
 | --- | ---: |
 | Architecture and boundaries | 6 |
 | Correctness and regression risk | 4 |
 | Security and privacy | 4 |
-| Production readiness and reliability | 2 |
-| Tests and verification | 2 |
-| Maintainability and best practices | 2 |
+| Production readiness and reliability | 3 |
+| Maintainability and best practices | 3 |
 
 Score bands:
 
-- `18-20`: production-ready. Only minor or nit-level issues.
-- `15-17`: close, but fixes are recommended before merge.
+- `18-20`: eligible for `PROD READY`. Only minor or nit-level issues.
+- `15-17`: close, but not mergeable until fixes are applied.
 - `12-14`: not production-ready without targeted fixes.
 - `8-11`: high-risk PR. Merge should be blocked.
 - `0-7`: severe production or security risk.
 
-Score caps:
+Automatic penalties apply after the category score. Multiple independent penalties can stack, and any final score below `18/20` is not mergeable:
 
-- Credible exploitable security issue or missing server-side authz on protected data/actions: max `8/20`.
-- Data loss, corruption, outage risk, or unsafe production migration: max `10/20`.
-- Clear architecture violation likely to spread: max `12/20`.
-- Cross-package or dependency-direction violation that can break consumers: max `13/20`.
-- Architecture-sensitive diff with unidentified governing architecture: max `16/20`.
-- Available directly relevant architecture skill not consulted before scoring: max `15/20`, unless corrected before finalizing.
-- Architecture score `3/6` or lower: max `17/20` and verdict cannot be `PROD READY`.
-- Architecture score `2/6` or lower: max `12/20`.
-- Untested high-risk behavior change in a repo with a test setup: max `15/20`.
+- Credible exploitable security issue or missing server-side authz on protected data/actions: subtract `12` points.
+- Data loss, corruption, outage risk, or unsafe production migration: subtract `10` points.
+- Clear architecture violation likely to spread: subtract `8` points.
+- Cross-package or dependency-direction violation that can break consumers: subtract `7` points.
+- Architecture-sensitive diff with unidentified governing architecture: subtract `4` points.
+- Available directly relevant architecture skill not consulted before scoring: subtract `5` points, unless corrected before finalizing.
+- Architecture score `3/6` or lower: subtract `3` points.
+- Architecture score `2/6` or lower: subtract `8` points instead of the `3/6` architecture-score penalty.
+- At least one failing test in the full local CI suite: subtract `3` points.
 - Diff cannot be inspected: do not fabricate a score.
 
 ## PR Updates
@@ -157,9 +156,8 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 - Architecture and boundaries: <x>/6
 - Correctness and regression risk: <x>/4
 - Security and privacy: <x>/4
-- Production readiness and reliability: <x>/2
-- Tests and verification: <x>/2
-- Maintainability and best practices: <x>/2
+- Production readiness and reliability: <x>/3
+- Maintainability and best practices: <x>/3
 
 ### Improvement Plan
 1. <highest leverage fix>
@@ -186,7 +184,7 @@ If there are no findings, write `No blocking or major findings found.` under `Fi
 - [ ] 7. Changed code and directly affected code paths inspected with architecture ownership identified.
 - [ ] 8. Full local CI suite run or missing full-suite commands reported with reason.
 - [ ] 9. Check failures classified as PR-caused, likely PR-caused, or out of scope.
-- [ ] 10. Score and verdict calculated from concrete code risks with score caps applied.
+- [ ] 10. Score and verdict calculated from concrete code risks with automatic penalties applied.
 - [ ] 11. PR description reconciled without overwriting author content.
 - [ ] 12. One review posted per PR with top-level score/details and non-duplicate inline comments.
 - [ ] 13. Draft marked ready only when score is greater than `18/20`.
