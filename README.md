@@ -1,4 +1,4 @@
-![PBAW logo](.github/assets/pbaw-logo.png)
+![PBAW logo](.github/assets/pbaw.png)
 
 # Plan Based Agentic Workflow
 
