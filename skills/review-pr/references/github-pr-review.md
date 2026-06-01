@@ -63,7 +63,7 @@ git diff <base-ref>...HEAD
 git diff --name-only <base-ref>...HEAD
 ```
 
-Inspect prior discussion:
+Inspect all prior discussion before posting a new review:
 
 ```bash
 gh api /repos/<owner>/<repo>/issues/<number>/comments --paginate
@@ -129,7 +129,7 @@ Classify a failure as out of scope only when the failing test, file, package, se
 
 ## Review Threads GraphQL
 
-Query unresolved review threads:
+Query all review threads, including resolved, unresolved, and outdated threads. Use the `isResolved` and `isOutdated` fields to decide whether a thread is still actionable, already addressed, or useful historical context.
 
 ```bash
 gh api graphql -f query='

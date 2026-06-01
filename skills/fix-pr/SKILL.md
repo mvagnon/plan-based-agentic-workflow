@@ -1,163 +1,61 @@
 ---
 name: fix-pr
-description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. By default it fixes the PR associated with the current branch, including PRs in child repositories when the current directory is a multi-repo workspace, analyzes the whole PR and review feedback, uses structured clarification/question tooling when available for ambiguous fixes that need user decisions, applies focused corrections in the owning checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with official GitHub tooling when possible.
+description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. It resolves the PR from the current branch or child repositories, collects all review feedback and checks, builds a feedback ledger, asks for user decisions only when needed, applies focused fixes, runs relevant checks, commits and pushes, then replies to and resolves GitHub review conversations when supported.
 ---
 
 # Fix PR
 
 ## Purpose
 
-Turn PR review feedback into a focused corrective implementation pass. Analyze the full PR, all review comments, inline threads, checks, and cited lines; ask the user for every decision that cannot be safely inferred; then fix the code, verify it, push it, and update the PR conversations.
+Turn PR review feedback into a focused remediation pass. This skill fixes and replies; it does not rescore, approve, merge, close issues, or move PM items unless the user explicitly asks.
 
-This skill is for remediation after review. It is not a replacement for `review-pr`: do not rescore the PR, approve it, merge it, close issues, or move PM items unless the user explicitly asks.
+## Inputs
 
-## Input Contract
+No argument is required for the normal workflow. Resolve the PR from the current branch first, including matching child-repository branches in a multi-repo workspace.
 
-No argument is required for the normal workflow. Resolve PRs from the current branch first, including matching child-repository branches in a multi-repo workspace; this keeps remediation anchored to the branch or workspace the user is already working on.
+Read `$ARGUMENTS` or equivalent natural language as optional overrides:
 
-Read the following arguments or equivalent invocation input as optional overrides:
+- `PR`: PR URL, PR number, or branch name.
+- `Repository`: repository URL, identifier, or child repository path.
+- `Scope`: feedback subset such as `blockers only`, `all review comments`, reviewer name, comment URL, or review thread URL. Default to all unresolved actionable feedback.
 
-`$ARGUMENTS`
+Ask one concise question only when the PR cannot be resolved or multiple unrelated PRs match.
 
-Infer:
+## References
 
-- `PR`: optional override. Accept a PR URL, PR number, or branch name only when the user wants to fix a PR other than the one associated with the current branch.
-- `Repository`: optional. Accept a URL, repository identifier, or child repository path. Infer it from repository context when safe.
-- `Scope`: optional. Accept a subset such as `blockers only`, `all review comments`, a reviewer name, a comment URL, or a review thread URL. Default to all unresolved actionable feedback.
+Load only what is needed:
 
-Ask one concise question only when the PR cannot be resolved or multiple unrelated PRs match the provided input. If `review-pr` produced a multi-repo review set, or the current workspace contains child repositories with PRs for the current/provided branch, handle those PRs in their owning repositories instead of ignoring child repos.
+- `references/github-feedback.md` for PR context, feedback collection, review-thread queries, and feedback ledger format.
+- `references/remediation-git-github.md` for checkout, push access, commits, review replies, thread resolution, and fallback summaries.
 
-## Required References
+## Rules
 
-Load these bundled references as needed:
-
-- `references/github-feedback.md`: PR context resolution, review/comment collection, review-thread query mechanics, and feedback ledger template.
-- `references/remediation-git-github.md`: checkout, push-access checks, commit/push mechanics, review-thread replies, thread resolution, and fallback PR summary.
-
-References are intentionally technical. Keep the skill body focused on remediation flow and consult the references for commands, payloads, and tool-specific details.
-
-## Required Context
-
-Before deciding what to fix:
-
-1. Resolve the repository set. In a normal repository or monorepo checkout, use the current Git repository root. In a workspace containing multiple independent child Git repositories, inspect each child repo and resolve PRs there too.
-2. Identify repository root, current branch, remotes, and local status for every affected repository.
-3. Resolve PR number, repository, URL, state, draft state, base ref, head ref, and head repository from the current branch unless the user provided an explicit override.
-4. Read PR title, body, changed files, diff, reviews, issue comments, review comments, review threads, and checks.
-5. Use Serena MCP to inspect cited lines plus nearby code, tests, schemas, services, routes, components, or docs needed to understand the feedback in the repository being fixed. If Serena is unavailable, stop and report the missing required dependency instead of applying fixes from local search alone.
-6. Read project instructions in scope, such as `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, architecture docs, and directly relevant package docs.
-7. Discover existing code, validation, typing, business logic, and design-system patterns before adding anything new.
-8. Treat outdated review threads as context: verify whether the concern is already fixed by the current head before deciding no action is needed.
-
-Use `references/github-feedback.md` for the concrete collection mechanics and feedback ledger template.
-
-## Feedback Triage
-
-Build a feedback ledger before editing. For every review item, record:
-
-- source: reviewer, review, comment URL, or thread ID;
-- location: file and current or original line when available;
-- requested action or concern;
-- current status: `needs-fix`, `needs-user-decision`, `clarify-only`, `already-fixed`, `obsolete`, or `out-of-scope`;
-- intended response: code change, explanation, or no action with reason;
-- whether the thread should be resolved after the response.
-
-Group duplicate comments under one corrective action, but keep each PR conversation mapped so every reviewer comment gets a response or an explicit reason it was not changed.
-
-Prioritize:
-
-1. Blockers, requested changes, failed checks, and security/correctness issues.
-2. Major architecture, validation, data integrity, and regression concerns.
-3. Minor actionable fixes.
-4. Clarifications and non-actionable comments.
-
-Do not implement nit-only or preference-only changes that conflict with project conventions unless the user explicitly asks.
-
-## Question Policy
-
-Ask after collecting the feedback ledger and before editing ambiguous items.
-
-Ask the user when:
-
-- structured clarification/question tooling is available and an ambiguous fix needs a user decision;
-- a review comment conflicts with project instructions, architecture, or another comment;
-- the requested fix changes product behavior, API contracts, data models, migrations, permissions, pricing, billing, or user-visible copy in a non-obvious way;
-- a comment is unclear and several materially different fixes are plausible;
-- the safest fix would be broad refactoring beyond the PR's intended scope;
-- resolving a comment would require adding a dependency, creating new tests, changing PM scope, or updating unrelated code.
-
-Do not ask about discoverable facts. Use repository inspection and GitHub context first.
-
-When asking, batch all currently known questions and make each question concrete:
-
-- cite the review comment or file area;
-- state the decision needed;
-- provide a recommended default when there is a clear conservative option;
-- explain the implementation impact in one sentence.
-
-After the user answers, treat the answers as the fix contract. If new ambiguity appears while implementing, stop and ask before guessing.
-
-## Implementation Workflow
-
-### 1. Prepare The Checkout
-
-- Work in the current repository checkout or owning child repository checkout. Do not create a secondary checkout.
-- Check local status before branch operations.
-- Move to the PR head branch only when the current branch is not already the PR head and doing so will not overwrite local work.
-- Preserve staged, unstaged, and unrelated local changes. Do not stash, unstage, commit, revert, or delete unrelated changes unless the user explicitly asks.
-- If local changes overlap with the requested fixes, inspect them and work with them when possible. Ask only when safe integration is ambiguous.
-- Confirm the user or token can push to the PR head branch. If the PR comes from a fork or protected branch where pushing is unavailable, implement locally when possible and report the push blocker.
-- For multi-repo fixes, keep branch checkout, edits, checks, commits, pushes, and PR conversation updates scoped to the child repository that owns each PR.
-
-Use `references/remediation-git-github.md` for checkout and push-access mechanics.
-
-### 2. Apply Focused Fixes
-
-- Reuse existing services, hooks, schemas, validators, DTOs, repositories, utilities, components, tokens, variants, and test helpers.
-- Keep business rules centralized. Do not duplicate validation, permission checks, transformations, query keys, or formatting rules in a second place.
-- Keep handlers/controllers thin and enforce server-side authorization for protected operations.
-- Keep UI fixes aligned with existing design-system primitives, loading/error patterns, responsiveness, and accessibility conventions.
+- Collect the full feedback context before editing.
+- Use Serena to inspect cited lines and nearby code. If Serena is unavailable, stop instead of applying fixes from local search alone.
+- Treat outdated threads as context: verify whether current head already addresses the concern.
+- Group duplicate comments under one corrective action, but keep every GitHub conversation mapped to a reply or explicit no-change reason.
+- Ask before fixing ambiguous, conflicting, broad, product-changing, dependency-adding, test-creating, PM-scope-changing, or unrelated-code feedback.
+- Preserve unrelated local work. Do not stash, unstage, commit, revert, or delete unrelated changes unless explicitly requested.
 - Do not add dependencies, logs, broad refactors, unrelated cleanup, or new tests by default.
-- Add or update tests only when the user, project instructions, or a specific review comment requires it, or when directly affected existing tests must change.
-- If a feedback item is best handled by clarification instead of code, prepare a concise factual reply and do not modify code for that item.
 
-### 3. Verify
+## Workflow
 
-Run relevant existing checks for the touched area from package scripts, task runners, or CI config. Prefer type checks, lint, formatting checks, and focused existing tests directly affected by the fix.
-
-Do not start dev servers, containers, browser automation, or long-running watch commands by default.
-
-Fix critical failures caused by the remediation. Report pre-existing or unrelated failures with concise evidence.
-
-### 4. Commit And Push
-
-Self-review the diff before committing:
-
-- confirm each changed file maps to a feedback item or required verification update;
-- remove dead code and unused imports introduced by the fix;
-- ensure unrelated user edits remain unstaged unless explicitly included;
-- verify no secrets or sensitive data are added.
-
-If code changed, stage only remediation changes, commit with the repository's existing commit style, and push the PR head branch. If there are no code changes because every item was already fixed, obsolete, or clarification-only, do not create an empty commit.
-
-Use `references/remediation-git-github.md` for concrete staging, commit, push, and commit SHA capture mechanics.
-
-### 5. Update PR Conversations
-
-After push or clarification:
-
-- reply to each handled review thread or comment with what changed, the commit SHA when available, and any checks run;
-- resolve the thread when the issue was fixed, already fixed, or fully clarified and the API supports resolution;
-- do not resolve threads that still need reviewer or user confirmation;
-- add one top-level PR comment per PR summarizing fixed items, clarification-only items, checks, commit SHA, and remaining items;
-- do not edit PR title or body unless a review comment explicitly requests it or the fix materially changes the PR's stated scope;
-- do not mark the PR ready, approve it, merge it, close linked issues, or update PM status unless explicitly requested.
-
-Use `references/remediation-git-github.md` for thread replies, thread resolution, and fallback PR summary mechanics.
+1. Resolve the PR set. In a normal repository, use the current Git root. In a workspace with child Git repositories, resolve matching PRs in each owning child repo.
+2. Read PR title, body, changed files, diff, reviews, issue comments, review comments, review threads, checks, state, draft state, base, head, and URL.
+3. Inspect project instructions and existing code patterns relevant to the feedback.
+4. Build a feedback ledger before editing. For each item record source, URL/thread ID, location, concern, status, intended response, and whether the thread should be resolved.
+5. Triage in this order: blockers/requested changes/failed checks/security/correctness, major architecture/validation/data/regression concerns, minor actionable fixes, then clarifications or non-actionable comments.
+6. Ask the user all currently known material questions in one batch before editing ambiguous items. Cite the comment or file area, state the decision, recommend a conservative default when clear, and explain the impact.
+7. Prepare the checkout. Move to the PR head branch only when safe, confirm push access, and keep multi-repo fixes scoped to the repository that owns each PR.
+8. Apply focused fixes. Reuse existing services, hooks, schemas, validators, DTOs, repositories, utilities, components, tokens, variants, and test helpers. Keep business rules centralized and authorization server-side.
+9. Run relevant existing checks for the touched area. Avoid dev servers, containers, browser automation, and watch commands by default.
+10. Self-review the diff. Ensure each changed file maps to feedback, no unrelated user edits are staged, and no secrets were added.
+11. Commit and push remediation changes when code changed. Do not create an empty commit for already-fixed, obsolete, or clarification-only feedback.
+12. Reply to each handled review thread or comment. Include what changed, commit SHA when available, and checks run. Resolve only threads fixed, already fixed, or fully clarified by a successful API operation.
+13. Add one top-level PR comment per PR summarizing fixed items, clarification-only items, checks, commit SHA, and remaining items.
+14. Report the result with repository, PR, branch, commit, fixed items, clarified/already addressed items, PR updates, checks, remaining blockers, and the next `review-pr` step.
 
 ## Output Format
-
-Return the result in this order. When multiple child-repository PRs are in scope, repeat this full block once per PR and include the repository path in each block.
 
 ```markdown
 ## Fix PR
@@ -168,28 +66,35 @@ Branch: <head branch>
 Commit: <sha or "none">
 
 ### Fixed
-
 - <feedback item fixed, with file/area and reviewer thread/comment reference>
 
 ### Clarified Or Already Addressed
-
 - <feedback item clarified, already fixed, obsolete, or out of scope, with reason>
 
 ### PR Updates
-
 - <thread replies, resolved conversations, fallback comments, or unavailable operations>
 
 ### Checks
-
 - `<command>`: <passed|failed|not run> - <short note>
 
 ### Remaining
-
 - <open reviewer/user decision, failed check, push blocker, or "none">
 
 ### Next
-
 - Run `review-pr` again from the PR branch or workspace if a fresh production-readiness score is needed.
 ```
 
-Keep the final answer concise and factual. Do not claim a thread was resolved unless the GitHub operation succeeded.
+## Final Checklist
+
+- [ ] 1. PR set resolved from current branch or explicit input, including child repos.
+- [ ] 2. PR metadata, diff, checks, reviews, issue comments, review comments, and review threads collected.
+- [ ] 3. Serena and project instructions used to understand cited code and local patterns.
+- [ ] 4. Feedback ledger built before editing, with every conversation mapped.
+- [ ] 5. Ambiguous or conflicting feedback clarified with the user before code changes.
+- [ ] 6. Checkout prepared safely and unrelated local work preserved.
+- [ ] 7. Focused fixes applied with existing patterns and centralized business logic.
+- [ ] 8. Relevant existing checks run and caused failures handled.
+- [ ] 9. Diff self-reviewed, staged narrowly, committed, and pushed when code changed.
+- [ ] 10. Each handled thread/comment replied to; only successfully resolved threads claimed as resolved.
+- [ ] 11. Top-level PR summary posted or fallback reported.
+- [ ] 12. Final report includes remaining blockers and the next `review-pr` step.
