@@ -15,7 +15,7 @@ Write every `feed-pm` plan under `~/pbaw-plans`:
     `-- 03-<explicit-task-title>.md
 ```
 
-Use lowercase kebab-case slugs for directories and task files. Keep names explicit enough to identify the task without opening the file. Reuse the same request directory for revisions to the same user request.
+Create `~/pbaw-plans` if it does not already exist. Use lowercase kebab-case slugs for directories and task files. Keep names explicit enough to identify the task without opening the file. Reuse the same request directory for revisions to the same user request.
 
 ## Index Template
 

@@ -42,6 +42,7 @@ Load only what is needed:
 
 Use `~/pbaw-plans` as the durable planning workspace for every `feed-pm` request.
 
+- Create `~/pbaw-plans` if it does not already exist.
 - Create one request directory named `<YYYYMMDD-HHMMSS>-<request-slug>`, for example `~/pbaw-plans/20260602-143012-workspace-invites`.
 - Write `index.md` in that directory as the review entrypoint. It contains the PM target, request summary, assumptions, responsibility map, proposal table, dependency order, metadata to apply, creation plan, and links to task files.
 - Write one Markdown file per proposed PM task with an explicit order and slug, for example `01-add-invite-acceptance-service.md`.
@@ -66,7 +67,7 @@ After the user answers a Decision Gate:
 - if the answer accepts, selects options, adds compatible detail, or does not object to the roadmap, continue exploration if useful and revise the plan files;
 - if the answer refuses, changes scope, contradicts the roadmap, or adds a constraint that invalidates the proposal, revise the plan files before asking again for review;
 - if the PM target is still unsafe to mutate, ask only for the missing target detail.
-- always provide the updated `index.md` link and ask for explicit final confirmation before pushing or creating PM items.
+- when plan files exist, always provide the updated `index.md` link and ask for explicit final confirmation before pushing or creating PM items.
 
 ## Process Schema
 
@@ -97,7 +98,7 @@ flowchart TD
 4. Explore the codebase with Serena. Find existing equivalents, owner layers, boundaries, reusable primitives, validation, data models, APIs, UI routes, jobs, integrations, tests, and risk surfaces.
 5. Build a concise responsibility map: owner folders/layers, dependency direction, naming/placement rules, reusable services/schemas/components, cross-cutting constraints, and unresolved uncertainty.
 6. Decompose into similarly sized, reviewable tasks. Prefer vertical slices when correct. Split shared foundations, migrations, permission changes, public API changes, and UI polish when that improves review quality.
-7. Create or update the request directory in `~/pbaw-plans`. Draft `index.md` plus one task file per proposed PM item. Each task starts with problem/outcome, scope, non-goals, owner layer, implementation anchors, architecture constraints, and acceptance criteria.
+7. Create `~/pbaw-plans` if needed, then create or update the request directory. Draft `index.md` plus one task file per proposed PM item. Each task starts with problem/outcome, scope, non-goals, owner layer, implementation anchors, architecture constraints, and acceptance criteria.
 8. If needed, use built-in clarification/question tools when available, or show a Decision Gate otherwise, to clarify remaining product, technical, architecture, and planning intent. Ask the question directly; do not paste all tasks inline. Then update the plan files.
 9. Link `index.md` and ask the user to review the latest files and explicitly confirm whether to push/create the PM items. Revise first if the user refuses, corrects, narrows, or expands the proposal.
 10. Create only finally confirmed PM items from the latest plan files, preserve dependency order, link related tasks with stable URLs or IDs, and apply metadata only when requested or locally conventional.
