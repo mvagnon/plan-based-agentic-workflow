@@ -1,192 +1,130 @@
 ---
 name: review-pr
-description: Use when one or more pull requests exist and the user intends to polish, approve, or merge PRs. It resolves PRs from the current repository or child repositories, commits and pushes local changes before review, reads linked PM tasks plus previous reviews/comments/thread history before adding new feedback, performs strict production-readiness and architecture review, runs the full local CI suite, reconciles PR descriptions, posts score/details and inline comments, marks strong drafts ready, and only finalizes merge after explicit approval.
+description: Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback, and only allows merge or PM task closure when local CI passes. It is especially strict on security, architecture boundaries, and reuse of existing code.
 ---
 
 # Review PR
 
-## Purpose
+## Summary
 
-Perform a strict production-readiness review of PR code. Score only changed code and directly affected code paths, compare the diff with both the linked PM tasks and the PR description, run the full local CI suite, post one clear review per PR, and recommend `fix-pr` when fixes are needed.
+Review PRs as if they will deploy immediately after merge.
 
-This skill may update PR bodies, submit review comments, resolve stale conversations that are already addressed, mark strong draft PRs ready, and complete explicitly approved merge finalization.
+The review is strict on:
 
-## Inputs
+- security, authentication, authorization, privacy, and secrets;
+- architecture boundaries and dependency direction;
+- reuse of existing business logic, validators, schemas, services, components, and design-system primitives.
 
-Read `$ARGUMENTS` or equivalent natural language as:
+Local CI passing is mandatory for `PROD READY`, merge, and PM task closure.
 
-- `PR`: optional PR URL, PR number, or branch name. If omitted, infer from the current branch.
-- `Repository`: optional repository URL, identifier, or child repository path.
+## Diagram
 
-Ask one concise question only when the PR cannot be resolved or multiple unrelated PRs match. In a workspace with child repositories, treat matching child-repo PRs as one multi-repo review set.
-
-## References
-
-Load only what is needed:
-
-- `references/github-pr-review.md` for PR metadata, diffs, prior discussion, review threads, checks, PR body reconciliation, review submission, and ready-for-review mechanics.
-- `references/merge-finalization.md` for approved merge finalization and PM completion rules.
-
-## Rules
-
-- Do not implement fixes from this skill.
-- Use `fix-pr` as the follow-up for code changes and review-thread remediation.
-- Score code risk only. Do not lower the score for PR size, metadata quality, missing description context, test presence or coverage, or commit history shape unless the committed code creates production risk.
-- Treat PR-caused non-test CI failures as scored risks. At least one failing test in the full local CI suite subtracts 3 points automatically and makes the PR non-mergeable. Mention demonstrably out-of-scope non-test full-suite failures without lowering the score.
-- Treat linked PM tasks as the source of truth for intended scope. Use the PR description as a reviewer-facing summary and reconcile it when it omits or misstates task coverage.
-- Use Serena for changed-file and nearby-symbol exploration. If Serena is unavailable, stop instead of scoring from local search alone.
-- Identify the actual architecture or local convention before judging architecture. Load directly relevant architecture skills when available.
-- Prefer existing project conventions over generic preferences.
-- Do not merge unless the verdict is `PROD READY`, the full local CI suite and required GitHub checks pass, and the user explicitly approved finalization.
+```mermaid
+flowchart TD
+  A[Resolve PR set] --> B[Read PM tasks and prior discussion]
+  B --> C[Inspect diff and affected code with Serena]
+  C --> D[Run full local CI]
+  D --> E[Score production risk]
+  E --> F[Post one concise review]
+  F --> G{Merge approved and eligible?}
+  G -->|No| H[Report next fix-pr or approval step]
+  G -->|Yes| I[Finalize merge]
+  I --> J[Close or update PM tasks only after CI passes]
+```
 
 ## Workflow
 
-1. Resolve the PR set. Use the current Git root for normal repos; inspect child Git repositories in multi-repo workspaces.
-2. Check local status in every affected repository. If there are staged, unstaged, or untracked non-ignored changes, commit and push them before reading the diff or reviewing. Stop if commit or push fails.
-3. Read PR metadata: title, body, URL, state, draft state, base, head, author, linked issues/tasks, changed files, status checks, review decision, and diff.
-4. Resolve linked PM tasks from PR body references, GitHub `closingIssuesReferences` or `linkedIssues`, and non-GitHub task URLs in the body. Read task title, body, comments that change scope, dependencies, and canonical URLs before judging coverage.
-5. Build a prior-discussion ledger before adding feedback. Read issue comments, review summaries, review comments, and all review threads, including unresolved, resolved, and outdated threads when available. Record source, URL/thread ID, status, concern, whether current head addresses it, and whether new feedback would duplicate it.
-6. Use the ledger to avoid duplicate inline comments, carry forward unresolved valid concerns, and resolve only conversations already addressed by current code or fully explained by existing discussion.
-7. Read project instructions and relevant package docs. Load matching skills and record the constraints they add.
-8. Inspect changed files plus nearby modules, tests, schemas, routes, services, migrations, security utilities, and UI patterns needed to understand impact.
-9. Run the full local CI suite for every affected repository before posting the PR review. Prefer repo-level non-interactive lint, typecheck, test, format-check, and build commands. Use scoped commands only when no full-repository command exists, and report that limitation.
-10. Classify every check failure as PR-caused, likely PR-caused, or out of scope with concise evidence.
-11. Review the diff against the standards below and calculate the score from concrete code risks.
-12. Reconcile the PR description after inspecting the linked PM tasks and diff. Preserve author content and only replace sections previously generated by this skill.
-13. Submit exactly one PR review per PR with score, verdict, CI status, out-of-scope failures, and high-signal details. Add inline comments for actionable findings anchored to changed lines.
-14. Mark a draft PR ready only when the final score is strictly greater than `18/20`.
-15. If merge finalization is approved and all merge conditions pass, finalize with `references/merge-finalization.md`. Otherwise report the required approval or blocker.
+### Inputs
+
+Optional:
+
+- `PR`: PR URL, PR number, or branch.
+- `repository`: repository path or owner/repo.
+
+Default to the PR associated with the current branch. In a workspace, include matching child-repository PRs.
+
+### References
+
+Load only what is needed:
+
+- `references/github-pr-review.md` for PR metadata, diffs, previous discussion, CI, review comments, and ready-for-review commands.
+- `references/merge-finalization.md` only after the verdict is `PROD READY` and the user explicitly approved merge/finalization.
+
+### Rules
+
+- Do not implement fixes from this skill. Use `fix-pr`.
+- Use Serena for changed files and directly affected code paths. If Serena is unavailable, stop.
+- Read linked PM tasks before judging scope coverage.
+- Read previous comments, reviews, and threads before posting new feedback.
+- Run the full local CI suite for each affected repository before posting the final review.
+- Do not mark `PROD READY` if local CI did not run or failed, even when failures appear out of scope.
+- Do not merge or close PM tasks unless the verdict is `PROD READY`, local CI passes, required remote checks pass, and the user explicitly approved finalization.
+- Do not lower the review bar because a PR is small.
 
 ## Review Standard
 
-Review as if the code will deploy immediately after merge. Check:
+Hard blockers:
 
-- Linked PM task coverage and PR description alignment when task references or a description exist.
-- Architecture, boundaries, ownership, dependency direction, data flow, public APIs, and reuse of existing patterns.
-- Correctness, edge cases, regressions, error paths, async/race behavior, idempotency, migrations, and backwards compatibility.
-- Security, authn/authz, multi-tenancy, validation, injection, XSS, CSRF, SSRF, path traversal, file uploads, secrets, PII, logging, webhooks, payments, and rate limits.
-- Production readiness, observability, explicit errors, retries/timeouts, transactions, cleanup, query cliffs, rollout, and rollback safety.
-- Full-suite CI status, tests, and verification for changed behavior.
-- Maintainability, naming, type safety, dead code, duplication, unnecessary abstraction, hidden side effects, and local style.
-- Frontend UX when applicable: responsiveness, loading/error/empty/disabled states, duplicate-submit protection, hover/focus/active states, text/control overflow, keyboard access, labels, semantics, contrast, screen-reader feedback, and layout stability.
+- exploitable security issue, broken authn/authz, secret exposure, privacy leak, unsafe user input, injection, XSS, SSRF, path traversal, or unsafe file upload;
+- data loss, corruption, outage risk, unsafe migration, or broken rollback path;
+- architecture boundary violation that can spread or break consumers;
+- duplicated business logic, validation, permission logic, or data transformation where an existing owner exists;
+- failure to reuse an existing component, schema, service, validator, hook, repository, or design-system primitive when that reuse is clearly available;
+- local CI missing or failing.
 
-Architecture checks must name the governing architecture or local convention. Verify owner folders/layers, allowed dependency direction, business-rule placement, shared abstraction reuse, package boundaries, framework conventions, and file/module placement.
+Score on `/10` as a communication aid:
 
-## Severity And Score
+- Security and privacy: `0-3`
+- Architecture and reuse: `0-3`
+- Correctness and regressions: `0-2`
+- Reliability, operations, and CI: `0-1`
+- Maintainability and local style: `0-1`
 
-Use these severities:
+Verdicts:
 
-- `Blocker`: must not merge. Examples: exploitable security, broken authz, data loss, outage risk, unsafe migration, severe regression, or architecture break that makes the system unsafe to operate.
-- `Major`: should fix before merge. Examples: likely bug, missing validation, near-term maintainability risk, or meaningful architecture drift.
-- `Minor`: worth fixing, but not merge-blocking.
-- `Nit`: optional polish.
+- `PROD READY`: `9-10`, no hard blockers, local CI passed, required remote checks passed.
+- `FIX BEFORE MERGE`: targeted fixes needed or CI/checks incomplete/failing.
+- `DO NOT MERGE`: security, data, outage, severe architecture, or severe correctness risk.
 
-Start from `20` and subtract concrete code risks plus any automatic penalties:
+If the diff cannot be inspected, do not fabricate a score.
 
-| Category | Points |
-| --- | ---: |
-| Architecture and boundaries | 6 |
-| Correctness and regression risk | 4 |
-| Security and privacy | 4 |
-| Production readiness and reliability | 3 |
-| Maintainability and best practices | 3 |
+## Expected Response Format
 
-Score bands:
-
-- `18-20`: eligible for `PROD READY`. Only minor or nit-level issues.
-- `15-17`: close, but not mergeable until fixes are applied.
-- `12-14`: not production-ready without targeted fixes.
-- `8-11`: high-risk PR. Merge should be blocked.
-- `0-7`: severe production or security risk.
-
-Automatic penalties apply after the category score. Multiple independent penalties can stack, and any final score below `18/20` is not mergeable:
-
-- Credible exploitable security issue or missing server-side authz on protected data/actions: subtract `12` points.
-- Data loss, corruption, outage risk, or unsafe production migration: subtract `10` points.
-- Clear architecture violation likely to spread: subtract `8` points.
-- Cross-package or dependency-direction violation that can break consumers: subtract `7` points.
-- Architecture-sensitive diff with unidentified governing architecture: subtract `4` points.
-- Available directly relevant architecture skill not consulted before scoring: subtract `5` points, unless corrected before finalizing.
-- Architecture score `3/6` or lower: subtract `3` points.
-- Architecture score `2/6` or lower: subtract `8` points instead of the `3/6` architecture-score penalty.
-- At least one failing test in the full local CI suite: subtract `3` points.
-- Diff cannot be inspected: do not fabricate a score.
-
-## PR Updates
-
-- Resolve only conversations already addressed by current code or fully explained by existing discussion.
-- Do not resolve conversations that still need code changes, reviewer confirmation, or user decisions.
-- Avoid duplicate inline comments for concerns already present in unresolved threads.
-- Add inline comments for `Blocker` and `Major` findings whenever a changed line is available.
-- Add inline comments for `Minor` only when concrete and localized.
-- Do not add inline comments for nits unless the user requested nit-level review.
-- Keep inline comments short: required action and why it matters.
-- Put unanchored findings in the top-level review body.
-
-## Output Format
-
-Repeat this block once per PR in multi-repo reviews. Do not combine scores.
+### Final Response
 
 ```markdown
 ## Review PR
 
-Repository: <path>
-PR: <url or "none">
-Score: <N>/20
+PR: <url>
+Score: <N>/10
 Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 
-### Findings
-- <severity> - <file:line>
-  Impact: <why this matters in production>
-  Fix: <specific, actionable change>
+Findings:
+- <severity> - <file:line or area> - <impact and required fix>
 
-### PR Description Alignment
-- <match/mismatch with linked PM tasks, stated goals, acceptance criteria, validation plan, and scope; or `No PR description available.`>
+Checks:
+- `<command>`: <passed|failed|not run> - <short note>
 
-### PR Updates
-- <PR body reconciliation, top-level review, inline comments, prior-thread handling, ready-for-review status>
+PR updates:
+- <review/comment/body/ready/finalization action>
 
-### Finalization
-- <merge result, approval needed, blocker, or `Not run because the PR is not production-ready.`>
+Finalization:
+- <merge/PM closure result, approval needed, or blocker>
 
-### Frontend UX Notes
-- <required for frontend PRs; for non-frontend PRs, write `Not applicable.`>
-
-### Score Breakdown
-- Architecture and boundaries: <x>/6
-- Correctness and regression risk: <x>/4
-- Security and privacy: <x>/4
-- Production readiness and reliability: <x>/3
-- Maintainability and best practices: <x>/3
-
-### Improvement Plan
-1. <highest leverage fix>
-2. <next fix>
-3. <next fix>
-
-### Non-Scored Notes
-- <full local CI commands/status, out-of-scope failures, prior discussion ledger summary, PR metadata, missing context, commands not run, architecture style identified, and loaded skills>
-
-### Next Step
-- <exactly one next step>
+Next:
+<exact next step, usually `fix-pr` or explicit merge approval>
 ```
 
-If there are no findings, write `No blocking or major findings found.` under `Findings`.
+If there are no findings, write `No blocking or major findings found.`
 
-## Final Checklist
+## Checklist
 
-- [ ] 1. PR set resolved from current branch or explicit input, including child repos.
-- [ ] 2. Local changes in each affected repo committed and pushed, or review stopped with the blocker.
-- [ ] 3. PR metadata, linked tasks, diff, changed files, and checks read.
-- [ ] 4. Linked PM task bodies/comments plus previous issue comments, review summaries, review comments, and review threads read before new feedback.
-- [ ] 5. Prior-discussion ledger used to avoid duplicates and handle stale or unresolved conversations.
-- [ ] 6. Project instructions, relevant package docs, Serena context, and matching skills loaded.
-- [ ] 7. Changed code and directly affected code paths inspected with architecture ownership identified.
-- [ ] 8. Full local CI suite run or missing full-suite commands reported with reason.
-- [ ] 9. Check failures classified as PR-caused, likely PR-caused, or out of scope.
-- [ ] 10. Score and verdict calculated from concrete code risks with automatic penalties applied.
-- [ ] 11. PR description reconciled without overwriting author content.
-- [ ] 12. One review posted per PR with top-level score/details and non-duplicate inline comments.
-- [ ] 13. Draft marked ready only when score is greater than `18/20`.
-- [ ] 14. Merge finalization performed only with explicit approval and passing final checks.
-- [ ] 15. Final response includes score breakdown, prior-discussion summary, CI status, PR updates, and one next step.
+- [ ] PR set resolved from current branch or explicit input.
+- [ ] Linked PM tasks and prior discussion read.
+- [ ] Serena used for changed files and affected code paths.
+- [ ] Governing architecture and reuse expectations identified.
+- [ ] Full local CI suite run for each affected repository.
+- [ ] Security, architecture, reuse, correctness, reliability, and maintainability reviewed.
+- [ ] Score and verdict calculated from concrete production risk.
+- [ ] One concise review posted per PR.
+- [ ] Merge/finalization performed only with explicit approval and passing local CI.

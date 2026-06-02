@@ -1,14 +1,14 @@
 interface:
   display_name: "Feed PM"
-  short_description: "Create PM-ready engineering task plans."
-  default_prompt: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. It deeply analyzes the project with Serena MCP, loads matching architecture skills when available, uses built-in clarification/question tools when available and portable Decision Gates in normal chat otherwise to refine product, technical, and architecture intent, decomposes the work into technical tasks, writes persistent task plans under ~/pbaw-plans for senior-engineer review, revises those files through clarifications, and creates PM items only after explicit final confirmation to push the latest linked plan. Trigger on phrases like feed PM, create issues from this plan, split this work into tickets, prepare GitHub Issues or Notion tasks, or plan-based agentic workflow."
+  short_description: "Create PM-ready tasks after one Decision Gate."
+  default_prompt: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the repository with Serena MCP, uses exactly one normal-chat Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, and returns a concise recap with the next /implement-pm command. Trigger on feed PM, create issues, create PM tasks, split this work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
 dependencies:
   tools:
     - type: "mcp"
       value: "serena"
       description: "Required semantic code exploration and symbol/reference analysis."
-    - type: "mcp"
-      value: "github"
-      description: "Required for GitHub Issues or Projects task creation when available."
+  skills:
+    - value: "mermaid-diagrams"
+      description: "Use when a diagram clarifies PM task review."
 policy:
   allow_implicit_invocation: true

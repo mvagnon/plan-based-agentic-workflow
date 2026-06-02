@@ -1,20 +1,20 @@
 # GitHub Feedback Reference
 
-Use this reference for collecting PR review feedback and mapping each conversation to a fix, clarification, or no-op.
+Use this reference for collecting PR feedback and building the remediation ledger.
 
 ## Resolve PR Context
-
-Default to the PR associated with the current branch:
 
 ```bash
 git rev-parse --show-toplevel
 git status --short --branch
 git branch --show-current
 git remote -v
-gh pr view --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author
+gh pr view --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup
+gh pr diff
+gh pr checks
 ```
 
-When invoked from a workspace that may contain multiple independent child repositories, enumerate and inspect child repos before deciding that no PR exists:
+Child repositories:
 
 ```bash
 find . -mindepth 2 -maxdepth 4 -name .git -prune -print
@@ -23,27 +23,13 @@ git -C <child-repo> branch --show-current
 git -C <child-repo> remote -v
 ```
 
-Use the parent directory of each `.git` entry as `<child-repo>`.
-
-Resolve PRs from each candidate child repository when they match the current branch, provided branch, explicit PR URL, or the PRs reported by a preceding multi-repo `review-pr` run:
+Resolve matching child PRs:
 
 ```bash
 gh -R <owner/repo> pr view <branch-or-pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup
 ```
 
-Keep matching child-repository PRs in scope together. Ask only when several unrelated PRs match and no branch, URL, repository, or prior review output disambiguates them.
-
-Use an explicit PR URL, PR number, or branch only when the user provided one:
-
-```bash
-gh pr view <pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup
-gh pr diff <pr>
-gh pr checks <pr>
-```
-
-## Comments And Reviews
-
-Collect all feedback sources:
+## Comments, Reviews, And Threads
 
 ```bash
 gh api /repos/<owner>/<repo>/issues/<number>/comments --paginate
@@ -51,7 +37,7 @@ gh api /repos/<owner>/<repo>/pulls/<number>/comments --paginate
 gh api /repos/<owner>/<repo>/pulls/<number>/reviews --paginate
 ```
 
-Query review threads:
+Review threads, including outdated and resolved threads:
 
 ```bash
 gh api graphql -f query='
@@ -85,33 +71,22 @@ query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
 
 Paginate until `hasNextPage` is false.
 
+Treat outdated threads as historical context. Before marking them obsolete or already fixed, inspect current head and verify whether the concern is actually addressed.
+
 ## Feedback Ledger
 
-Record one ledger entry per distinct actionable item:
+Record one entry per distinct actionable item:
 
 ```text
 Source:
-  Reviewer:
-  URL or thread ID:
-  Review/comment type:
-
 Location:
-  Path:
-  Current line:
-  Original line:
-  Outdated:
-
 Concern:
-  Requested action:
-  Production risk:
-
-Status:
-  needs-fix | needs-user-decision | clarify-only | already-fixed | obsolete | out-of-scope
-
+Production risk:
+Status: needs-fix | needs-user-decision | clarify-only | already-fixed | obsolete | out-of-scope
 Planned response:
-  Code change:
-  Explanation:
-  Resolve thread after response: yes/no
+Current head verification:
+Threads/comments to reply to:
+Resolve after response: yes/no
 ```
 
-Group duplicate comments under one corrective action, but keep each GitHub conversation mapped for replies and resolution.
+Group duplicates under one fix, but keep every GitHub conversation mapped.

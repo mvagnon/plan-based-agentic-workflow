@@ -1,127 +1,138 @@
 ---
 name: feed-pm
-description: Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the repository with Serena MCP, loads matching architecture skills, uses built-in clarification/question tools when available and portable Decision Gates otherwise, writes persistent task plans under ~/pbaw-plans for review, revises those files through clarifications, and creates PM items only after final push confirmation. Trigger on phrases like feed PM, create issues from this plan, split this work into tickets, prepare GitHub Issues or Notion tasks, or plan-based agentic workflow.
+description: Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the repository with Serena MCP, uses exactly one Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, and returns a concise recap. Trigger on phrases like feed PM, create issues, create PM tasks, split this work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow.
 ---
 
 # Feed PM
 
-## Purpose
+## Summary
 
-Turn a product or engineering request into reviewable PM tasks that are grounded in the repository architecture, persisted as plan files, and ready for a senior engineer to implement.
+Turn one product or engineering request into PM tasks that are grounded in the codebase.
 
-PBAW is a collaborative workflow: the user is the product and architecture authority, and the agent is the technical operator. Treat the user as a qualified software engineer: ask technical, architectural, product, and delivery questions when they materially affect the outcome. The agent discovers what can be discovered, proposes a concrete roadmap, and executes only the approved path.
+The workflow has one user stop: a mandatory Decision Gate. Use it either to ask the missing clarification questions or to confirm task creation. If the user answers clarification questions and does not explicitly refuse creation, create the tasks directly after that answer.
 
-## Inputs
+Treat the user as the product and architecture authority, and as an experienced software engineer/architect.
 
-Read `$ARGUMENTS` or equivalent natural language as:
+Use one stop only and do not use runner-specific clarification tools.
 
-- `pm_tool`: optional. Default to GitHub Issues when the repository remote supports it.
-- `project`: optional. Accept a URL, name, ID, repository, page, or database target.
-- `tasks`: required unless the request scope is already clear from conversation.
-
-Ask only when the PM target cannot be resolved safely or missing product, technical, or architecture intent would make the plan misleading. Use built-in clarification/question tools when available; otherwise ask through the same Decision Gate in normal chat. When a clarification is needed, ask the clarification directly instead of presenting all draft tasks inline. Do not switch to Plan Mode just to access question tooling.
-
-## References
-
-Load only what is needed:
-
-- `references/pm-tools.md` for PM target discovery and item creation.
-- `references/codebase-analysis.md` for Serena exploration and responsibility maps.
-- `references/task-specification.md` for plan-file layout, task templates, sizing, and quality checks.
-
-## Rules
-
-- Explore the repo and PM target before asking broad planning questions.
-- Use Serena first. If Serena is unavailable, stop instead of drafting implementation-ready tasks from local search alone.
-- Load matching architecture, validation, testing, design-system, security, or workflow skills before decomposing work.
-- Do not ask the user to identify files, components, schemas, owners, or PM metadata that can be discovered safely.
-- Do not create, edit, label, move, assign, or otherwise mutate PM items before explicit final confirmation to push the latest linked plan files to the PM tool.
-- Record assumptions when you proceed on low-risk defaults.
-
-## Persistent Plan Files
-
-Use `~/pbaw-plans` as the durable planning workspace for every `feed-pm` request.
-
-- Create `~/pbaw-plans` if it does not already exist.
-- Create one request directory named `<YYYYMMDD-HHMMSS>-<request-slug>`, for example `~/pbaw-plans/20260602-143012-workspace-invites`.
-- Write `index.md` in that directory as the review entrypoint. It contains the PM target, request summary, assumptions, responsibility map, proposal table, dependency order, metadata to apply, creation plan, and links to task files.
-- Write one Markdown file per proposed PM task with an explicit order and slug, for example `01-add-invite-acceptance-service.md`.
-- Draft incrementally. It is acceptable for early task files to contain partial details while exploration or clarification is still active, but update them as soon as the missing information is resolved.
-- Revise the same request directory after user clarifications, corrections, scope changes, or confirmation. Do not fork a new plan directory for the same request unless the user starts a separate scope.
-- Use the latest task files as the source bodies for PM item creation after final confirmation.
-- In user-facing responses before PM creation, do not paste the proposal table or full task bodies. Give the `index.md` path and ask the user to review it and confirm whether to push it to the PM tool.
-
-## Decision Gates
-
-Use built-in clarification/question tools when available for Decision Gates. When they are unavailable, present the same Decision Gate in normal chat. A Decision Gate is not a planning-only pause; it is an approval checkpoint for the planning direction; when a roadmap exists, keep that roadmap in the linked plan files instead of pasting it inline.
-
-Every Decision Gate must:
-
-- state the unresolved architect decisions and recommended defaults, including product, architecture, data model, validation, permission, API, UI, rollout, and task-boundary decisions when relevant;
-- keep the latest proposal table, task bodies, target PM tool, dependency order, metadata, and creation plan in the plan files when enough information exists;
-- explain that the user's answer authorizes the planning direction unless they refuse, correct, or narrow it;
-- avoid asking for files, schemas, owners, labels, or metadata that can be discovered.
-
-After the user answers a Decision Gate:
-
-- if the answer accepts, selects options, adds compatible detail, or does not object to the roadmap, continue exploration if useful and revise the plan files;
-- if the answer refuses, changes scope, contradicts the roadmap, or adds a constraint that invalidates the proposal, revise the plan files before asking again for review;
-- if the PM target is still unsafe to mutate, ask only for the missing target detail.
-- when plan files exist, always provide the updated `index.md` link and ask for explicit final confirmation before pushing or creating PM items.
-
-## Process Schema
+## Diagram
 
 ```mermaid
 flowchart TD
-  A[Resolve repository and PM target] --> B[Load relevant skills]
-  B --> C[Explore codebase with Serena]
-  C --> D[Draft or revise plan files in ~/pbaw-plans]
-  D --> E{Material decision needed?}
-  E -->|No| F[Link index.md and ask for review]
-  F --> G{Review response}
-  G -->|Final push confirmed| H[Create approved PM items from latest files]
-  G -->|No or changes requested| I[Revise plan files]
-  I --> D
-  E -->|Yes| J[Use question tool or Decision Gate for clarification]
-  J --> K{User refuses or changes roadmap?}
-  K -->|No| L[Continue exploration if useful]
-  L --> D
-  K -->|Yes| I
-  H --> M[Report URLs, dependency order, next implement-pm command]
+  A[Read request and PM target] --> B[Load relevant skills]
+  B --> C[Analyze repository with Serena]
+  C --> D[Draft task set in memory]
+  D --> E{Decision Gate}
+  E -->|Needs clarification| F[Ask UX, DB, and blocking questions]
+  E -->|Ready| G[Ask for task creation confirmation]
+  F --> H[User answers]
+  G --> H
+  H --> I{Explicit refusal?}
+  I -->|Yes| J[Stop with recap]
+  I -->|No| K[Create PM tasks]
+  K --> L[Recap task URLs and next command]
 ```
 
 ## Workflow
 
-1. Resolve the repository and PM target. Default to GitHub Issues only when safe.
-2. Capture the user's stated goal, constraints, requested output, and implied assumptions.
-3. Discover and load relevant skills. Record what each loaded skill changes about architecture, validation, testing, design, security, or workflow.
-4. Explore the codebase with Serena. Find existing equivalents, owner layers, boundaries, reusable primitives, validation, data models, APIs, UI routes, jobs, integrations, tests, and risk surfaces.
-5. Build a concise responsibility map: owner folders/layers, dependency direction, naming/placement rules, reusable services/schemas/components, cross-cutting constraints, and unresolved uncertainty.
-6. Decompose into similarly sized, reviewable tasks. Prefer vertical slices when correct. Split shared foundations, migrations, permission changes, public API changes, and UI polish when that improves review quality.
-7. Create `~/pbaw-plans` if needed, then create or update the request directory. Draft `index.md` plus one task file per proposed PM item. Each task starts with problem/outcome, scope, non-goals, owner layer, implementation anchors, architecture constraints, and acceptance criteria.
-8. If needed, use built-in clarification/question tools when available, or show a Decision Gate otherwise, to clarify remaining product, technical, architecture, and planning intent. Ask the question directly; do not paste all tasks inline. Then update the plan files.
-9. Link `index.md` and ask the user to review the latest files and explicitly confirm whether to push/create the PM items. Revise first if the user refuses, corrects, narrows, or expands the proposal.
-10. Create only finally confirmed PM items from the latest plan files, preserve dependency order, link related tasks with stable URLs or IDs, and apply metadata only when requested or locally conventional.
+### Inputs
 
-## Completion Output
+Read `$ARGUMENTS` or the user message as:
 
-Finish with:
+- `pm_tool`: optional, for example `github`, `jira`, `notion`, or another installed PM MCP/CLI.
+- `project`: optional repository, board, project, database, or PM target.
+- `tasks`: required unless the request is clear from the conversation.
 
-- PM tool and target used.
-- Draft-only status or created task URLs.
-- Plan index path used for the latest review or PM creation.
-- Dependency order.
-- Suggested next command, for example `implement-pm for tasks #123 #124 #125`.
+Default `pm_tool` to GitHub Issues only when the current repository remote and `gh` state make that safe.
 
-## Final Checklist
+### References
 
-- [ ] 1. PM target and repository resolved safely.
-- [ ] 2. User goal, constraints, and assumptions captured.
-- [ ] 3. Relevant skills loaded and their constraints recorded.
-- [ ] 4. Codebase explored with Serena; existing patterns and risk surfaces identified.
-- [ ] 5. Remaining product, technical, architecture, or scope ambiguities clarified through built-in tooling or a portable Decision Gate when needed.
-- [ ] 6. Responsibility map written in the plan index before task decomposition.
-- [ ] 7. Tasks split into reviewable, dependency-aware units.
-- [ ] 8. Proposal table and full task bodies written to `~/pbaw-plans` and linked for review.
-- [ ] 9. Explicit final push confirmation received after linking the latest plan index before PM mutation.
-- [ ] 10. Approved items created, linked, ordered, and reported with the next command.
+Load only the references needed for the current PM tool:
+
+- `references/codebase-analysis.md` for Serena exploration.
+- `references/task-specification.md` for concise PM task bodies.
+- `references/pm-tools.md` for PM discovery and item creation commands.
+
+Load the `mermaid-diagrams` skill when a compact diagram would make task review materially clearer, such as data flow, sequence, ownership, or state transitions.
+
+### Rules
+
+- Use Serena before drafting tasks. If Serena is unavailable, stop instead of creating implementation-ready tasks from local search alone.
+- Load relevant architecture, design, and security skills before decomposing tasks.
+- Discover repository facts before asking the user: files, ownership, schemas, routes, services, components, validators, conventions, and check commands.
+- Ask questions that affect user experience or database tables/data model even when not strictly blocking. For architecture, security, API, validation, delivery, and PM target, focus on blockers or decisions that materially change the task set.
+- Use exactly one Decision Gate.
+- Do not write local planning Markdown.
+- Do not use runner-specific clarification tools. The Decision Gate is normal chat.
+- Do not create duplicate tasks for the same business rule, validator, component, or workflow.
+- Do not invent labels, statuses, assignees, milestones, project fields, or PM schema values.
+- Create tasks even without an explicit "yes" when the user answered clarification questions and did not refuse task creation.
+
+### Task Creation
+
+After the Decision Gate response:
+
+1. Apply the user's answers and conservative defaults.
+2. Create one PM item per task in dependency order.
+3. Include task dependencies using native PM relationships when safely available; otherwise include dependency URLs in the task body.
+4. Add diagrams only when they reduce ambiguity.
+5. Return a short recap with task URLs and the next `/implement-pm <pm-tool> <task-ids>` command.
+
+If the user explicitly refuses creation, changes the scope so much that the task set is invalid, or the PM target is still unsafe to mutate, stop and report the blocker. Do not start a second Decision Gate.
+
+## Expected Response Format
+
+### Decision Gate
+
+Use this exact shape for the single stop:
+
+```markdown
+## Decision Gate
+
+I need one Decision Gate before creating PM tasks.
+
+Questions or confirmation:
+- <UX question, database/data-model question, blocker, or creation confirmation>
+
+Recommended defaults:
+- <default and why it is safe>
+
+What I will create:
+- <task title 1>
+- <task title 2>
+
+After your answer:
+- I will create the PM tasks directly unless you explicitly refuse creation or change the scope.
+```
+
+### Final Response
+
+```markdown
+## Feed PM
+
+PM tool: <tool and target>
+
+Created:
+- <task id/title>: <url>
+
+Dependency order:
+1. <task id/title>
+2. <task id/title>
+
+Next:
+`/implement-pm <pm-tool> <task-ids>`
+```
+
+If no tasks were created, replace `Created` with `Not created` and give the blocking reason.
+
+## Checklist
+
+- [ ] Repository and PM target resolved safely.
+- [ ] Relevant architecture, design, and security skills loaded before task decomposition.
+- [ ] `mermaid-diagrams` loaded when diagrams help task review.
+- [ ] Serena used before task drafting.
+- [ ] Existing architecture, validation, typing, business logic, and design-system patterns identified.
+- [ ] Exactly one Decision Gate used.
+- [ ] No local planning Markdown written.
+- [ ] PM tasks created directly after a non-refusal Decision Gate answer.
+- [ ] Final recap includes task URLs, dependency order, and `/implement-pm <pm-tool> <task-ids>`.

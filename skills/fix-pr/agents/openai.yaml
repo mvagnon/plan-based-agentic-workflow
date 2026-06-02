@@ -1,7 +1,7 @@
 interface:
   display_name: "Fix PR"
-  short_description: "Fix PR review feedback and update PR conversations."
-  default_prompt: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, or reviewer recommendations in the plan-based agentic workflow. By default it fixes the PR associated with the current branch, including PRs in child repositories when the current directory is a multi-repo workspace, analyzes the whole PR and review feedback, uses built-in clarification/question tools when available and portable Decision Gates in normal chat otherwise for ambiguous fixes that need product, technical, or architecture decisions, applies focused corrections in the owning checkout, runs relevant checks, commits and pushes the PR branch, then replies to and resolves GitHub review threads with official GitHub tooling when possible.'
+  short_description: "Fix PR feedback with at most one Decision Gate."
+  default_prompt: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, uses at most one normal-chat Decision Gate when remediation needs user or architect input, applies focused fixes with Serena MCP, runs relevant checks, commits and pushes, then updates PR conversations. It does not use runner-specific clarification tools and does not loop.'
 dependencies:
   tools:
     - type: "cli"

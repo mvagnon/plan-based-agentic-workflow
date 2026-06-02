@@ -4,61 +4,33 @@ Use this reference only after `review-pr` returns `PROD READY` and the user expl
 
 ## Final State Check
 
-Immediately before merging:
-
 ```bash
-gh pr view <pr> --json number,url,state,isDraft,mergeable,baseRefName,headRefName,reviewDecision,statusCheckRollup,body
+gh pr view <pr> --json number,url,state,isDraft,mergeable,baseRefName,headRefName,reviewDecision,statusCheckRollup,body,closingIssuesReferences,linkedIssues
 gh pr checks <pr>
 gh api /repos/<owner>/<repo>/pulls/<number>/reviews --paginate
 ```
 
-Confirm the full local CI suite from the review step was run against the current PR head commit. If the head changed or the prior run is missing, rerun the full local CI suite from `github-pr-review.md` before merging.
+Confirm the full local CI suite was run against the current PR head commit. If the head changed or the prior run is missing, rerun full local CI before merging.
 
 Do not merge if:
 
 - the PR is closed;
-- the PR is still draft;
-- mergeability is negative or unknown in a way that cannot be resolved safely;
-- required checks are failing;
-- the full local CI suite is failing, including failures classified as out of scope;
-- new blocking review feedback exists;
-- non-GitHub PM finalization data cannot be resolved when required.
-
-For a multi-repo review set, run this final state check separately for each PR in its owning repository. Do not merge a blocked child-repository PR because another PR in the set is ready.
-
-## GitHub Issues
-
-For GitHub Issues, rely on the closing keywords or linked issue metadata already created by `implement-pm`.
-
-Do not manually close GitHub Issues as a separate finalization action.
-
-Inspect closing references if needed:
-
-```bash
-gh pr view <pr> --json closingIssuesReferences,linkedIssues
-```
-
-## Non-GitHub PM Tasks
-
-For Notion or another PM tool:
-
-1. Extract every concerned task URL from the PR body.
-2. Inspect the PM schema/status field, valid status values, and existing PR backlink field/comment/description created by `implement-pm`.
-3. Confirm every PR URL for the task is present when the task spans multiple repositories.
-4. Confirm a safe `Done` or equivalent completed state.
-5. Stop before merge when any task URL, PR backlink, or completed status cannot be resolved safely.
-
-Do not invent a status value.
+- the PR is draft;
+- mergeability is negative or unknown;
+- required remote checks are failing;
+- full local CI is missing or failing, including out-of-scope failures;
+- unresolved blocking review feedback exists;
+- PM task links or backlink state cannot be resolved when task closure is requested.
 
 ## Merge
 
-Use repository/default merge behavior unless the user requested a specific method:
+Use repository/default merge behavior unless the user requested a method:
 
 ```bash
 gh pr merge <pr>
 ```
 
-Only use explicit methods when requested or repository convention requires one:
+Explicit methods only when requested or conventional:
 
 ```bash
 gh pr merge <pr> --merge
@@ -68,9 +40,20 @@ gh pr merge <pr> --rebase
 
 Do not use admin override, force, or branch deletion flags unless explicitly requested.
 
-## Post-Merge Checkout
+## PM Task Closure
 
-After a successful merge, checkout the PR base branch and fast-forward pull:
+Only close or mark PM tasks done after:
+
+- merge succeeded;
+- full local CI passed for the merged PR head;
+- required remote checks passed;
+- the PM task URL and safe completed status are known.
+
+For GitHub Issues, rely on PR closing keywords or linked issue metadata. Do not manually close GitHub Issues unless the user explicitly asks.
+
+For Jira, Notion, Linear, or another PM tool, inspect valid status values before changing status. Do not invent a completed status.
+
+## Post-Merge Checkout
 
 ```bash
 git checkout <base-ref>

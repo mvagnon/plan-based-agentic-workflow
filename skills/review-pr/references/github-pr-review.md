@@ -1,83 +1,48 @@
 # GitHub PR Review Reference
 
-Use this reference for concrete GitHub CLI and API operations during `review-pr`. The skill body owns the review policy and scoring flow.
+Use this reference for concrete PR inspection, CI, and review commands.
 
-## Preflight And PR Resolution
-
-Before reviewing:
+## Resolve PR
 
 ```bash
 git rev-parse --show-toplevel
 git status --short --branch
 git branch --show-current
 git remote -v
-gh pr view --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author
+gh pr view --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup,closingIssuesReferences,linkedIssues
+gh pr diff
+gh pr checks
 ```
 
-When the current directory is a workspace that may contain multiple independent child repositories, enumerate and inspect child repos before deciding that no PR exists:
+Child repositories:
 
 ```bash
 find . -mindepth 2 -maxdepth 4 -name .git -prune -print
 git -C <child-repo> status --short --branch
 git -C <child-repo> branch --show-current
 git -C <child-repo> remote -v
+gh -R <owner/repo> pr view <branch-or-pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup,closingIssuesReferences,linkedIssues
 ```
 
-Use the parent directory of each `.git` entry as `<child-repo>`.
+If several unrelated PRs match, ask for the PR selector before reviewing.
 
-For each candidate child repository, resolve the PR from the current branch, explicit PR, or explicit branch:
+## Linked PM Tasks
 
-```bash
-gh -R <owner/repo> pr view <branch-or-pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author
-```
+Resolve linked tasks before judging scope:
 
-If several child repositories have PRs for the current branch or provided branch, keep them all in scope. If several unrelated PRs match and there is no clear branch or user-provided selector, ask before reviewing.
+- `closingIssuesReferences` and `linkedIssues` from `gh pr view`;
+- PM task URLs in the PR body;
+- branch name `<pm-tool>/<task-ids>` when links are missing.
 
-If local changes exist, commit and push them before inspecting/scoring the PR:
-
-```bash
-git status --short
-git add <paths>
-git commit -m "<concise repository-style message>"
-git push
-```
-
-If commit or push fails, stop the review flow and report the exact failing command.
-
-Run status, commit, and push commands in the repository that owns the PR. A parent workspace directory with child repos does not have a shared PR status.
-
-## Diff And Context
-
-Read PR metadata and diff:
-
-```bash
-gh pr view <pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup,closingIssuesReferences,linkedIssues
-gh pr diff <pr>
-gh pr checks <pr>
-```
-
-## Linked PM Task Retrieval
-
-Treat linked PM tasks as the canonical intended scope. Resolve them before scoring coverage:
-
-- Use `closingIssuesReferences` and `linkedIssues` from `gh pr view` when available.
-- Extract additional GitHub issue references and non-GitHub PM URLs from the PR body.
-- For every GitHub issue, read the task content and comments that may change scope:
+GitHub issue content:
 
 ```bash
 gh issue view <number-or-url> --json number,title,body,state,labels,comments,url,closed
 ```
 
-For non-GitHub task URLs, use the relevant MCP or CLI already available in the workflow. If a linked task cannot be read, report the missing task context in the review and evaluate the code against the accessible PR description and diff. Do not treat an inaccessible PM task as a code risk unless it creates a concrete coverage or production-readiness uncertainty.
+For non-GitHub PM tools, use the installed MCP or CLI. If a task cannot be read, report that limitation and review against the accessible PR body and diff.
 
-When no PR exists yet, compare the committed branch to the intended base:
-
-```bash
-git diff <base-ref>...HEAD
-git diff --name-only <base-ref>...HEAD
-```
-
-Inspect all prior discussion before posting a new review:
+## Previous Discussion
 
 ```bash
 gh api /repos/<owner>/<repo>/issues/<number>/comments --paginate
@@ -85,65 +50,7 @@ gh api /repos/<owner>/<repo>/pulls/<number>/comments --paginate
 gh api /repos/<owner>/<repo>/pulls/<number>/reviews --paginate
 ```
 
-## Full Local CI Suite
-
-Run the full local CI suite in each affected repository before submitting the PR review comment. Discover repository commands from package scripts, task-runner config, language config, and CI workflows:
-
-```bash
-rg --files -g 'package.json' -g 'turbo.json' -g 'pnpm-workspace.yaml' -g 'yarn.lock' -g 'package-lock.json'
-rg --files -g 'pyproject.toml' -g 'pytest.ini' -g 'tox.ini' -g 'poetry.lock' -g 'requirements*.txt'
-rg --files -g '.github/workflows/*.yml' -g '.github/workflows/*.yaml'
-rg -n '"(lint|typecheck|check|test|format|build)"\s*:' package.json apps packages services src 2>/dev/null
-```
-
-Prefer the repository's package manager and task runner. Run repo-level commands whenever they exist, for example:
-
-```bash
-npm test
-npm run lint
-npm run typecheck
-npm run format:check
-npm run build
-pnpm test
-pnpm lint
-pnpm typecheck
-pnpm format:check
-pnpm build
-yarn test
-yarn lint
-yarn typecheck
-yarn build
-pytest
-ruff check .
-mypy .
-```
-
-For Turborepo repositories, run full-repository tasks without filters when available:
-
-```bash
-turbo run test
-turbo run lint
-turbo run typecheck
-turbo run build
-```
-
-Do not use scoped, package-only, changed-only, affected-only, or filtered commands such as `--filter`, `--affected`, path-specific test patterns, or package-directory commands when a full-repository command exists. Use a scoped command only when the repository has no full command for that check, and report that limitation in the PR comment.
-
-Do not start dev servers, watch commands, containers, or browser automation by default. If the repository's only available check requires one of those, report the command as not run with the reason unless the user explicitly approved it.
-
-For every command, record:
-
-- command and repository path;
-- pass/fail/not-run status;
-- exit code when available;
-- concise failure evidence;
-- whether the failure is caused by the PR, likely caused by the PR, or out of scope.
-
-Classify a failure as out of scope only when the failing test, file, package, service, or dependency path is demonstrably unrelated to the PR diff and directly affected code paths. When uncertain, treat the failure as likely caused by the PR for scoring and review purposes.
-
-## Review Threads GraphQL
-
-Query all review threads, including resolved, unresolved, and outdated threads. Use the `isResolved` and `isOutdated` fields to decide whether a thread is still actionable, already addressed, or useful historical context.
+Review threads:
 
 ```bash
 gh api graphql -f query='
@@ -175,58 +82,55 @@ query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
 }' -F owner=<owner> -F repo=<repo> -F number=<number>
 ```
 
-Resolve only threads already addressed by the current diff or fully explained by existing discussion:
+Avoid duplicate feedback for unresolved valid threads.
+
+## Full Local CI
+
+Discover commands:
 
 ```bash
-gh api graphql -f query='
-mutation($threadId: ID!) {
-  resolveReviewThread(input: {threadId: $threadId}) {
-    thread { id isResolved }
-  }
-}' -F threadId=<thread-id>
+rg --files -g 'package.json' -g 'turbo.json' -g 'pnpm-workspace.yaml' -g 'yarn.lock' -g 'package-lock.json'
+rg --files -g 'pyproject.toml' -g 'pytest.ini' -g 'tox.ini' -g 'poetry.lock' -g 'requirements*.txt'
+rg --files -g '.github/workflows/*.yml' -g '.github/workflows/*.yaml'
+rg -n '"(lint|typecheck|check|test|format|build)"\s*:' package.json apps packages services src 2>/dev/null
 ```
 
-## PR Body Reconciliation
-
-Edit the PR body with a temp file:
+Prefer repo-level commands when available:
 
 ```bash
-gh pr view <pr> --json body --jq .body > /tmp/pr-body.md
-$EDITOR /tmp/pr-body.md
-gh pr edit <pr> --body-file /tmp/pr-body.md
+npm test
+npm run lint
+npm run typecheck
+npm run format:check
+npm run build
+pnpm test
+pnpm lint
+pnpm typecheck
+pnpm format:check
+pnpm build
+yarn test
+yarn lint
+yarn typecheck
+yarn build
+pytest
+ruff check .
+mypy .
+turbo run test
+turbo run lint
+turbo run typecheck
+turbo run build
 ```
 
-Generated reconciliation block:
+Do not use scoped, changed-only, affected-only, filtered, watch, dev-server, container, or browser automation commands by default.
 
-```markdown
-<!-- review-pr:reconciliation:start -->
-
-## Review PR Reconciliation
-
-### Additional Completed Work
-
-- <behavior or file area present in the diff but missing from the PR description>
-
-### Not Completed
-
-- ~~<promised task, checklist item, acceptance criterion, or scope item not implemented by the diff>~~ - <short factual reason>
-
-### PM Task Coverage Notes
-
-- <linked task requirement, acceptance criterion, or scope item whose implementation status needs clarification>
-<!-- review-pr:reconciliation:end -->
-```
-
-Remove any legacy generated `review-pr:recap` block while preserving author content.
+Record command, path, pass/fail/not-run status, exit code, concise evidence, and whether the failure is PR-caused, likely PR-caused, or out of scope. Any missing or failing local CI blocks `PROD READY`, merge, and PM task closure.
 
 ## Submit Review
 
-Prefer one official PR review with a top-level body and inline comments:
+Prefer one official PR review:
 
 ```bash
-gh api /repos/<owner>/<repo>/pulls/<number>/reviews \
-  --method POST \
-  --input <review-payload.json>
+gh api /repos/<owner>/<repo>/pulls/<number>/reviews --method POST --input <review-payload.json>
 ```
 
 Payload shape:
@@ -234,24 +138,24 @@ Payload shape:
 ```json
 {
   "event": "COMMENT",
-  "body": "Review score: 17/20 - FIX BEFORE MERGE\n\nFull local CI suite:\n- npm test: pass\n- npm run lint: fail, out of scope: pre-existing lint error in scripts/legacy.ts\n\n- Main risk...",
+  "body": "Score: 8/10 - FIX BEFORE MERGE\n\nChecks:\n- npm test: passed\n\nFindings:\n- Major: ...",
   "comments": [
     {
       "path": "src/file.ts",
       "line": 42,
-      "body": "Fix this because it can break production behavior."
+      "body": "Required fix and production impact."
     }
   ]
 }
 ```
 
-When inline review API submission is unavailable, fall back to a top-level comment and report that inline comments could not be posted:
+Fallback:
 
 ```bash
 gh pr comment <pr> --body-file <review-body-file>
 ```
 
-Mark strong draft PRs ready only after the final score is greater than 18:
+Mark a draft PR ready only when the verdict is `PROD READY`:
 
 ```bash
 gh pr ready <pr>
