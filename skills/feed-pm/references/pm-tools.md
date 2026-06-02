@@ -1,6 +1,6 @@
 # PM Tools Reference
 
-Use this reference for PM target discovery and approved task creation. `feed-pm` must show the proposed tasks first and receive explicit post-proposal approval before creating or editing PM items.
+Use this reference for PM target discovery and approved task creation. `feed-pm` must show the proposed tasks first and receive explicit post-proposal approval or Decision Gate approval before creating or editing PM items.
 
 ## GitHub Repository Discovery
 
@@ -84,4 +84,4 @@ Before executing any creation or edit command, summarize:
 - number of tasks and titles;
 - dependency order;
 - labels, milestones, assignees, statuses, and project fields to apply;
-- explicit user approval received in the current conversation.
+- explicit user approval or Decision Gate approval received in the current conversation.

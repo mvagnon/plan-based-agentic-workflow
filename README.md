@@ -9,9 +9,13 @@ Agent Skills for a plan-first development workflow:
 - `feed-pm`: analyze a repository with Serena MCP, clarify remaining non-discoverable intent and tradeoffs, decompose requested work, and draft reviewable technical PM tasks.
 - `implement-pm`: fetch approved PM tasks, create dedicated branch(es) from the currently selected branch(es), open draft PR(s) before implementation, write PR backlinks to non-GitHub PM tasks, then implement the requested work directly in the current repository checkout or affected child repositories while preserving staged and unstaged changes.
 - `review-pr`: review implementation PRs from the current repo or child repos in a multi-repo workspace, run the full local CI suite, report out-of-scope CI failures in the PR comment, reconcile PR bodies with actual diffs, resolve stale already-addressed conversations, add concise score/details comments plus inline action comments, mark strong draft PRs ready for review, and propose or perform approval-gated merge finalization for production-ready PRs.
-- `fix-pr`: infer PRs from the current branch or child repositories, analyze PR review feedback, use Plan-mode structured clarification when available for ambiguous fixes, apply focused fixes in the owning checkout, push PR branches, and reply to or resolve handled review conversations.
+- `fix-pr`: infer PRs from the current branch or child repositories, analyze PR review feedback, use portable Decision Gates for ambiguous fixes, apply focused fixes in the owning checkout, push PR branches, and reply to or resolve handled review conversations.
 
-The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
+PBAW is agent agnostic. The skills are designed to be portable across Codex, Claude Code, Antigravity CLI, and other Agent Skills compatible runners. They use built-in clarification/question tools when available, but do not depend on Plan Mode or proprietary question tools. Runner-specific metadata may be ignored by tools that do not support it; the workflow instructions remain the source of truth.
+
+Using the host tool's Plan Mode is not recommended for PBAW skills. Plan Mode often intentionally limits agent capabilities, while PBAW relies on normal execution plus Decision Gates to keep the user in the architect role and the agent in the technician role.
+
+PBAW is also a team workflow: the user is the product and architecture authority, and the agent is the technical operator. Treat the user as a qualified software engineer; clarification can and should cover technical architecture, contracts, validation, data, security, and delivery tradeoffs, not only product outcomes. When the agent needs human judgment, it uses a built-in clarification/question tool when available, or a normal-chat Decision Gate otherwise, and includes the roadmap it will execute.
 
 Each skill follows the standard Agent Skills layout: `SKILL.md` contains the workflow and safety rules, while bundled resources live inside the same skill directory. Technical references are intentionally stored under `skills/<skill-name>/references/` so copying or symlinking one skill directory imports the references it needs.
 
@@ -26,7 +30,13 @@ Required:
 
 ## Installation
 
-Use this repository as a plugin or skill bundle. The expected layout is:
+Install the skills with `npx`; this is the recommended method:
+
+```bash
+npx skills add mvagnon/plan-based-agentic-workflow
+```
+
+Alternatively, fork or clone this repository and use it as a plugin or skill bundle. The expected layout is:
 
 ```text
 plan-based-agentic-workflow/
@@ -62,7 +72,7 @@ plan-based-agentic-workflow/
             `-- remediation-git-github.md
 ```
 
-For runners that scan a `skills/` directory, point them at this repository or copy/symlink the four skill directories. For Claude Code, the `.claude-plugin/plugin.json` manifest enables plugin installation and namespaced skill invocation. The core workflow does not depend on the Claude plugin manifest.
+For runners that scan a `skills/` directory, point them at the cloned repository or copy/symlink the four skill directories. For Claude Code, the `.claude-plugin/plugin.json` manifest enables plugin installation and namespaced skill invocation. The core workflow does not depend on the Claude plugin manifest.
 
 ## Arguments
 
@@ -104,11 +114,11 @@ fix-pr
 
 1. Infer or resolve the PM target.
 2. Load relevant architecture skills and explore the codebase with Serena MCP.
-3. Use Plan-mode structured question or clarification prompts when available to lock down remaining non-discoverable scope decisions.
+3. Use built-in clarification/question tools when available, or a portable Decision Gate in normal chat otherwise, when remaining non-discoverable product, technical, or architecture decisions need architect input.
 4. Reuse existing project architecture, validation, typing, and design-system patterns.
 5. Decompose the requested work into similarly sized technical tasks.
 6. Show a proposal table and full task bodies.
-7. Create PM items only after explicit human approval.
+7. Create PM items after explicit approval, or directly after a Decision Gate response when the gate already presented the proposal table, full task bodies, and creation plan, and the user did not refuse, correct, or narrow it.
 
 Task bodies are optimized for senior-engineer review: a short digest first, then implementation anchors, contracts, diagrams when useful, dependencies, verification guidance, and reviewer notes.
 
@@ -149,7 +159,7 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 1. Resolve PRs from the current branch or matching child repositories by default; use a PR URL, PR number, branch name, repository, or child path when provided as an override.
 2. Read the PR body, diff, checks, reviews, issue comments, review comments, unresolved review threads, and cited lines.
 3. Build a feedback ledger that maps every actionable comment to a code fix, clarification, already-fixed status, obsolete status, or user decision.
-4. Use Plan-mode structured clarification when available for ambiguous fixes, or ask concise chat questions only when a user decision is required.
+4. Use built-in clarification/question tools when available, or a portable Decision Gate in normal chat otherwise, for ambiguous fixes that need architect input; the response approves the remediation roadmap unless the user refuses, corrects, or narrows it.
 5. Checkout each PR head branch safely in its owning repository, preserving staged, unstaged, and unrelated local changes.
 6. Apply focused corrections using existing project architecture, validation, typing, business logic, and design-system patterns.
 7. Run relevant existing checks for the touched area.
@@ -158,7 +168,7 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 
 ## Safety Rules
 
-- `feed-pm` must not create, edit, label, or move PM items before explicit post-proposal approval.
+- `feed-pm` must not create, edit, label, or move PM items before explicit post-proposal approval or Decision Gate approval.
 - `implement-pm` must create invocation branches from the currently selected branch in each affected repository and preserve staged, unstaged, and unrelated local changes in each checkout.
 - `review-pr` is intentionally side-effectful: it may edit the PR body, run the full local CI suite, add review comments, resolve stale already-addressed conversations, mark a draft PR ready, and complete explicitly approved merge finalization only as described by its review workflow.
 - `fix-pr` may commit and push focused remediation changes, reply to review feedback, and resolve handled review threads. It must not merge PRs, close issues, mark PM items done, or mark PRs ready unless explicitly requested.
