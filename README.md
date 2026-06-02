@@ -6,7 +6,7 @@
 
 Agent Skills for a plan-first development workflow:
 
-- `feed-pm`: analyze a repository with Serena MCP, clarify remaining non-discoverable intent and tradeoffs, decompose requested work, and draft reviewable technical PM tasks.
+- `feed-pm`: analyze a repository with Serena MCP, clarify remaining non-discoverable intent and tradeoffs, decompose requested work, and write reviewable technical PM task plans under `~/pbaw-plans`.
 - `implement-pm`: fetch approved PM tasks, create dedicated branch(es) from the currently selected branch(es), open draft PR(s) before implementation, write PR backlinks to non-GitHub PM tasks, then implement the requested work directly in the current repository checkout or affected child repositories while preserving staged and unstaged changes.
 - `review-pr`: review implementation PRs from the current repo or child repos in a multi-repo workspace, run the full local CI suite, report out-of-scope CI failures in the PR comment, reconcile PR bodies with actual diffs, resolve stale already-addressed conversations, add concise score/details comments plus inline action comments, mark strong draft PRs ready for review, and propose or perform approval-gated merge finalization for production-ready PRs.
 - `fix-pr`: infer PRs from the current branch or child repositories, analyze PR review feedback, use portable Decision Gates for ambiguous fixes, apply focused fixes in the owning checkout, push PR branches, and reply to or resolve handled review conversations.
@@ -15,7 +15,7 @@ PBAW is agent agnostic. The skills are designed to be portable across Codex, Cla
 
 Using the host tool's Plan Mode is not recommended for PBAW skills. Plan Mode often intentionally limits agent capabilities, while PBAW relies on normal execution plus Decision Gates to keep the user in the architect role and the agent in the technician role.
 
-PBAW is also a team workflow: the user is the product and architecture authority, and the agent is the technical operator. Treat the user as a qualified software engineer; clarification can and should cover technical architecture, contracts, validation, data, security, and delivery tradeoffs, not only product outcomes. When the agent needs human judgment, it uses a built-in clarification/question tool when available, or a normal-chat Decision Gate otherwise, and includes the roadmap it will execute.
+PBAW is also a team workflow: the user is the product and architecture authority, and the agent is the technical operator. Treat the user as a qualified software engineer; clarification can and should cover technical architecture, contracts, validation, data, security, and delivery tradeoffs, not only product outcomes. When the agent needs human judgment, it uses a built-in clarification/question tool when available, or a normal-chat Decision Gate otherwise. For `feed-pm`, the task roadmap lives in persistent plan files for review.
 
 Each skill follows the standard Agent Skills layout: `SKILL.md` contains the workflow and safety rules, while bundled resources live inside the same skill directory. Technical references are intentionally stored under `skills/<skill-name>/references/` so copying or symlinking one skill directory imports the references it needs.
 
@@ -117,10 +117,12 @@ fix-pr
 3. Use built-in clarification/question tools when available, or a portable Decision Gate in normal chat otherwise, when remaining non-discoverable product, technical, or architecture decisions need architect input.
 4. Reuse existing project architecture, validation, typing, and design-system patterns.
 5. Decompose the requested work into similarly sized technical tasks.
-6. Show a proposal table and full task bodies.
-7. Create PM items after explicit approval, or directly after a Decision Gate response when the gate already presented the proposal table, full task bodies, and creation plan, and the user did not refuse, correct, or narrow it.
+6. Write a request folder under `~/pbaw-plans` with an `index.md` and one explicit Markdown file per proposed task.
+7. Link only the latest `index.md` in the response and ask the user to review it.
+8. Revise the same plan files after clarifications, corrections, scope changes, or confirmations.
+9. Create PM items only after explicit final confirmation to push the latest linked plan to the PM tool.
 
-Task bodies are optimized for senior-engineer review: a short digest first, then implementation anchors, contracts, diagrams when useful, dependencies, verification guidance, and reviewer notes.
+Task bodies are optimized for senior-engineer review: a short digest first, then implementation anchors, contracts, diagrams when useful, dependencies, verification guidance, and reviewer notes. The local task files become the source bodies for PM item creation after final confirmation.
 
 ### Implementation With `implement-pm`
 
@@ -168,7 +170,7 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 
 ## Safety Rules
 
-- `feed-pm` must not create, edit, label, or move PM items before explicit post-proposal approval or Decision Gate approval.
+- `feed-pm` must not create, edit, label, or move PM items before explicit final confirmation to push the latest linked `~/pbaw-plans` files to the PM tool.
 - `implement-pm` must create invocation branches from the currently selected branch in each affected repository and preserve staged, unstaged, and unrelated local changes in each checkout.
 - `review-pr` is intentionally side-effectful: it may edit the PR body, run the full local CI suite, add review comments, resolve stale already-addressed conversations, mark a draft PR ready, and complete explicitly approved merge finalization only as described by its review workflow.
 - `fix-pr` may commit and push focused remediation changes, reply to review feedback, and resolve handled review threads. It must not merge PRs, close issues, mark PM items done, or mark PRs ready unless explicitly requested.
@@ -180,7 +182,7 @@ Task bodies are optimized for senior-engineer review: a short digest first, then
 References are bundled per skill, not at the repository root. This matches the standard skill resource model and keeps symlinked/imported skill directories self-contained.
 
 - `skills/feed-pm/references/codebase-analysis.md`: Serena startup, evidence collection, and responsibility-map mechanics.
-- `skills/feed-pm/references/task-specification.md`: proposal table, issue template, task sizing, and quality checklist.
+- `skills/feed-pm/references/task-specification.md`: plan-file layout, proposal table, issue template, task sizing, and quality checklist.
 - `skills/feed-pm/references/pm-tools.md`: GitHub, Notion, and other PM task creation mechanics.
 - `skills/implement-pm/references/pm-task-retrieval.md`: exact PM task retrieval and dependency resolution.
 - `skills/implement-pm/references/implementation-git-github.md`: branch, draft PR, linkage, staging, commit, and push mechanics.

@@ -1,6 +1,6 @@
 # PM Tools Reference
 
-Use this reference for PM target discovery and approved task creation. `feed-pm` must show the proposed tasks first and receive explicit post-proposal approval or Decision Gate approval before creating or editing PM items.
+Use this reference for PM target discovery and approved task creation. `feed-pm` must write the proposed tasks to `~/pbaw-plans`, link the latest `index.md` for review, and receive explicit final confirmation to push/create PM items before creating or editing PM items.
 
 ## GitHub Repository Discovery
 
@@ -25,13 +25,13 @@ Do not invent labels, milestones, assignees, project status values, or project f
 
 ## GitHub Issue Creation
 
-Create one issue per approved task:
+Create one issue per finally confirmed task file:
 
 ```bash
 gh issue create --repo <owner/repo> --title "<task title>" --body-file <body-file>
 ```
 
-After creation, update dependency links with stable issue URLs or numbers:
+After creation, update both the PM item bodies and the local task files with stable issue URLs or numbers when dependencies were provisional:
 
 ```bash
 gh issue edit <issue-number> --repo <owner/repo> --body-file <updated-body-file>
@@ -65,14 +65,14 @@ Technical discovery:
 - use an existing planning/backlog status value when one is discoverable;
 - store dependency issue URLs as relations only when the database already has a relation property for them.
 
-If the Notion target or schema cannot be discovered, draft ready-to-copy task bodies and ask for the missing database/page target before creating pages.
+If the Notion target or schema cannot be discovered, draft ready-to-copy task bodies in `~/pbaw-plans` and ask only for the missing database/page target before creating pages.
 
 ## Other PM Tools
 
 Use an installed MCP or CLI only when discoverable. For Linear, Jira, Shortcut, Asana, or similar tools:
 
 - inspect projects, teams, statuses, labels, and custom fields first;
-- create one item per approved task;
+- create one item per finally confirmed task file;
 - preserve dependency order in bodies or native relationships;
 - report unsupported fields instead of substituting a different PM system.
 
@@ -80,8 +80,9 @@ Use an installed MCP or CLI only when discoverable. For Linear, Jira, Shortcut, 
 
 Before executing any creation or edit command, summarize:
 
+- latest plan index path and task files that will be used as source bodies;
 - target PM tool and repository/project;
 - number of tasks and titles;
 - dependency order;
 - labels, milestones, assignees, statuses, and project fields to apply;
-- explicit user approval or Decision Gate approval received in the current conversation.
+- explicit final push/create confirmation received after linking the latest plan index in the current conversation.
