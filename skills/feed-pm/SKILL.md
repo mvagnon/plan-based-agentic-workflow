@@ -58,7 +58,7 @@ Load the `mermaid-diagrams` skill when a compact diagram would make task review 
 ### Rules
 
 - Use Serena before drafting tasks. If Serena is unavailable, stop instead of creating implementation-ready tasks from local search alone.
-- Load relevant architecture, design, and security skills before decomposing tasks.
+- Load relevant architecture, design, and security resources if any before decomposing tasks.
 - Discover repository facts before asking the user: files, ownership, schemas, routes, services, components, validators, conventions, and check commands.
 - Ask questions that affect user experience or database tables/data model even when not strictly blocking. For architecture, security, API, validation, delivery, and PM target, focus on blockers or decisions that materially change the task set.
 - Use exactly one Decision Gate.
@@ -92,16 +92,20 @@ Use this exact shape for the single stop:
 I need one Decision Gate before creating PM tasks.
 
 Questions or confirmation:
+
 - <UX question, database/data-model question, blocker, or creation confirmation>
 
 Recommended defaults:
+
 - <default and why it is safe>
 
 What I will create:
+
 - <task title 1>
 - <task title 2>
 
 After your answer:
+
 - I will create the PM tasks directly unless you explicitly refuse creation or change the scope.
 ```
 
@@ -113,9 +117,11 @@ After your answer:
 PM tool: <tool and target>
 
 Created:
+
 - <task id/title>: <url>
 
 Dependency order:
+
 1. <task id/title>
 2. <task id/title>
 
@@ -128,7 +134,7 @@ If no tasks were created, replace `Created` with `Not created` and give the bloc
 ## Checklist
 
 - [ ] Repository and PM target resolved safely.
-- [ ] Relevant architecture, design, and security skills loaded before task decomposition.
+- [ ] Relevant architecture, design, and security resources if any are loaded before task decomposition.
 - [ ] `mermaid-diagrams` loaded when diagrams help task review.
 - [ ] Serena used before task drafting.
 - [ ] Existing architecture, validation, typing, business logic, and design-system patterns identified.
