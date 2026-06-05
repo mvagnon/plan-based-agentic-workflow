@@ -1,7 +1,7 @@
 interface:
   display_name: "Fix PM"
-  short_description: "Explicitly adjust already-created PM tasks."
-  default_prompt: "Use only when explicitly invoked as /fix-pm <tasks-url> <changes>. The skill retrieves existing PM tasks, applies requested task-spec changes in place, uses at most one normal-chat Decision Gate for ambiguous or structurally risky updates, verifies the updated tasks, and returns a concise recap. It does not implement code, create branches, create PRs, review PRs, merge, or close tasks by default."
+  short_description: "Adjust already-created PM tasks."
+  default_prompt: "Use this skill when the request provides both required inputs: existing task URL(s) or ID(s), and the changes to apply. The skill retrieves existing PM tasks, applies requested task-spec changes in place, uses at most one normal-chat Decision Gate for ambiguous or structurally risky updates, verifies the updated tasks, and returns a concise recap. It does not implement code, create branches, create PRs, review PRs, merge, or close tasks by default."
 dependencies:
   tools:
     - type: "cli"
@@ -11,4 +11,4 @@ dependencies:
       value: "serena"
       description: "Required when requested changes alter technical task scope or implementation details."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

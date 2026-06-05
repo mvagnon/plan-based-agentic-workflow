@@ -1,11 +1,6 @@
 ---
 name: implement-pm
-description: Explicitly invoked implementation workflow for PM tasks. Use only when the user runs `/implement-pm <pm-tool> <task-ids>`. It creates and pushes branch `{pm-tool}/{task-ids}`, retrieves PM tasks, analyzes the repository with Serena MCP, and focuses only on implementation.
-disable-model-invocation: true
-argument-hint: "<pm-tool> <task-ids>"
-arguments:
-  - pm_tool
-  - task_ids
+description: Implementation workflow for PM tasks. Requires both inputs: PM system name and exact task IDs. It creates and pushes branch `{pm-tool}/{task-ids}`, retrieves PM tasks, analyzes the repository with Serena MCP, and focuses only on implementation.
 ---
 
 # Implement PM
@@ -14,17 +9,7 @@ arguments:
 
 Implement PM tasks in the current checkout.
 
-Invocation:
-
-```text
-/implement-pm $pm_tool $task_ids
-```
-
-Example:
-
-```text
-/implement-pm jira pp-12-14-15
-```
+Required information can be supplied in any prompt shape.
 
 The first action after loading this skill is always:
 
@@ -50,12 +35,12 @@ flowchart TD
 
 ### Inputs
 
-Required positional arguments:
+Required inputs:
 
 - `$pm_tool`: PM system name, for example `github`, `jira`, `notion`, `linear`.
 - `$task_ids`: exact task IDs joined exactly as they should appear in the branch name.
 
-Do not guess missing arguments. Ask for the exact invocation if either value is missing.
+Do not guess missing inputs. Ask for the missing information if either value is missing.
 
 ### First Action
 
@@ -117,7 +102,7 @@ Next:
 
 ## Checklist
 
-- [ ] `/implement-pm $pm_tool $task_ids` arguments parsed exactly.
+- [ ] PM tool and task IDs parsed exactly.
 - [ ] Branch script run before PM retrieval, Serena analysis, or edits.
 - [ ] PM tasks retrieved with full body/comments/dependencies when available.
 - [ ] Serena used to inspect existing code and reuse patterns.

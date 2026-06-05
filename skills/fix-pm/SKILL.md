@@ -1,11 +1,6 @@
 ---
 name: fix-pm
-description: Explicitly invoked PM task adjustment workflow for already-created tasks. Use only when the user runs `/fix-pm <tasks-url> <changes>`. It retrieves existing PM tasks, applies requested task-spec changes in place, uses at most one Decision Gate when updates are ambiguous or structurally risky, verifies the updated tasks, and returns a concise recap.
-disable-model-invocation: true
-argument-hint: "<tasks-url> <changes>"
-arguments:
-  - tasks-url
-  - changes
+description: PM task adjustment workflow for already-created tasks. Requires both inputs: existing task URL(s) or ID(s), and the changes to apply. It retrieves existing PM tasks, applies requested task-spec changes in place, uses at most one Decision Gate when updates are ambiguous or structurally risky, verifies the updated tasks, and returns a concise recap.
 ---
 
 # Fix PM
@@ -45,12 +40,12 @@ flowchart TD
 
 ### Inputs
 
-Required positional arguments:
+Required inputs:
 
 - `tasks-url`: one or more existing task URLs or task IDs.
 - `changes`: requested updates to apply to those tasks.
 
-Do not guess missing arguments. Ask for the exact invocation if either value is missing.
+Do not guess missing inputs. Ask for the missing information if either value is missing.
 
 Infer the PM tool from `tasks-url` when possible. If URLs or IDs span several PM tools or repositories, resolve every target before editing and stop if any target is unsafe to mutate.
 
@@ -132,7 +127,7 @@ Remaining:
 - <blocker or "none">
 
 Next:
-`/implement-pm <pm-tool> <task-ids>`
+Use `implement-pm` with `<pm-tool>` and `<task-ids>`.
 ```
 
 If no tasks were updated, replace `Updated` with `Not updated` and give the blocking reason.
@@ -148,4 +143,4 @@ If no tasks were updated, replace `Updated` with `Not updated` and give the bloc
 - [ ] At most one Decision Gate used.
 - [ ] No implementation branches, PRs, reviews, merges, or completion statuses updated.
 - [ ] Changed tasks re-read and verified.
-- [ ] Final recap includes task URLs, verification state, and the next `/implement-pm <pm-tool> <task-ids>` command when applicable.
+- [ ] Final recap includes task URLs, verification state, and the next `implement-pm` request details when applicable.

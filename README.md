@@ -12,7 +12,7 @@ PBAW treats the user as the product and architecture authority, and as an experi
 
 - `feed-pm`: analyze the repository with Serena MCP, use exactly one Decision Gate, create PM tasks directly, then recap.
 - `fix-pm`: explicitly adjust already-created PM tasks in place, then verify the updated task state.
-- `implement-pm`: explicitly invoked only, run the branch script first, retrieve PM tasks, and focus only on implementation.
+- `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, then run `review-pr`.
 - `review-pr`: perform a strict production-readiness review with mandatory full local CI.
 - `fix-pr`: fix PR feedback with at most one Decision Gate and no loop.
@@ -90,36 +90,34 @@ No local planning workspace and no repeated approval cycle.
 
 ### 2. Adjust PM Tasks
 
-Use:
+Required information:
 
-```text
-/fix-pm <tasks-url> <changes>
-```
+- existing task URL(s) or ID(s);
+- changes to apply.
 
 Example:
 
 ```text
-/fix-pm https://github.com/acme/app/issues/123 "split deployment work into a separate devops task and clarify the API acceptance criteria"
+Fix PM task https://github.com/acme/app/issues/123: split deployment work into a separate devops task and clarify the API acceptance criteria.
 ```
 
 `fix-pm` retrieves already-created PM tasks, applies requested changes in place, and verifies the updated task state. It uses at most one Decision Gate when the update is ambiguous, structurally risky, or unsafe to apply directly.
 
 It does not implement code, create branches, create PRs, review PRs, merge, or close tasks by default.
 
-`fix-pm` is explicit-only: its skill frontmatter disables model invocation and declares `tasks-url` plus `changes` positional variables.
+`fix-pm` can be invoked with any prompt shape as long as the task target and requested changes are present.
 
 ### 3. Implement PM Tasks
 
-Use:
+Required information:
 
-```text
-/implement-pm <pm-tool> <task-ids>
-```
+- PM system name;
+- exact task IDs.
 
 Example:
 
 ```text
-/implement-pm jira pp-12-14-15
+Implement Jira tasks pp-12-14-15.
 ```
 
 `implement-pm` first runs:
@@ -136,7 +134,7 @@ The script creates and pushes branch:
 
 Then the skill retrieves the tasks, analyzes the codebase with Serena, implements the work, and stops with a concise report. It does not create PRs or update PM backlinks.
 
-`implement-pm` is explicit-only: its skill frontmatter disables model invocation and declares `pm_tool` plus `task_ids` positional variables.
+`implement-pm` can be invoked with any prompt shape as long as the PM system name and exact task IDs are present.
 
 ### 4. Create Draft PRs
 

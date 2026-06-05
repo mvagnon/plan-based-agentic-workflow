@@ -1,7 +1,7 @@
 interface:
   display_name: "Feed PM"
   short_description: "Create PM-ready tasks after one Decision Gate."
-  default_prompt: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the repository with Serena MCP, uses exactly one normal-chat Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, matches the user's task-description language, separates frontend/backend/devops work, and returns a concise recap with the next /implement-pm command. Trigger on feed PM, create issues, create PM tasks, split this work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
+  default_prompt: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. Requires a task/request description; pm_tool and project_id are optional. It analyzes the repository with Serena MCP, uses exactly one normal-chat Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, matches the user's task-description language, separates frontend/backend/devops work, and returns a concise recap with the next implement-pm request details. Trigger on feed PM, create issues, create PM tasks, split this work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
 dependencies:
   tools:
     - type: "mcp"

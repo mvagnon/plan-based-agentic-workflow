@@ -71,8 +71,8 @@ Do not make runtime workflows load `mermaid-diagrams`, and do not push generated
 ## Workflow Rules
 
 - `feed-pm`: load relevant architecture, design, and security skills before task decomposition. Use one mandatory Decision Gate, then direct PM task creation unless the user explicitly refuses or the PM target is unsafe.
-- `fix-pm`: explicit invocation only. Keep `disable-model-invocation: true` and positional variables in `SKILL.md` frontmatter, and keep `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Update existing PM tasks in place; use at most one Decision Gate for ambiguous, structural, or unsafe changes.
-- `implement-pm`: explicit invocation only. Keep `disable-model-invocation: true` and positional variables in `SKILL.md` frontmatter, and keep `policy.allow_implicit_invocation: false` in `agents/openai.yaml`.
+- `fix-pm`: require existing task URL(s) or ID(s) and requested changes, regardless of prompt shape. Describe required inputs in the `SKILL.md` frontmatter description. Update existing PM tasks in place; use at most one Decision Gate for ambiguous, structural, or unsafe changes.
+- `implement-pm`: require PM system name and exact task IDs, regardless of prompt shape. Describe required inputs in the `SKILL.md` frontmatter description.
 - `implement-pm`: first action is always running `scripts/create-pm-branch.sh` with the declared `pm_tool` and `task_ids` variables.
 - `create-pr`: owns draft PR creation, PM task backlinks, and launching `review-pr`. For GitHub Issues, use one closing keyword per issue when valid; validate links for non-default bases when possible; verify PM backlinks after writing.
 - `review-pr`: local CI is required for `PROD READY`, merge, and PM task closure. Be strict on security, architecture, and code reuse.

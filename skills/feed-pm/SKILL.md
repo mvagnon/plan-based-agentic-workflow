@@ -1,12 +1,6 @@
 ---
 name: feed-pm
-description: Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. It analyzes the repository with Serena MCP, uses exactly one Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, preserves the user's task-description language, and returns a concise recap. Trigger on phrases like feed PM, create issues, create PM tasks, split this work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow.
-disable-model-invocation: true
-argument-hint: "<pm-tool> <project-id> <tasks>"
-arguments:
-  - pm_tool
-  - project_id
-  - tasks
+description: Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. Requires a task/request description; pm_tool and project_id are optional. It analyzes the repository with Serena MCP, uses exactly one Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, preserves the user's task-description language, and returns a concise recap. Trigger on feed PM, create issues, create PM tasks, split work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow.
 ---
 
 # Feed PM
@@ -44,7 +38,7 @@ flowchart TD
 
 ### Inputs
 
-Read `$ARGUMENTS` or the user message as:
+Read the explicit invocation or user message as:
 
 - `pm_tool`: optional, for example `github`, `jira`, `notion`, or another installed PM MCP/CLI.
 - `project_id`: optional repository, board, project, database, or PM target.
@@ -87,7 +81,7 @@ After the Decision Gate response:
 2. Create one PM item per task in dependency order.
 3. Include task dependencies using native PM relationships when safely available; otherwise include dependency URLs in the task body.
 4. Include a compact task summary with expected new, modified, and deleted files plus either a one-sentence technical readout or a compact plain-text diagram.
-5. Return a short recap with task URLs and the next `/implement-pm <pm-tool> <task-ids>` command.
+5. Return a short recap with task URLs and the next `implement-pm` request details.
 
 If the user explicitly refuses creation, changes the scope so much that the task set is invalid, or the PM target is still unsafe to mutate, stop and report the blocker. Do not start a second Decision Gate.
 
@@ -137,7 +131,7 @@ Dependency order:
 2. <task id/title>
 
 Next:
-`/implement-pm <pm-tool> <task-ids>`
+Use `implement-pm` with `<pm-tool>` and `<task-ids>`.
 ```
 
 If no tasks were created, replace `Created` with `Not created` and give the blocking reason.
@@ -154,4 +148,4 @@ If no tasks were created, replace `Created` with `Not created` and give the bloc
 - [ ] Exactly one Decision Gate used.
 - [ ] No local planning Markdown written.
 - [ ] PM tasks created directly after a non-refusal Decision Gate answer.
-- [ ] Final recap includes task URLs, dependency order, and `/implement-pm <pm-tool> <task-ids>`.
+- [ ] Final recap includes task URLs, dependency order, and the next `implement-pm` request details.
