@@ -4,7 +4,9 @@ Use this reference for PM target discovery and task creation.
 
 ## GitHub Issues
 
-Discover the repository and issue metadata:
+Use GitHub Issues as the fallback PM target when `pm_tool` or `project_id` are missing and the concerned repository or repositories can be resolved safely from the current checkout.
+
+Discover repository and issue metadata for each concerned repo:
 
 ```bash
 git rev-parse --show-toplevel
@@ -14,6 +16,8 @@ gh issue list --repo <owner/repo> --limit 20 --json number,title,state,labels,mi
 gh label list --repo <owner/repo> --limit 100 --json name,description,color
 gh api /repos/<owner>/<repo>/milestones --paginate
 ```
+
+For multi-repo work, resolve each repo independently from its nearest checkout root, submodule, child repository, or explicit path evidence. Create issues only in repos with `hasIssuesEnabled: true` and authenticated `gh` access. If more than one repo is plausible for the same task, use the Decision Gate to confirm the target instead of guessing.
 
 Create one issue per task:
 

@@ -24,6 +24,8 @@ Capture only what affects task boundaries:
 - existing components, hooks, services, DTOs, validators, repositories, query keys, feature flags, and design-system primitives to reuse;
 - dependency direction and package boundaries;
 - public API, data model, migration, authorization, validation, and rollout constraints;
+- expected new, modified, and deleted files for each task, using exact paths when discoverable and owner folders otherwise;
+- frontend, backend, and devops surfaces touched by the request;
 - existing check commands from scripts, task runners, CI config, or project instructions;
 - product or architecture uncertainty that is not discoverable from code.
 

@@ -5,6 +5,25 @@ Use this reference to create concise PM task bodies. The PM item itself is the d
 ## Task Body Template
 
 ```markdown
+## Summary
+
+<One-sentence technical readout OR a compact plain-text diagram when that is faster to scan.>
+
+Expected new files:
+
+- `<path>` - <purpose>
+- None expected
+
+Expected modified files:
+
+- `<path>` - <change>
+- None expected
+
+Expected deleted files:
+
+- `<path>` - <reason>
+- None expected
+
 ## Outcome
 
 <One sentence describing the user/developer-visible result.>
@@ -40,20 +59,29 @@ Use this reference to create concise PM task bodies. The PM item itself is the d
 - <existing command or review point>
 ```
 
-## Optional Diagram
+## Summary Rules
 
-Use one compact Mermaid diagram only when it improves review clarity.
+Use the task summary as the fastest engineering read.
 
-```mermaid
-flowchart LR
-  Actor[Actor] --> Boundary[Boundary]
-  Boundary --> Service[Service]
-  Service --> Store[(Store)]
-```
+- Use exact file paths when repository analysis makes them discoverable.
+- Use `<folder>/...` only when the owner area is clear but the exact file cannot be known before implementation.
+- Write "None expected" for empty file categories.
+- Use a one-sentence technical readout by default.
+- Use a compact plain-text diagram only when ownership, data flow, or sequence is clearer visually.
+- Do not use fenced diagram syntax.
+- Match the task language to the language the user used to describe the requested work. Keep paths, commands, identifiers, APIs, and product names literal.
 
 ## Split Rules
 
-Split tasks when one item mixes:
+Do not optimize for equally sized tasks. Split by engineering surface first.
+
+Create separate tasks whenever the request touches more than one of:
+
+- frontend or presentation work;
+- backend, API, data, domain, validation, or authorization work;
+- devops, infrastructure, CI/CD, deployment, observability, or environment work.
+
+Also split tasks when one item mixes:
 
 - migration plus UI;
 - public API contract plus unrelated visual changes;
@@ -67,6 +95,8 @@ Merge tasks when separation adds noise:
 - a type and its only consumer;
 - a schema field and the single service branch that owns it;
 - a small hook and the only UI caller.
+
+Do not use merging to hide frontend, backend, or devops work in the same PM task. A shared foundation task is acceptable only when several surfaces depend on it.
 
 ## Quality Bar
 

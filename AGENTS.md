@@ -4,34 +4,35 @@
 
 Every `skills/<skill-name>/SKILL.md` must keep this shape:
 
-~~~markdown
+````markdown
 # Skill Name
 
 ## Summary
 
-## Diagram
-
-```mermaid
-flowchart TD
-  A[Start] --> B[End]
-```
-
 ## Workflow
+
+_This part is yours. Use the best structure for the skill._
 
 ## Expected Response Format
 
 ### Decision Gate
 
-Only include this subsection when the skill can stop for a user decision.
+_Only include this subsection when the skill can stop for a user decision._
+
+```markdown
+Expected response format
+```
 
 ### Final Response
 
+```markdown
+Expected response format
+```
+
 ## Checklist
-~~~
+````
 
 Use `## Workflow` as the standard concrete content section for the user's `## ton contenu` slot unless a skill has a clearer domain-specific section name.
-
-Use Mermaid diagrams for process diagrams. Load the `mermaid-diagrams` skill when creating or revising diagrams.
 
 ## Collaboration Model
 
