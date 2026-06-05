@@ -76,7 +76,7 @@ $pm_tool/$task_ids
 Load only what is needed:
 
 - `references/pm-task-retrieval.md` for PM task retrieval.
-- `references/implementation-git-github.md` for branch-script behavior and implementation Git commands.
+- `references/implementation-git.md` for branch-script behavior and implementation Git commands.
 - `references/verification.md` for check discovery.
 
 ### Rules
@@ -99,13 +99,16 @@ Load only what is needed:
 Branch: `$pm_tool/$task_ids`
 
 Implemented:
+
 - <concise change>
 - <concise change>
 
 Checks:
+
 - `<command>`: <passed|failed|not run> - <short note>
 
 Remaining:
+
 - <risk/blocker or "none">
 
 Next:

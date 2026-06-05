@@ -32,7 +32,7 @@ git config --get branch.$(git branch --show-current).pbaw-base
 
 Do not stash, reset, unstage, or delete unrelated local changes.
 
-## Commit And Push
+## Commit
 
 When the implementation is ready to publish for `create-pr`, stage only task changes:
 
@@ -43,7 +43,7 @@ git diff
 git add <paths>
 git status --short
 git commit -m "<repo-style commit message>"
-git push
 ```
 
+Do not push.
 Leave unrelated concurrent user edits unstaged unless the user explicitly included them.

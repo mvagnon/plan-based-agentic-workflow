@@ -54,6 +54,7 @@ Use `## Workflow` as the standard concrete content section for the user's `## to
 ## Workflow Rules
 
 - `feed-pm`: load relevant architecture, design, and security skills before task decomposition. Use one mandatory Decision Gate, then direct PM task creation unless the user explicitly refuses or the PM target is unsafe.
+- `fix-pm`: explicit invocation only. Keep `disable-model-invocation: true` and positional variables in `SKILL.md` frontmatter, and keep `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Update existing PM tasks in place; use at most one Decision Gate for ambiguous, structural, or unsafe changes.
 - `implement-pm`: explicit invocation only. Keep `disable-model-invocation: true` and positional variables in `SKILL.md` frontmatter, and keep `policy.allow_implicit_invocation: false` in `agents/openai.yaml`.
 - `implement-pm`: first action is always running `scripts/create-pm-branch.sh` with the declared `pm_tool` and `task_ids` variables.
 - `create-pr`: owns draft PR creation, PM task backlinks, and launching `review-pr`. For GitHub Issues, use one closing keyword per issue when valid; validate links for non-default bases when possible; verify PM backlinks after writing.
