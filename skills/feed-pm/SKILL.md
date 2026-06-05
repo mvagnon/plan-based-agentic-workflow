@@ -59,8 +59,10 @@ Load only the references needed for the current PM tool:
 ### Rules
 
 - Use Serena before drafting tasks. If Serena is unavailable, stop instead of creating implementation-ready tasks from local search alone.
+- Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - Load relevant architecture, design, and security resources if any before decomposing tasks.
 - Discover repository facts before asking the user: files, ownership, schemas, routes, services, components, validators, conventions, and check commands.
+- Treat duplication as a primary decomposition concern: detect duplicated code and near-duplicate code that should be standardized, such as two close React components that should become one component with variants.
 - Ask questions that affect user experience or database tables/data model even when not strictly blocking. For architecture, security, API, validation, delivery, and PM target, focus on blockers or decisions that materially change the task set.
 - Match the PM task language to the dominant language the user used to describe the work.
 - Do not force tasks to have equal size. Uneven tasks are correct when the engineering boundaries are uneven.
@@ -140,8 +142,10 @@ If no tasks were created, replace `Created` with `Not created` and give the bloc
 
 - [ ] Repository and PM target resolved safely.
 - [ ] Relevant architecture, design, and security resources if any are loaded before task decomposition.
+- [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
 - [ ] Serena used before task drafting.
 - [ ] Existing architecture, validation, typing, business logic, and design-system patterns identified.
+- [ ] Duplicated and near-duplicate code standardization opportunities identified and reflected in the task split.
 - [ ] PM task language matches the language used by the user to describe the work.
 - [ ] Frontend, backend, and devops work separated whenever more than one surface is involved.
 - [ ] Each task summary lists expected new, modified, and deleted files, plus a one-sentence technical readout or compact plain-text diagram.

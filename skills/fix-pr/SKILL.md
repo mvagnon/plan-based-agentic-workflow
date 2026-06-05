@@ -56,6 +56,7 @@ Load only what is needed:
 ### Rules
 
 - Use Serena to inspect cited code and nearby ownership before editing. If Serena is unavailable, stop.
+- Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - Treat outdated threads as context and verify whether the current head already addresses them.
 - Preserve unrelated local work. Do not stash, reset, unstage, delete, or commit unrelated changes unless explicitly requested.
 - Group duplicate feedback into one fix, but map every conversation to a reply, resolution, or no-change reason.
@@ -125,6 +126,7 @@ Next:
 
 - [ ] PR and feedback resolved.
 - [ ] Serena used for cited code and nearby ownership.
+- [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
 - [ ] Feedback ledger built before editing.
 - [ ] Outdated threads checked against current head before fixing or replying.
 - [ ] At most one Decision Gate used.

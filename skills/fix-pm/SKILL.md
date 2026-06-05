@@ -59,6 +59,7 @@ Load only what is needed:
 ### Rules
 
 - Retrieve the current title, body, comments, dependencies, backlinks, status, labels, assignees, milestones, and project fields when the PM tool exposes them.
+- Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - Update existing tasks in place. Do not create duplicate PM tasks.
 - Do not create, archive, delete, close, or split tasks unless the requested changes explicitly require it and the Decision Gate confirms the structure.
 - Use Serena before changing implementation details, file paths, dependency boundaries, API contracts, data models, validation, authorization, or deployment work. Pure wording or PM metadata edits do not require Serena.
@@ -137,6 +138,7 @@ If no tasks were updated, replace `Updated` with `Not updated` and give the bloc
 - [ ] `tasks-url` and `changes` parsed exactly.
 - [ ] PM tool and every task target resolved safely.
 - [ ] Current task fields and relevant comments read before editing.
+- [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
 - [ ] Serena used when technical implementation content changed.
 - [ ] Existing tasks updated in place without duplicate task creation.
 - [ ] Frontend, backend, and devops task boundaries preserved.

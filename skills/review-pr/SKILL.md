@@ -13,7 +13,8 @@ The review is strict on:
 
 - security, authentication, authorization, privacy, and secrets;
 - architecture boundaries and dependency direction;
-- reuse of existing business logic, validators, schemas, services, components, and design-system primitives.
+- reuse of existing business logic, validators, schemas, services, components, and design-system primitives;
+- duplicated and near-duplicate code that should be standardized, including close UI components that should become one component with variants.
 
 Local CI passing is mandatory for `PROD READY`, merge, and PM task closure.
 
@@ -54,6 +55,7 @@ Load only what is needed:
 
 - Do not implement fixes from this skill. Use `fix-pr`.
 - Use Serena for changed files and directly affected code paths. If Serena is unavailable, stop.
+- Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - Read linked PM tasks before judging scope coverage.
 - Read previous comments, reviews, and threads before posting new feedback.
 - Run the full local CI suite for each affected repository before posting the final review.
@@ -69,6 +71,7 @@ Hard blockers:
 - data loss, corruption, outage risk, unsafe migration, or broken rollback path;
 - architecture boundary violation that can spread or break consumers;
 - duplicated business logic, validation, permission logic, or data transformation where an existing owner exists;
+- near-duplicate code that should be standardized, such as two close React components that should be one component with variants;
 - failure to reuse an existing component, schema, service, validator, hook, repository, or design-system primitive when that reuse is clearly available;
 - local CI missing or failing.
 
@@ -122,7 +125,9 @@ If there are no findings, write `No blocking or major findings found.`
 - [ ] PR set resolved from current branch or explicit input.
 - [ ] Linked PM tasks and prior discussion read.
 - [ ] Serena used for changed files and affected code paths.
+- [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
 - [ ] Governing architecture and reuse expectations identified.
+- [ ] Duplicated and near-duplicate code standardization opportunities reviewed as a primary concern.
 - [ ] Full local CI suite run for each affected repository.
 - [ ] Security, architecture, reuse, correctness, reliability, and maintainability reviewed.
 - [ ] Score and verdict calculated from concrete production risk.
