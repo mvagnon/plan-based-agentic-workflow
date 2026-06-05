@@ -1,6 +1,6 @@
 ---
 name: feed-pm
-description: Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. Requires a task/request description; pm_tool and project_id are optional. It analyzes the repository with Serena MCP, uses exactly one Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, preserves the user's task-description language, and returns a concise recap. Trigger on feed PM, create issues, create PM tasks, split work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow.
+description: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into implementation-ready PM tasks. Requires a task/request description; pm_tool and project_id are optional. It analyzes the repository with Serena MCP, uses exactly one Decision Gate for clarification or task-creation confirmation, creates PM tasks directly, preserves the user's task-description language, and returns a concise recap. Trigger on feed PM, create issues, create PM tasks, split work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
 ---
 
 # Feed PM

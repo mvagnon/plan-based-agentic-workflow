@@ -1,6 +1,6 @@
 ---
 name: fix-pm
-description: PM task adjustment workflow for already-created tasks. Requires both inputs: existing task URL(s) or ID(s), and the changes to apply. It retrieves existing PM tasks, applies requested task-spec changes in place, uses at most one Decision Gate when updates are ambiguous or structurally risky, verifies the updated tasks, and returns a concise recap.
+description: "PM task adjustment workflow for already-created tasks. Requires both inputs: existing task URL(s) or ID(s), and the changes to apply. It retrieves existing PM tasks, applies requested task-spec changes in place, uses at most one Decision Gate when updates are ambiguous or structurally risky, verifies the updated tasks, and returns a concise recap."
 ---
 
 # Fix PM

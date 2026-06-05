@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, uses at most one normal-chat Decision Gate when remediation needs user or architect input, applies focused fixes with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not use runner-specific clarification tools and does not loop.
+description: "Use this skill after a PR review, low score, requested changes, \"fix before merge\" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, uses at most one normal-chat Decision Gate when remediation needs user or architect input, applies focused fixes with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not use runner-specific clarification tools and does not loop."
 ---
 
 # Fix PR

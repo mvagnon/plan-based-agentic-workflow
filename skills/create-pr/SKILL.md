@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Use this skill after `implement-pm` when implementation branches already exist. It derives PM tool and task IDs from branches named `{pm-tool}/{task-ids}`, creates draft PRs for the current repository and child repositories on matching PM branches, attaches PM task URLs in the PR body, writes PR backlinks to the PM tasks, and immediately runs `review-pr`. Trigger on phrases like create PR, open draft PR, attach tasks to PR, backlink PM tasks, or continue after implement-pm.
+description: "Use this skill after `implement-pm` when implementation branches already exist. It derives PM tool and task IDs from branches named `{pm-tool}/{task-ids}`, creates draft PRs for the current repository and child repositories on matching PM branches, attaches PM task URLs in the PR body, writes PR backlinks to the PM tasks, and immediately runs `review-pr`. Trigger on phrases like create PR, open draft PR, attach tasks to PR, backlink PM tasks, or continue after implement-pm."
 ---
 
 # Create PR

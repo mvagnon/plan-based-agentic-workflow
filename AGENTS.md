@@ -66,6 +66,7 @@ Do not make runtime workflows load `mermaid-diagrams`, and do not push generated
 - Do not add review loops or repeated approval cycles. Use at most one Decision Gate in skills that require user input.
 - Keep final response formats concise and task-specific.
 - Do not create tests or logs by default.
+- Quote every `description` value in `SKILL.md` frontmatter. Frontmatter is YAML; unquoted `: ` inside descriptions can make `npx skills add` and `npx skills update` silently skip the skill.
 - Update `agents/openai.yaml` whenever trigger policy or user-facing skill metadata changes.
 
 ## Workflow Rules

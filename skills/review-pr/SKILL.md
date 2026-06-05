@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback, and only allows merge or PM task closure when local CI passes. It is especially strict on security, architecture boundaries, and reuse of existing code.
+description: "Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback, and only allows merge or PM task closure when local CI passes. It is especially strict on security, architecture boundaries, and reuse of existing code."
 ---
 
 # Review PR
