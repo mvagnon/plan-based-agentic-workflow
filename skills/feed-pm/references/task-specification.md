@@ -67,8 +67,7 @@ Use the task summary as the fastest engineering read.
 - Use `<folder>/...` only when the owner area is clear but the exact file cannot be known before implementation.
 - Write "None expected" for empty file categories.
 - Use a one-sentence technical readout by default.
-- Use a compact plain-text diagram only when ownership, data flow, or sequence is clearer visually.
-- Do not use fenced diagram syntax.
+- Use a compact plain-text diagram only when ownership, data flow, sequence, dependencies, or state transitions are clearer visually.
 - Match the task language to the language the user used to describe the requested work. Keep paths, commands, identifiers, APIs, and product names literal.
 
 ## Split Rules

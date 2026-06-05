@@ -21,6 +21,25 @@ Treat the user as the product and architecture authority, and as an experienced 
 
 Use one stop only and do not use runner-specific clarification tools.
 
+## Diagram
+
+```mermaid
+flowchart TD
+  A[Read request, pm_tool, project_id, and tasks] --> B[Load relevant skills and references]
+  B --> C[Analyze repository with Serena]
+  C --> D[Draft language-matched task set]
+  D --> E[Split frontend, backend, devops, and shared work]
+  E --> F{Decision Gate}
+  F -->|Needs clarification| G[Ask UX, DB, PM target, or blocking questions]
+  F -->|Ready| H[Ask for task creation confirmation]
+  G --> I[User answers]
+  H --> I
+  I --> J{Explicit refusal or unsafe target?}
+  J -->|Yes| K[Stop with blocker recap]
+  J -->|No| L[Create PM tasks with compact summaries]
+  L --> M[Recap task URLs and next implement-pm command]
+```
+
 ## Workflow
 
 ### Inputs
@@ -59,7 +78,6 @@ Load only the references needed for the current PM tool:
 - Do not create duplicate tasks for the same business rule, validator, component, or workflow.
 - Do not invent labels, statuses, assignees, milestones, project fields, or PM schema values.
 - Create tasks even without an explicit "yes" when the user answered clarification questions and did not refuse task creation.
-- Use plain text only for PM task diagrams. If a compact diagram is the fastest way for an engineer to understand the change, put a small plain-text diagram inside the task summary.
 
 ### Task Creation
 

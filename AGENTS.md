@@ -9,6 +9,8 @@ Every `skills/<skill-name>/SKILL.md` must keep this shape:
 
 ## Summary
 
+## Diagram
+
 ## Workflow
 
 _This part is yours. Use the best structure for the skill._
@@ -34,6 +36,20 @@ Expected response format
 
 Use `## Workflow` as the standard concrete content section for the user's `## ton contenu` slot unless a skill has a clearer domain-specific section name.
 
+## Mermaid Diagrams
+
+Every `SKILL.md` should include a compact `## Diagram` section between `## Summary` and `## Workflow`.
+
+Use Mermaid only for static workflow diagrams inside the skills in this repository. Keep diagrams operational, not decorative:
+
+- show the major workflow states and decision points;
+- include the single Decision Gate when the skill has one;
+- show stop/blocker paths when they affect the workflow;
+- keep node labels short enough to scan quickly;
+- update the diagram whenever workflow order, ownership, or stopping behavior changes.
+
+Do not make runtime workflows load `mermaid-diagrams`, and do not push generated PM tasks, PRs, reviews, or comments to use Mermaid by default. PM task bodies may use ordinary prose or compact plain-text sketches when that is the clearest durable spec.
+
 ## Collaboration Model
 
 - Treat the user as the product and architecture authority.
@@ -46,6 +62,7 @@ Use `## Workflow` as the standard concrete content section for the user's `## to
 - Keep `SKILL.md` short and operational. Move technical commands, provider details, templates, and API mechanics to `references/`.
 - Put deterministic or repetitive logic in `scripts/` instead of explaining it repeatedly in the skill body.
 - References must be technical only: commands, schemas, field mappings, API calls, and terse templates.
+- Use Mermaid diagrams for repository skill documentation and keep them synchronized with the workflow instructions.
 - Do not add review loops or repeated approval cycles. Use at most one Decision Gate in skills that require user input.
 - Keep final response formats concise and task-specific.
 - Do not create tests or logs by default.

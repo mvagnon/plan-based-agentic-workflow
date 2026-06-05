@@ -20,6 +20,27 @@ Use no Decision Gate when the requested changes are unambiguous. Use exactly one
 
 After the user answers the Decision Gate, apply the update roadmap directly unless they explicitly refuse or change the scope so much that the roadmap is invalid.
 
+## Diagram
+
+```mermaid
+flowchart TD
+  A[Read tasks-url and changes] --> B[Resolve PM tool and task targets]
+  B --> C[Retrieve current task fields and comments]
+  C --> D[Map changes onto existing tasks]
+  D --> E{Technical implementation content changes?}
+  E -->|Yes| F[Inspect repository context with Serena]
+  E -->|No| G[Build update roadmap]
+  F --> G
+  G --> H{Decision needed?}
+  H -->|Yes| I[One Decision Gate]
+  H -->|No| J[Apply updates in place]
+  I --> K{Explicit refusal or invalidated scope?}
+  K -->|Yes| L[Stop with blocker recap]
+  K -->|No| J
+  J --> M[Re-read changed tasks]
+  M --> N[Report verified updates and next implement-pm command]
+```
+
 ## Workflow
 
 ### Inputs
