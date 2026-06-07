@@ -2,6 +2,8 @@
   <img src=".github/assets/pbaw.png" alt="PBAW Logo" width="420" />
 </p>
 
+[![Shield: Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-Support-yellow?logo=buymeacoffee)](https://buymeacoffee.com/mvagnon)
+
 # Plan Based Agentic Workflow
 
 Agent Skills for a PM-task-first development workflow with short skills, one Decision Gate where needed, and technical references kept out of the main skill body.
