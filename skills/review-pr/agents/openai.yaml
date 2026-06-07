@@ -1,7 +1,7 @@
 interface:
   display_name: "Review PR"
   short_description: "Strict PR review with mandatory local CI."
-  default_prompt: "Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback, and only allows merge or PM task closure when local CI passes. It is especially strict on security, architecture boundaries, and reuse of existing code."
+  default_prompt: "Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback, and only allows merge or PM task closure when local CI passes. It uses the PR scoring reference as the source of truth, judges declared project architecture from instruction files, and treats changed-code duplication as a bug."
 dependencies:
   tools:
     - type: "cli"
@@ -10,5 +10,8 @@ dependencies:
     - type: "mcp"
       value: "serena"
       description: "Required semantic code exploration and symbol/reference analysis."
+    - type: "mcp"
+      value: "exa"
+      description: "Required for architecture best-practice research when project instruction files name an architecture but omit, contradict, or blur important details."
 policy:
   allow_implicit_invocation: true

@@ -53,11 +53,14 @@ For GitHub Issues, rely on PR closing keywords or linked issue metadata. Do not 
 
 For Jira, Notion, Linear, or another PM tool, inspect valid status values before changing status. Do not invent a completed status.
 
-## Post-Merge Checkout
+## Post-Merge Cleanup
+
+After merge and approved PM task actions, run the bundled cleanup script from the affected repository worktree. Pass the PR number or URL, not a branch selector, because repository settings may delete the remote branch after merge:
 
 ```bash
-git checkout <base-ref>
-git pull --ff-only
+skills/review-pr/scripts/post-merge-cleanup.sh <pr-number-or-url>
 ```
 
-If local changes make checkout or pull unsafe, stop and report the blocker. Do not stash, overwrite, or reset unless the user explicitly asks.
+The script resolves the PR base branch from GitHub, switches to it, runs `git pull --ff-only origin <base-ref>`, and deletes the local PR branch with `git branch -d <head-ref>`.
+
+If local changes make cleanup unsafe, or if safe branch deletion fails, stop and report the blocker. Do not stash, overwrite, reset, or force-delete unless the user explicitly asks.
