@@ -2,7 +2,13 @@
   <img src=".github/assets/pbaw.png" alt="PBAW Logo" width="420" />
 </p>
 
-[![Shield: Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-Support-yellow?logo=buymeacoffee)](https://buymeacoffee.com/mvagnon)
+<div align="center">
+  <a href="https://buymeacoffee.com/mvagnon">
+    <img alt="Buy me a Coffee" src="https://img.shields.io/badge/Buy%20me%20a%20coffee-Support-yellow?logo=buymeacoffee" />
+  </a>
+</div>
+
+---
 
 # Plan Based Agentic Workflow
 
