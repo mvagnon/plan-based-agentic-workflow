@@ -54,12 +54,13 @@ Default to the PR associated with the current branch. In a workspace, include ma
 
 Load only what is needed:
 
-- `references/github-feedback.md` for feedback collection and ledger commands.
-- `references/remediation-git-github.md` for checkout, commit, push, replies, and thread resolution.
+- `references/github-remediation.md` for feedback collection, remediation ledger, checkout, commit, push, replies, and thread resolution.
+- `../implement-pm/references/development-rules.md` before editing and before the final diff review.
 
 ### Rules
 
 - Use Serena to inspect cited code and nearby ownership before editing. If Serena is unavailable, stop.
+- Load and follow `../implement-pm/references/development-rules.md`; use it for focused edits, local change safety, relevant checks, and final diff review.
 - Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - Treat outdated threads as context and verify whether the current head already addresses them.
 - Preserve unrelated local work. Do not stash, reset, unstage, delete, or commit unrelated changes unless explicitly requested.
@@ -155,6 +156,7 @@ Next:
 
 - [ ] PR and feedback resolved.
 - [ ] Serena used for cited code and nearby ownership.
+- [ ] `../implement-pm/references/development-rules.md` loaded and applied.
 - [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
 - [ ] Feedback ledger built before editing.
 - [ ] Outdated threads checked against current head before fixing or replying.

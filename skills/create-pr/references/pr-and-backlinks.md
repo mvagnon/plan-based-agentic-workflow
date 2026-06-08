@@ -1,6 +1,6 @@
-# PR Creation Reference
+# PR And Backlinks Reference
 
-Use this reference for concrete GitHub PR commands.
+Use this reference for concrete GitHub PR commands, PM task URL resolution, and PR backlinks.
 
 ## Resolve Repositories
 
@@ -46,6 +46,18 @@ If no base is recorded, use the repository default branch from:
 gh repo view --json defaultBranchRef
 ```
 
+## PM Task URLs
+
+For GitHub Issues:
+
+```bash
+gh issue view <number-or-url> --repo <owner/repo> --json number,title,url,state,body,comments
+```
+
+For Jira, Notion, Linear, or other PM tools, use the installed MCP or CLI for the selected `pm-tool`.
+
+Resolve every task to a stable URL before creating the PR.
+
 ## Minimal PR Body
 
 Write only task links and optional sibling PR links.
@@ -90,3 +102,31 @@ gh pr view <pr> --json number,url,body,baseRefName,headRefName,closingIssuesRefe
 If closing keywords were expected to link issues, verify each issue appears in `closingIssuesReferences` or `linkedIssues`. If the PR base is non-default and links are absent, create manual links when the tool supports it; otherwise keep plain task URLs in the body and report the limitation.
 
 If the provider requires a diff before PR creation, stop and report that implementation commits are missing. Do not create empty commits from `create-pr`.
+
+## Write Backlinks
+
+When GitHub closing keywords or linked issue metadata are present in the PR body, no extra issue edit is required for same-repository GitHub Issues.
+
+For cross-repository GitHub Issues where native linking is not available, add a concise comment:
+
+```bash
+gh issue comment <issue> --repo <owner/repo> --body-file <comment-file>
+```
+
+Comment body:
+
+```markdown
+Draft PR: <pr-url>
+```
+
+For Jira, Notion, Linear, or other PM tools, prefer backlink destinations in this order:
+
+1. Dedicated PR, pull request, development, URL, or relation field.
+2. Task comment.
+3. Clearly delimited PR links section in the task description/body.
+
+Write all PR URLs when one task spans multiple repositories. Do not stop after the first repository PR.
+
+After writing, re-read the task and verify every expected PR URL is present. Treat a missing PR URL as a backlink failure and stop before `review-pr`.
+
+Do not update task status from `create-pr`.

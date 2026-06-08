@@ -51,7 +51,8 @@ Default to the PR associated with the current branch. In a workspace, include ma
 Load only what is needed:
 
 - `references/github-pr-review.md` for PR metadata, diffs, previous discussion, CI, review comments, and ready-for-review commands.
-- `../implement-pm/references/development-rules.md` before judging architecture, reuse, testing, or maintainability.
+- `../feed-pm/references/architecture-rules.md` before judging architecture, reuse, duplication, task boundaries, security, frontend, backend, or design-system compliance.
+- `../implement-pm/references/development-rules.md` before judging concrete implementation hygiene, local change safety, checks, and finalization readiness.
 - `references/pr-scoring.md` before assigning any score or verdict. It is the scoring source of truth.
 - `references/merge-finalization.md` only after the verdict is `PROD READY` and the user explicitly approved merge/finalization.
 
@@ -59,7 +60,8 @@ Load only what is needed:
 
 - Do not implement fixes from this skill. Use `fix-pr`.
 - Use Serena for changed files and directly affected code paths. If Serena is unavailable, stop.
-- Load and enforce `../implement-pm/references/development-rules.md`; treat violations in changed code as review findings and apply `references/pr-scoring.md` for severity, score, and verdict.
+- Load and enforce `../feed-pm/references/architecture-rules.md`; treat changed-code violations as review findings and apply `references/pr-scoring.md` for severity, score, and verdict.
+- Load and enforce `../implement-pm/references/development-rules.md` for concrete implementation hygiene, change safety, and check expectations.
 - Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - For architecture review, use the governing instruction files as the source of truth, not the code. Use code only to verify compliance, unless project-specific instruction files are missing.
 - When architecture instructions name an architecture but details are missing, inconsistent, or imprecise, use Exa MCP to research best practices for that same architecture and stack before judging the PR.
@@ -111,6 +113,7 @@ If there are no findings, write `No blocking or major findings found.`
 - [ ] PR set resolved from current branch or explicit input.
 - [ ] Linked PM tasks and prior discussion read.
 - [ ] Serena used for changed files and affected code paths.
+- [ ] `../feed-pm/references/architecture-rules.md` loaded and enforced.
 - [ ] `../implement-pm/references/development-rules.md` loaded and enforced.
 - [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
 - [ ] `references/pr-scoring.md` loaded before score or verdict.

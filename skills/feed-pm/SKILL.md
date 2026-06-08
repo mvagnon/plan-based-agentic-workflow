@@ -56,6 +56,7 @@ Preserve the language used by the user to describe the requested work for PM tas
 
 Load only the references needed for the current PM tool:
 
+- `references/architecture-rules.md` before task decomposition.
 - `references/codebase-analysis.md` for Serena exploration.
 - `references/task-specification.md` for concise PM task bodies.
 - `references/pm-tools.md` for PM discovery and item creation commands.
@@ -63,6 +64,7 @@ Load only the references needed for the current PM tool:
 ### Planning Rules
 
 - Use Serena before drafting tasks. If Serena is unavailable, stop instead of creating implementation-ready tasks from local search alone.
+- Load and apply `references/architecture-rules.md`; use it to identify ownership, reuse, duplication, validation, typing, design-system, data, backend, frontend, security, and task-boundary concerns before proposing PM tasks.
 - Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - Load relevant architecture, design, and security resources if any before decomposing tasks.
 - Discover repository facts before asking the user: files, ownership, schemas, routes, services, components, validators, conventions, and check commands.
@@ -160,6 +162,7 @@ If no tasks were created, replace `Created` with `Not created` and give the bloc
 - [ ] Repository and PM target resolved safely.
 - [ ] Relevant architecture, design, and security resources if any are loaded before task decomposition.
 - [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
+- [ ] `references/architecture-rules.md` loaded before task decomposition.
 - [ ] Serena used before task drafting.
 - [ ] Plan Mode recommended when the runner supports it.
 - [ ] Runner-native question or clarification tool used when available and materially useful.

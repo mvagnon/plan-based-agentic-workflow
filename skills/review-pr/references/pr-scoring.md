@@ -7,9 +7,11 @@ This file is the source of truth for `review-pr` scoring and verdicts. Load it b
 Use this priority order:
 
 1. Explicit user instructions for the review or finalization request.
-2. Governing project instruction files: `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and equivalent repo-specific instruction files.
-3. This scoring reference.
-4. Project code, only to verify implementation details and compliance.
+2. Governing project instruction files: `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and equivalent repo-specific instruction files for concrete architecture, layering, ownership, commands, and conventions.
+3. `../../feed-pm/references/architecture-rules.md` for non-negotiable reuse, duplication, validation, typing, security, frontend, backend, data, and design-system expectations.
+4. `../../implement-pm/references/development-rules.md` for concrete implementation hygiene, local change safety, checks, and finalization readiness.
+5. This scoring reference.
+6. Project code, only to verify implementation details and compliance.
 
 For architecture, the instruction files are authoritative. Identify the named architecture, layering rules, dependency direction, module boundaries, ownership rules, and testing/check expectations from those files. Do not infer the architecture from the code unless project-specific instruction files are missing.
 

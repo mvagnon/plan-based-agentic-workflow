@@ -46,8 +46,7 @@ Optional overrides:
 
 Load only what is needed:
 
-- `references/pr-creation.md` for Git and GitHub PR commands.
-- `references/pm-backlinks.md` for PM task URL resolution and backlink updates.
+- `references/pr-and-backlinks.md` for Git/GitHub PR commands, PM task URL resolution, and backlink updates.
 
 ### Repository Selection
 
