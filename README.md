@@ -147,6 +147,18 @@ Run `review-pr` again after `fix-pr`, or directly after `create-pr` when the fir
 
 Local CI is mandatory for `PROD READY`, merge, and PM task closure. If local CI passes and the PR is production-ready, `review-pr` can proceed with merge/finalization according to the repository and PM-tool rules.
 
+## Test Authoring Strategy
+
+PBAW skills do not create new tests by default. This is intentional: tests written during small implementation tasks tend to target microscopic features and can create too many false positives.
+
+When tests are needed, write them through the dedicated journey-test skill instead:
+
+```bash
+npx skills add mvagnon/skills --skill write-tests
+```
+
+That workflow favors tests for user journeys and product flows rather than fragile tests around narrow implementation details.
+
 ## Safety Rules
 
 - `feed-pm` proposes a complete plan first, preserves it when challenged, and creates PM tasks only after explicit approval.

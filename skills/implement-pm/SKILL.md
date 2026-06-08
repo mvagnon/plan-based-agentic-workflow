@@ -62,11 +62,13 @@ Load only what is needed:
 
 - `references/pm-task-retrieval.md` for PM task retrieval.
 - `references/implementation-git.md` for branch-script behavior and implementation Git commands.
+- `references/development-rules.md` before editing and before the final diff review.
 - `references/verification.md` for check discovery.
 
 ### Rules
 
 - Use Serena before implementing. If Serena is unavailable, stop instead of implementing from text search alone.
+- Load and follow `references/development-rules.md`; treat missed reuse, duplicated business logic, missed validation/typing patterns, missed design-system primitives, or architecture drift as implementation bugs to fix before finishing.
 - Reuse existing components, hooks, services, schemas, validators, DTOs, repositories, utilities, and design-system primitives before creating anything new.
 - Keep business logic centralized, handlers/controllers thin, boundary validation explicit, and server-side authorization enforced.
 - Preserve unrelated local work. Do not stash, reset, delete, unstage, or commit unrelated changes unless explicitly requested.
@@ -106,6 +108,7 @@ Next:
 - [ ] Branch script run before PM retrieval, Serena analysis, or edits.
 - [ ] PM tasks retrieved with full body/comments/dependencies when available.
 - [ ] Serena used to inspect existing code and reuse patterns.
+- [ ] `references/development-rules.md` loaded and applied.
 - [ ] Implementation stayed within task scope.
 - [ ] No PR, backlink, review, or PM status action performed.
 - [ ] Relevant existing checks run or explicitly reported as not run.
