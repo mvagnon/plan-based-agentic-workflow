@@ -17,7 +17,7 @@ gh label list --repo <owner/repo> --limit 100 --json name,description,color
 gh api /repos/<owner>/<repo>/milestones --paginate
 ```
 
-For multi-repo work, resolve each repo independently from its nearest checkout root, submodule, child repository, or explicit path evidence. Create issues only in repos with `hasIssuesEnabled: true` and authenticated `gh` access. If more than one repo is plausible for the same task, use the Decision Gate to confirm the target instead of guessing.
+For multi-repo work, resolve each repo independently from its nearest checkout root, submodule, child repository, or explicit path evidence. Create issues only in repos with `hasIssuesEnabled: true` and authenticated `gh` access. If more than one repo is plausible for the same task, use the runner-native clarification tool when available; otherwise stop before task creation and report that the project target cannot be resolved safely.
 
 Create one issue per task:
 
@@ -39,7 +39,13 @@ Before creating items, inspect:
 - dependency or relation fields;
 - labels, owners, milestones, components, or priorities when relevant.
 
-Do not invent schema values. If the target or schema cannot be resolved safely, stop after the Decision Gate response and report the missing target detail.
+Do not invent schema values. If the target or schema cannot be resolved safely, stop before task creation and report the missing target detail.
+
+## Approval Boundary
+
+PM discovery is allowed while preparing the plan. PM mutation is not.
+
+Create PM items only after the user explicitly approves the latest proposed plan. If the user challenges the plan, revise the full plan first and wait for approval of that replacement.
 
 ## Dependency Linking
 

@@ -1,7 +1,7 @@
 interface:
   display_name: "Fix PR"
-  short_description: "Fix PR feedback with at most one Decision Gate."
-  default_prompt: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, uses at most one normal-chat Decision Gate when remediation needs user or architect input, applies focused fixes with Serena MCP, runs relevant checks, commits and pushes, then updates PR conversations. It does not use runner-specific clarification tools and does not loop.'
+  short_description: "Fix PR feedback after an explicitly approved remediation plan."
+  default_prompt: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, recommends Plan Mode, uses the runner-native question or clarification tool when available, proposes a complete remediation plan for explicit approval, supports user challenges by preserving and revising the previous plan, applies the approved focused fixes with Serena MCP, runs relevant checks, commits and pushes, then updates PR conversations. It does not rescore, approve, merge, close tasks, or move PM items.'
 dependencies:
   tools:
     - type: "cli"

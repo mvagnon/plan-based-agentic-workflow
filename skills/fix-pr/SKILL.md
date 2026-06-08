@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: "Use this skill after a PR review, low score, requested changes, \"fix before merge\" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, uses at most one normal-chat Decision Gate when remediation needs user or architect input, applies focused fixes with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not use runner-specific clarification tools and does not loop."
+description: "Use this skill after a PR review, low score, requested changes, \"fix before merge\" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, recommends Plan Mode, uses the runner-native question or clarification tool when available, proposes a complete remediation plan for explicit approval, applies the approved focused fixes with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not rescore, approve, merge, close tasks, or move PM items."
 ---
 
 # Fix PR
@@ -11,9 +11,9 @@ Fix PR review feedback in one focused pass.
 
 This skill fixes and replies. It does not rescore, approve, merge, close issues, or move PM items.
 
-Use no Decision Gate when feedback is unambiguous. Use exactly one Decision Gate when feedback is ambiguous, conflicting, product-changing, architecture-changing, dependency-adding, test-creating, or outside the PM task scope.
+Always propose a remediation plan before editing. Wait for explicit user approval before applying any PR feedback fixes.
 
-After the user answers the Decision Gate, apply the remediation roadmap directly unless they explicitly refuse or change the scope so much that the roadmap is invalid.
+Recommend Plan Mode, use the runner-native question or clarification tool when available, and make the plan complete enough to apply without further decisions. If no question or clarification tool is available, use PR feedback, repository evidence, and the approved PM scope as the source of truth, then state assumptions in the remediation plan.
 
 ## Diagram
 
@@ -22,16 +22,20 @@ flowchart TD
   A[Resolve PR] --> B[Collect reviews, comments, threads, checks]
   B --> C[Inspect cited code with Serena]
   C --> D[Build feedback ledger]
-  D --> E{Needs user decision?}
-  E -->|No| F[Apply focused fixes]
-  E -->|Yes| G[One Decision Gate]
-  G --> H{Explicit refusal or invalidated scope?}
-  H -->|Yes| I[Stop with recap]
-  H -->|No| F
-  F --> J[Run relevant checks]
-  J --> K[Commit and push]
-  K --> L[Reply to handled conversations]
-  L --> M[Final recap]
+  D --> E{Runner question tool?}
+  E -->|Yes| F[Ask targeted remediation questions]
+  E -->|No| G[Use feedback, code, and PM scope]
+  F --> H[Propose remediation plan]
+  G --> H
+  H --> I{User response}
+  I -->|Challenge plan| J[Recover previous plan and revise only changed points]
+  J --> H
+  I -->|Approves remediation| K[Apply approved focused fixes]
+  I -->|Refuses or invalidates scope| L[Stop with recap]
+  K --> M[Run relevant checks]
+  M --> N[Commit and push]
+  N --> O[Reply to handled conversations]
+  O --> P[Final recap]
 ```
 
 ## Workflow
@@ -63,35 +67,60 @@ Load only what is needed:
 - Reuse existing code, schemas, services, validators, components, hooks, and design-system primitives.
 - Do not add dependencies, logs, broad refactors, unrelated cleanup, or new tests by default.
 - Do not merge, mark PRs ready, close PM tasks, or update PM status.
-- Do not use runner-specific clarification tools.
-- Do not loop after the Decision Gate.
 - Reply to each handled thread with what changed, the commit SHA when available, and the checks run.
+
+### Remediation Planning
+
+Always build a remediation plan after the feedback ledger is built and before editing.
+
+For every remediation plan:
+
+1. Recommend Plan Mode when the runner supports it.
+2. Use the runner-native question or clarification tool when available for decisions that materially change the fix.
+3. If no question or clarification tool is available, use PR feedback, repository evidence, and the approved PM scope as the source of truth.
+4. Include all fixes, explicit non-fixes, assumptions, checks, and PR reply handling.
+5. Wait for explicit user approval before editing.
+
+When the user challenges the remediation plan:
+
+1. Recover the previous remediation plan from the conversation before revising.
+2. Preserve every detail that the user did not ask to change.
+3. Adjust only the challenged fix, assumption, non-fix, check, reply, or scope boundary.
+4. Return a complete replacement remediation plan, not a partial diff.
+
+If the previous remediation plan is no longer available in context, ask the user to provide or confirm the missing details before regenerating. This prevents accidental feedback loss.
 
 ## Expected Response Format
 
-### Decision Gate
+### Remediation Plan
 
-Use this exact shape only when needed:
+Use this exact shape before editing:
 
 ```markdown
-## Decision Gate
+## Fix PR Plan
 
-I need one decision before fixing the PR.
+PR: <url>
+Branch: <branch>
 
-Decision:
-- <question or choice>
+Summary:
+<brief technical summary of the feedback and intended remediation>
 
-Recommended default:
-- <default and why>
+Assumptions:
+- <assumption or "None">
 
-Remediation roadmap:
-- Fix: <item>
-- Leave unchanged: <item and reason>
-- Checks: `<command>`
-- PR replies: <thread/comment handling>
+Fix:
+- <item>
 
-After your answer:
-- I will apply this roadmap directly unless you explicitly refuse or change the scope.
+Leave unchanged:
+- <item and reason, or "None">
+
+Checks:
+- `<command>`
+
+PR replies:
+- <thread/comment handling>
+
+Est-ce que je peux appliquer ce plan de remediation au PR ?
 ```
 
 ### Final Response
@@ -129,7 +158,11 @@ Next:
 - [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
 - [ ] Feedback ledger built before editing.
 - [ ] Outdated threads checked against current head before fixing or replying.
-- [ ] At most one Decision Gate used.
+- [ ] Plan Mode recommended when the runner supports it.
+- [ ] Runner-native question or clarification tool used when available and materially useful.
+- [ ] Remediation plan proposed before editing.
+- [ ] Previous remediation plan recovered before revising a challenged plan.
+- [ ] Explicit approval received before applying remediation.
 - [ ] Focused fixes applied with existing patterns reused.
 - [ ] Relevant checks run or reported.
 - [ ] Remediation changes committed and pushed when code changed.

@@ -12,25 +12,24 @@
 
 # Plan Based Agentic Workflow
 
-Agent Skills for a PM-task-first development workflow with short skills, one Decision Gate where needed, and technical references kept out of the main skill body.
+Agent Skills for a PM-task-first development workflow with short skills, Plan Mode-friendly user decisions, and technical references kept out of the main skill body.
 
-PBAW treats the user as the product and architecture authority, and as an experienced software engineer/architect. Decision Gates should ask technical questions at that level, with priority on UX and database/data-model decisions; other questions should stay focused on blockers.
+PBAW treats the user as the product and architecture authority, and as an experienced software engineer/architect. Questions and proposed plans should stay technical at that level, with priority on UX and database/data-model decisions; other questions should stay focused on blockers.
 
 ## Skills
 
-- `feed-pm`: analyze the repository with Serena MCP, use exactly one Decision Gate, create PM tasks directly, then recap.
-- `fix-pm`: explicitly adjust already-created PM tasks in place, then verify the updated task state.
+- `feed-pm`: analyze the repository with Serena MCP, propose a PM-ready plan, revise it when challenged, create PM tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, then run `review-pr`.
 - `review-pr`: perform a strict production-readiness review with mandatory full local CI.
-- `fix-pr`: fix PR feedback with at most one Decision Gate and no loop.
+- `fix-pr`: propose a PR remediation plan, revise it when challenged, then apply fixes after explicit approval.
 
 ## Prerequisites
 
 Required:
 
 - Git.
-- A skill runner that can load `skills/<skill-name>/SKILL.md`.
+- A coding agent that supports skills and, when possible, Plan Mode with question/clarification tools.
 - Serena MCP configured.
 - `gh` authenticated for GitHub PRs and Issues when GitHub is used.
 - The PM tool MCP or CLI for Jira, Notion, Linear, or another selected PM system.
@@ -52,10 +51,6 @@ plan-based-agentic-workflow/
 |-- README.md
 `-- skills/
     |-- feed-pm/
-    |   |-- SKILL.md
-    |   |-- agents/
-    |   `-- references/
-    |-- fix-pm/
     |   |-- SKILL.md
     |   |-- agents/
     |   `-- references/
@@ -81,51 +76,24 @@ plan-based-agentic-workflow/
 
 ## Workflow
 
-### 1. Create PM Tasks
+Use this framework as a PM-task-first delivery path.
+
+### 1. Plan And Create PM Tasks
 
 Use `feed-pm` for a product request, bug, refactor, or backlog idea.
 
-Flow:
+Run it in Plan Mode first. The skill resolves the PM target, analyzes the repository with Serena MCP, uses runner-native questions when available, and proposes a complete task plan with PM tool, project, task split, dependencies, and verification.
 
-1. Resolve PM target.
-2. Load relevant skills.
-3. Analyze the repository with Serena MCP.
-4. Use one mandatory Decision Gate.
-5. Create PM tasks directly unless the user explicitly refuses or the PM target is unsafe.
-6. Recap task URLs and the next implementation command.
+Challenge the plan until it is correct. Once approved, switch to Build mode and ask `feed-pm` to create the PM tasks.
 
-No local planning workspace and no repeated approval cycle.
+### 2. Implement PM Tasks
 
-### 2. Adjust PM Tasks
-
-Required information:
-
-- existing task URL(s) or ID(s);
-- changes to apply.
+Use `implement-pm <pm-tool> <task-ids>` with the PM system name and exact task IDs created by `feed-pm`.
 
 Example:
 
 ```text
-Fix PM task https://github.com/acme/app/issues/123: split deployment work into a separate devops task and clarify the API acceptance criteria.
-```
-
-`fix-pm` retrieves already-created PM tasks, applies requested changes in place, and verifies the updated task state. It uses at most one Decision Gate when the update is ambiguous, structurally risky, or unsafe to apply directly.
-
-It does not implement code, create branches, create PRs, review PRs, merge, or close tasks by default.
-
-`fix-pm` can be invoked with any prompt shape as long as the task target and requested changes are present.
-
-### 3. Implement PM Tasks
-
-Required information:
-
-- PM system name;
-- exact task IDs.
-
-Example:
-
-```text
-Implement Jira tasks pp-12-14-15.
+implement-pm jira pp-12-14-15
 ```
 
 `implement-pm` first runs:
@@ -142,9 +110,7 @@ The script creates and pushes branch:
 
 Then the skill retrieves the tasks, analyzes the codebase with Serena, implements the work, and stops with a concise report. It does not create PRs or update PM backlinks.
 
-`implement-pm` can be invoked with any prompt shape as long as the PM system name and exact task IDs are present.
-
-### 4. Create Draft PRs
+### 3. Create The PR And Run The First Review
 
 Run `create-pr` after implementation.
 
@@ -165,27 +131,25 @@ Then it:
 
 PR bodies stay minimal because task bodies are the source of truth.
 
-### 5. Review PRs
+### 4. Fix Review Issues
 
-`review-pr` reviews changed code and directly affected paths. It is strict on:
+If the review finds issues, use `fix-pr`.
 
-- security, auth, privacy, and secrets;
-- architecture boundaries and dependency direction;
-- reuse of existing code and centralized business logic;
-- correctness and production regressions.
+Run it in Plan Mode first. The skill collects PR feedback, builds a feedback ledger, inspects the code with Serena MCP, and proposes a complete remediation plan.
 
-Local CI is mandatory for `PROD READY`, merge, and PM task closure. If local CI is missing or failing, the PR is not mergeable.
+Challenge the plan until it is correct. Once approved, switch to Build mode and ask `fix-pr` to apply the fixes, run relevant checks, commit, push, and reply to handled PR conversations.
 
-### 6. Fix PR Feedback
+### 5. Review Again And Merge If Ready
 
-`fix-pr` collects PR feedback, builds a feedback ledger, and fixes unambiguous issues directly.
+Run `review-pr` again after `fix-pr`, or directly after `create-pr` when the first review had no issues.
 
-It uses one Decision Gate only when remediation needs user or architect input. After the answer, it applies the roadmap directly unless the user explicitly refuses or changes scope.
+`review-pr` performs the production-readiness review on changed code and directly affected paths. It is strict on security, architecture boundaries, code reuse, centralized business logic, correctness, and production regressions.
+
+Local CI is mandatory for `PROD READY`, merge, and PM task closure. If local CI passes and the PR is production-ready, `review-pr` can proceed with merge/finalization according to the repository and PM-tool rules.
 
 ## Safety Rules
 
-- `feed-pm` uses one Decision Gate and creates tasks directly after clarification unless refused.
-- `fix-pm` updates existing PM tasks in place and uses at most one Decision Gate for ambiguous, structural, or unsafe changes.
+- `feed-pm` proposes a complete plan first, preserves it when challenged, and creates PM tasks only after explicit approval.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - `create-pr` creates draft PRs and PM backlinks, then runs `review-pr`.
 - `review-pr` does not implement fixes and cannot merge or close PM tasks without passing local CI and explicit approval.

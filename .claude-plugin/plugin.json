@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "plan-based-agentic-workflow",
   "displayName": "Plan Based Agentic Workflow",
-  "description": "Concise plan-based agentic workflow skills for creating and adjusting PM tasks, implementing tasks, creating draft PRs, reviewing PRs, and fixing PR feedback.",
+  "description": "Concise plan-based agentic workflow skills for creating PM tasks, implementing tasks, creating draft PRs, reviewing PRs, and fixing PR feedback.",
   "version": "0.1.0",
   "author": {
     "name": "mvagnon",
@@ -22,8 +22,6 @@
     "review",
     "fix",
     "feedback",
-    "create-pr",
-    "fix-pm",
-    "task-adjustment"
+    "create-pr"
   ]
 }
