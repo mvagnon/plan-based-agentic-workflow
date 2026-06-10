@@ -12,12 +12,13 @@
 
 # Plan Based Agentic Workflow
 
-Agent Skills for a PM-task-first development workflow with short skills, Plan Mode-friendly user decisions, and technical references kept out of the main skill body.
+Agent Skills for a decision-to-delivery workflow with short skills, Plan Mode-friendly user decisions, and technical references kept out of the main skill body.
 
 PBAW treats the user as the product and architecture authority, and as an experienced software engineer/architect. Questions and proposed plans should stay technical at that level, with priority on UX and database/data-model decisions; other questions should stay focused on blockers.
 
 ## Skills
 
+- `brainstorm`: analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI to compare handmade and dependency-based approaches before PM planning.
 - `feed-pm`: analyze the repository with Serena MCP, propose a PM-ready plan, revise it when challenged, create PM tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, then run `review-pr`.
@@ -31,6 +32,8 @@ Required:
 - Git.
 - A coding agent that supports skills and, when possible, Plan Mode with question/clarification tools.
 - Serena MCP configured.
+- Exa MCP configured for current technical research.
+- Context7 MCP configured for official dependency and framework documentation.
 - `gh` authenticated for GitHub PRs and Issues when GitHub is used.
 - The PM tool MCP or CLI for Jira, Notion, Linear, or another selected PM system.
 
@@ -50,6 +53,10 @@ plan-based-agentic-workflow/
 |   `-- plugin.json
 |-- README.md
 `-- skills/
+    |-- brainstorm/
+    |   |-- SKILL.md
+    |   |-- agents/
+    |   `-- references/
     |-- feed-pm/
     |   |-- SKILL.md
     |   |-- agents/
@@ -76,7 +83,15 @@ plan-based-agentic-workflow/
 
 ## Workflow
 
-Use this framework as a PM-task-first delivery path.
+Use this framework as a decision-to-delivery path.
+
+### 0. Brainstorm The Approach
+
+Use `brainstorm` when the best integration strategy is not settled yet.
+
+The skill treats the user's request as complete, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and `gh` CLI. It returns one handmade approach, one external-dependency approach when credible, and a recommendation.
+
+Use the recommendation as input for `feed-pm` when you are ready to create PM tasks.
 
 ### 1. Plan And Create PM Tasks
 
@@ -161,6 +176,7 @@ That workflow favors tests for user journeys and product flows rather than fragi
 
 ## Safety Rules
 
+- `brainstorm` does not write code, create PM tasks, open PRs, mutate external systems, ask clarification questions, or recommend Plan Mode.
 - `feed-pm` proposes a complete plan first, preserves it when challenged, and creates PM tasks only after explicit approval.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - `create-pr` creates draft PRs and PM backlinks, then runs `review-pr`.
@@ -170,6 +186,6 @@ That workflow favors tests for user journeys and product flows rather than fragi
 
 ## Technical References
 
-References are bundled per skill and contain commands, templates, and PM/Git mechanics only. The main `SKILL.md` files define the human workflow and expected response format.
+References are bundled per skill and contain commands, templates, research mechanics, and PM/Git mechanics only. The main `SKILL.md` files define the human workflow and expected response format.
 
 Repository-level authoring rules live in `AGENTS.md`.

@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "plan-based-agentic-workflow",
   "displayName": "Plan Based Agentic Workflow",
-  "description": "Concise plan-based agentic workflow skills for creating PM tasks, implementing tasks, creating draft PRs, reviewing PRs, and fixing PR feedback.",
+  "description": "Concise plan-based agentic workflow skills for brainstorming implementation strategy, creating PM tasks, implementing tasks, creating draft PRs, reviewing PRs, and fixing PR feedback.",
   "version": "0.1.0",
   "author": {
     "name": "mvagnon",
@@ -12,7 +12,11 @@
   "repository": "https://github.com/mvagnon/plan-based-agentic-workflow",
   "keywords": [
     "agentic-workflow",
+    "brainstorm",
+    "build-vs-buy",
     "planning",
+    "context7",
+    "exa",
     "github-issues",
     "jira",
     "notion",

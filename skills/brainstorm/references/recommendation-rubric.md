@@ -1,0 +1,56 @@
+# Recommendation Rubric
+
+Use this rubric before writing the final recommendation.
+
+## Criteria
+
+Compare handmade and dependency approaches on:
+
+```text
+User intent fit:
+Repository fit:
+Architecture fit:
+Reuse of existing code:
+Implementation complexity:
+Data model impact:
+Security and privacy risk:
+Operational risk:
+Maintenance burden:
+Dependency and supply-chain risk:
+Lock-in and migration path:
+Time to ship:
+Long-term flexibility:
+Verification effort:
+```
+
+## Recommendation Rules
+
+Prefer handmade when:
+
+- the required behavior is narrow and close to existing code;
+- the repository already has primitives that cover most of the feature;
+- dependency APIs would force architecture drift;
+- security, privacy, or data ownership risk is high;
+- the external package is stale, broad, poorly licensed, or difficult to remove.
+
+Prefer an external dependency when:
+
+- the feature requires complex domain logic that is easy to get wrong;
+- a mature dependency has a strong API fit and active maintenance;
+- the dependency reduces security, correctness, compatibility, or operational risk;
+- the dependency is cheaper to integrate than to reproduce correctly;
+- the migration or fallback path is clear.
+
+Prefer a prototype before final decision when:
+
+- the repository fit is plausible but unproven;
+- performance, bundle size, deployment behavior, or API ergonomics are uncertain;
+- the dependency looks credible but integration risk is concentrated in one unknown.
+
+## Confidence Levels
+
+Use `high` when repository evidence and external research point to the same answer.
+
+Use `medium` when the recommendation is clear but depends on one explicit assumption.
+
+Use `low` when architecture instructions are missing, dependency evidence is weak, or the decision depends on runtime behavior that needs a prototype.
