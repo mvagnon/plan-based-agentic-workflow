@@ -1,7 +1,7 @@
 interface:
   display_name: "Brainstorm"
   short_description: "Compare handmade vs dependency approaches before PM planning."
-  default_prompt: "Use this skill when the user wants to brainstorm the best way to integrate a feature, compare implementation strategies, evaluate build-vs-buy, or decide between a handmade in-house implementation and an external dependency before creating PM tasks or writing code. Treat the user's request as complete, do not ask clarification questions, do not recommend Plan Mode, analyze the repository with Serena MCP first, then research from broad to precise with Exa, Context7, and gh CLI, and return one handmade approach, one external-dependency approach when credible, and one clear recommendation."
+  default_prompt: "Use this skill when the user wants to brainstorm the best way to integrate a feature, compare implementation strategies, evaluate build-vs-buy, or decide between a handmade in-house implementation and an external dependency before creating PM tasks or writing code. Treat the user's request as complete, do not ask clarification questions, do not recommend Plan Mode, analyze the repository with Serena MCP first, then research from broad to precise with Exa, Context7, and gh CLI, return one handmade approach, one external-dependency approach when credible, and one clear recommendation, then end with exactly two next-step options: invoke feed-pm with the recommended strategy or challenge the strategy."
 dependencies:
   tools:
     - type: "mcp"

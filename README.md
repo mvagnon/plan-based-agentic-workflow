@@ -91,7 +91,7 @@ Use `brainstorm` when the best integration strategy is not settled yet.
 
 The skill treats the user's request as complete, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and `gh` CLI. It returns one handmade approach, one external-dependency approach when credible, and a recommendation.
 
-Use the recommendation as input for `feed-pm` when you are ready to create PM tasks.
+At the end, `brainstorm` offers exactly two next steps: invoke `feed-pm` with the recommended strategy, or challenge the strategy.
 
 ### 1. Plan And Create PM Tasks
 

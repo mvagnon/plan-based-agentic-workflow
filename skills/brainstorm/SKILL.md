@@ -136,7 +136,10 @@ Base the recommendation on:
 - GitHub repository evidence from `gh`;
 - the rubric in `references/recommendation-rubric.md`.
 
-End with the next concrete step, usually `feed-pm` with the recommended direction, a narrow prototype, or direct implementation if the user explicitly asks to proceed.
+End with two next-step options only:
+
+- invoke `feed-pm` with the recommended strategy when the user accepts the recommendation;
+- challenge the strategy when the user wants to change assumptions, tradeoffs, constraints, or the chosen direction.
 
 ## Expected Response Format
 
@@ -207,8 +210,9 @@ Confidence:
 What would change this:
 - <evidence that would change the recommendation>
 
-Next:
-<next command or workflow step>
+Next steps:
+- Invoke `feed-pm`: <suggested feed-pm request using the recommended strategy>
+- Challenge the strategy: <specific angle the user could challenge, such as assumptions, dependency choice, risk tolerance, or scope>
 ```
 
 ## Checklist
@@ -224,5 +228,5 @@ Next:
 - [ ] `gh` CLI used third for GitHub repository evidence.
 - [ ] Handmade approach proposed.
 - [ ] External dependency approach proposed or absence justified.
-- [ ] Recommendation includes assumptions, risks, confidence, and next step.
+- [ ] Recommendation includes assumptions, risks, confidence, and exactly two next-step options: invoke `feed-pm` or challenge the strategy.
 - [ ] No code, PM task, PR, or external mutation performed.
