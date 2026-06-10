@@ -42,7 +42,7 @@ Required:
 Install this workflow:
 
 ```bash
-npx skills add mvagnon/plan-based-agentic-workflow
+npx skills add mvagnon/plan-based-agentic-workflow --skill *
 ```
 
 Expected layout:
