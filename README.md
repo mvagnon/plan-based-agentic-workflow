@@ -40,6 +40,11 @@ Required:
 Good to have:
 
 - Any PM tool MCP or CLI if needed.
+- `mermaid-diagrams` skill:
+
+```bash
+npx skills add https://github.com/softaworks/agent-toolkit --skill mermaid-diagrams
+```
 
 ## Installation
 
