@@ -101,7 +101,7 @@ After repository analysis, search for useful external resources:
 Discover projects that could match the request:
 
 ```bash
-gh search repos --language "searched-language" --topic "searched-topic"
+gh search repos "Search content" --sort stars --order desc --limit 20 --language "searched-language"
 ```
 
 Use the following command to understand a repository by reading its `README.md`:
