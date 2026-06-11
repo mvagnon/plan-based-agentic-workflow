@@ -91,7 +91,7 @@ Use this framework as a decision-to-delivery path:
 
 You can also burn some steps if you want to implement fast:
 
-1. Brainstorm or plan the integration with `brainstorm` (large feature) or `feed-pm` (medium-sized feature), in plan mode.
+1. Brainstorm with `brainstorm` or plan the integration with `feed-pm`, in plan mode.
 2. Implement directly without adding tasks to the PM tool.
 3. ...
 
