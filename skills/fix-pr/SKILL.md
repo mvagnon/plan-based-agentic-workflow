@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: "Use this skill after a PR review, low score, requested changes, \"fix before merge\" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, recommends Plan Mode, uses the runner-native question or clarification tool when available, proposes a complete remediation plan for explicit approval, applies the approved focused fixes with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not rescore, approve, merge, close tasks, or move PM items."
+description: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, recommends Plan Mode, uses the runner-native question or clarification tool when available, proposes a complete remediation plan for explicit approval, applies the approved focused fixes with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not rescore, approve, merge, close tasks, or move PM items.'
 ---
 
 # Fix PR
@@ -35,12 +35,10 @@ flowchart TD
   K --> M[Run relevant checks]
   M --> N[Commit and push]
   N --> O[Reply to handled conversations]
-  O --> P[Final recap]
+  O --> P[Report result]
 ```
 
-## Workflow
-
-### Inputs
+## Inputs
 
 Optional:
 
@@ -50,12 +48,14 @@ Optional:
 
 Default to the PR associated with the current branch. In a workspace, include matching child-repository PRs.
 
-### References
+## References
 
 Load only what is needed:
 
 - `references/github-remediation.md` for feedback collection, remediation ledger, checkout, commit, push, replies, and thread resolution.
 - `../implement-pm/references/development-rules.md` before editing and before the final diff review.
+
+## Workflow
 
 ### Rules
 
@@ -93,38 +93,7 @@ If the previous remediation plan is no longer available in context, ask the user
 
 ## Expected Response Format
 
-### Remediation Plan
-
-Use this exact shape before editing:
-
-```markdown
-## Fix PR Plan
-
-PR: <url>
-Branch: <branch>
-
-Summary:
-<brief technical summary of the feedback and intended remediation>
-
-Assumptions:
-- <assumption or "None">
-
-Fix:
-- <item>
-
-Leave unchanged:
-- <item and reason, or "None">
-
-Checks:
-- `<command>`
-
-PR replies:
-- <thread/comment handling>
-
-Est-ce que je peux appliquer ce plan de remediation au PR ?
-```
-
-### Final Response
+Use this shape for the remediation plan, applied fix recap, or blocker:
 
 ```markdown
 ## Fix PR
@@ -133,40 +102,36 @@ PR: <url>
 Branch: <branch>
 Commit: <sha or "none">
 
-Fixed:
+Summary:
+<brief technical summary of the feedback and intended remediation>
+
+Assumptions:
+
+- <assumption or "None">
+
+Fix:
+
 - <item>
 
-Clarified or unchanged:
-- <item or "none">
+Leave unchanged:
+
+- <item and reason, or "None">
 
 Checks:
-- `<command>`: <passed|failed|not run> - <short note>
 
-PR updates:
-- <reply/resolution/comment status, including what changed, commit SHA when available, and checks run>
+- `<command>`
+
+PR replies:
+
+- <thread/comment handling>
 
 Remaining:
+
 - <blocker or "none">
 
+Result:
+<Remediation plan awaiting approval | Applied focused fixes | Blocked or not changed>
+
 Next:
-`review-pr`
+<approve remediation | `review-pr` | exact blocker action>
 ```
-
-## Checklist
-
-- [ ] PR and feedback resolved.
-- [ ] Serena used for cited code and nearby ownership.
-- [ ] `../implement-pm/references/development-rules.md` loaded and applied.
-- [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
-- [ ] Feedback ledger built before editing.
-- [ ] Outdated threads checked against current head before fixing or replying.
-- [ ] Plan Mode recommended when the runner supports it.
-- [ ] Runner-native question or clarification tool used when available and materially useful.
-- [ ] Remediation plan proposed before editing.
-- [ ] Previous remediation plan recovered before revising a challenged plan.
-- [ ] Explicit approval received before applying remediation.
-- [ ] Focused fixes applied with existing patterns reused.
-- [ ] Relevant checks run or reported.
-- [ ] Remediation changes committed and pushed when code changed.
-- [ ] Handled conversations replied to or resolved only when actually handled.
-- [ ] Final response points to `review-pr`.

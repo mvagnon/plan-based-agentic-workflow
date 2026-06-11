@@ -19,8 +19,9 @@ When rules conflict in a way that changes the task plan or review verdict, surfa
 - Load governing project instruction files before planning or reviewing.
 - Load relevant architecture, design, security, framework, and provider skills when the request or codebase calls for them.
 - Treat declared project architecture, layering, dependency direction, and ownership rules as authoritative for concrete boundaries.
-- If no explicit architecture is documented, infer ownership from folders, imports, naming, dependency direction, nearby implementations, package boundaries, and existing public APIs.
-- If a named architecture is documented but its rules are missing, inconsistent, or imprecise, research best practices for the same architecture and stack with Exa MCP before using inferred details in a review verdict.
+- Use code to locate current implementation, reusable owners, and affected files. Do not treat existing folder shape, imports, or naming as architecture authority when governing instructions are missing or incomplete.
+- If architecture instructions are missing, incomplete, ambiguous, or insufficient for the plan, ask the user for architectural direction before decomposing architecture-sensitive work.
+- If a named architecture is documented but its rules are missing, inconsistent, or imprecise, ask for the missing direction or research best practices for the same architecture and stack with Exa MCP before using inferred details in a review verdict.
 
 ## Reuse And Ownership
 
@@ -38,6 +39,8 @@ When rules conflict in a way that changes the task plan or review verdict, surfa
 - Use a shared foundation task only when several surfaces depend on the same schema, contract, token, data model, or reusable primitive.
 - Do not hide frontend, backend, or devops implementation inside a shared task.
 - Do not introduce new dependencies, broad abstractions, broad rewrites, hidden behavior, or unrelated refactors as part of planning or review approval.
+- Minimize total implementation lines. Prefer small concessions in optional behavior, polish, generality, or configurability when they avoid a much larger diff without violating explicit requirements, security, or documented architecture.
+- Treat one line of code as one potential maintenance debt when choosing between otherwise valid plans.
 
 ## Frontend Architecture
 
@@ -67,3 +70,5 @@ When rules conflict in a way that changes the task plan or review verdict, surfa
 - For `review-pr`, judge architecture from governing instructions and these rules; use code to verify compliance, not to lower the bar.
 - Treat duplication in changed code as a bug, including near-duplicate files or components that should become one component with variants.
 - Treat missed reuse, duplicated business logic, duplicated validation, duplicated permission checks, or duplicated data transformations as blockers when they affect changed code.
+- For `feed-pm`, include the smallest coherent file impact and the reuse or concession that keeps the implementation compact.
+- Do not plan new tests, new test files, or test-writing work unless the user explicitly requested tests.

@@ -15,6 +15,8 @@ Use this skill to produce a repository-grounded recommendation with:
 - one external dependency approach when a credible dependency exists;
 - one recommendation with assumptions, risks, and next step.
 
+Treat lines of code as future maintenance cost. Prefer a small concession in scope, polish, generality, or configurability when it can reduce the diff by hundreds of lines without violating the user's core goal, security, or documented architecture.
+
 This skill does not write code, create PM tasks, open PRs, or mutate external systems.
 
 ## Diagram
@@ -44,7 +46,8 @@ flowchart TD
   P -->|No| R[Apply rubric]
   Q --> R
   R --> S[Compare approaches]
-  S --> T[Recommend next step]
+  S --> T[Prefer smallest coherent diff]
+  T --> U[Recommend next step]
 ```
 
 ## Inputs
@@ -55,6 +58,7 @@ Gather the following inputs using user's prompt.
 - preferred approach (optional, default to _both_):
   - handmade
   - external dependency
+- line budget, acceptable concessions, or non-negotiable behavior (optional)
 
 Also, while working, ask for as many questions as you need with a clear goal in mind: give a precise, efficient answer.
 
@@ -110,7 +114,7 @@ Then, if user's is interested in the handmade approach, understand implementatio
 
 2. **Use Context7 to verify official docs for frameworks, SDKs, APIs, and candidate dependencies.**
 
-I the user is asking for the handmade approach, skip this step.
+If the user is asking for the handmade approach, skip this step.
 
 3. Finally, use `Exa` MCP to enrich the gathered information if needed.
 
@@ -123,6 +127,7 @@ Include:
 - likely implementation path;
 - existing code to reuse or extend;
 - expected files, modules, or owner folders touched;
+- expected diff size and any small concessions that keep the implementation compact;
 - data model and API impact;
 - security and authorization implications;
 - operational and maintenance cost;
@@ -139,6 +144,7 @@ Include:
 - why it fits the requested integration;
 - integration path in this repository;
 - API fit with existing code;
+- expected glue-code size and whether the dependency avoids a larger handmade diff;
 - maintenance, license, and release signals;
 - bundle, runtime, deployment, or operational impact;
 - security and supply-chain implications;
@@ -158,9 +164,11 @@ Base the recommendation on:
 - Context7 official docs;
 - GitHub repository evidence from `gh`;
 - the rubric in `references/recommendation-rubric.md`.
+- the smallest coherent diff, including acceptable concessions that reduce implementation lines.
 
-End with two next-step options only:
+End with three next-step options only:
 
+- implement directly the solution;
 - invoke `feed-pm` with the recommended strategy when the user accepts the recommendation;
 - challenge the strategy when the user wants to change assumptions, tradeoffs, constraints, or the chosen direction.
 
@@ -186,7 +194,7 @@ Research checked:
 
 - Exa: <topics or sources checked>
 - Context7: <official docs checked>
-- GitHub: <repos/packages checked with gh CLI>
+- GitHub: <repos/packages checked with gh CLI and Repomix>
 
 ## Approach 1: Handmade
 
@@ -227,6 +235,7 @@ Risks:
 | Fit with repo | <assessment> | <assessment>        |
 | Complexity    | <assessment> | <assessment>        |
 | Maintenance   | <assessment> | <assessment>        |
+| Diff size     | <assessment> | <assessment>        |
 | Security      | <assessment> | <assessment>        |
 | Lock-in       | <assessment> | <assessment>        |
 | Time to ship  | <assessment> | <assessment>        |
@@ -244,7 +253,7 @@ What would change this:
 
 Next steps:
 
-- Directly proceed to implementation
+- Implement directly one solution
 - Invoke `feed-pm`: <suggested feed-pm request using the recommended strategy>
 - Challenge the strategy: <specific angle the user could challenge, such as assumptions, dependency choice, risk tolerance, or scope>
 ```

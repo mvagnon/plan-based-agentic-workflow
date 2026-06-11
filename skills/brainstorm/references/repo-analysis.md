@@ -33,6 +33,7 @@ Capture only evidence that changes the recommendation:
 - feature owner folders and directly affected packages or apps;
 - existing services, hooks, components, schemas, validators, DTOs, repositories, clients, commands, routes, or integrations to reuse;
 - current dependencies that already solve part of the request;
+- expected implementation line count, likely file impact, and small concessions that could avoid a much larger diff;
 - data model, migration, persistence, API, auth, authorization, privacy, and deployment constraints;
 - package manager, runtime, framework versions, and build constraints when discoverable;
 - existing check commands from scripts, task runners, CI config, or project instructions;
@@ -57,4 +58,5 @@ Verification:
 - Do not ask the user where code lives when Serena or repository search can discover it.
 - Do not infer undocumented architecture from folder names as if it were authoritative.
 - Do not recommend a dependency before checking for existing local primitives or dependencies.
+- Do not recommend a broad implementation when a small concession would satisfy the core goal with much less code.
 - Do not paste large code excerpts into the recommendation.

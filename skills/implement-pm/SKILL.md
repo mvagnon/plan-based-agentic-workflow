@@ -31,9 +31,7 @@ flowchart TD
   F --> G[Report implementation and next create-pr step]
 ```
 
-## Workflow
-
-### Inputs
+## Inputs
 
 Required inputs:
 
@@ -41,6 +39,16 @@ Required inputs:
 - `$task_ids`: exact task IDs joined exactly as they should appear in the branch name.
 
 Do not guess missing inputs. Ask for the missing information if either value is missing.
+
+## References
+
+Load only what is needed:
+
+- `references/pm-task-retrieval.md` for PM task retrieval.
+- `references/implementation-git.md` for branch-script behavior and implementation Git commands.
+- `references/development-rules.md` before editing and before the final diff review.
+
+## Workflow
 
 ### First Action
 
@@ -56,14 +64,6 @@ The branch name must be exactly:
 $pm_tool/$task_ids
 ```
 
-### References
-
-Load only what is needed:
-
-- `references/pm-task-retrieval.md` for PM task retrieval.
-- `references/implementation-git.md` for branch-script behavior and implementation Git commands.
-- `references/development-rules.md` before editing and before the final diff review.
-
 ### Rules
 
 - Use Serena before implementing. If Serena is unavailable, stop instead of implementing from text search alone.
@@ -77,7 +77,7 @@ Load only what is needed:
 
 ## Expected Response Format
 
-### Final Response
+### Response
 
 ```markdown
 ## Implement PM
@@ -100,15 +100,3 @@ Remaining:
 Next:
 `create-pr`
 ```
-
-## Checklist
-
-- [ ] PM tool and task IDs parsed exactly.
-- [ ] Branch script run before PM retrieval, Serena analysis, or edits.
-- [ ] PM tasks retrieved with full body/comments/dependencies when available.
-- [ ] Serena used to inspect existing code and reuse patterns.
-- [ ] `references/development-rules.md` loaded and applied.
-- [ ] Implementation stayed within task scope.
-- [ ] No PR, backlink, review, or PM status action performed.
-- [ ] Relevant existing checks run or explicitly reported as not run.
-- [ ] Final response points to `create-pr`.

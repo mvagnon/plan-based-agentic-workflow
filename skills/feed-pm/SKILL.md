@@ -1,19 +1,25 @@
 ---
 name: feed-pm
-description: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into an implementation-ready plan and PM tasks. Requires a task/request description; pm_tool and project_id are optional. It analyzes the repository with Serena MCP, recommends Plan Mode for better task reliability, uses the runner-native question or clarification tool when available, proposes a complete task plan for approval or challenge, creates PM tasks only after explicit user approval, preserves the user's task-description language, and returns a concise recap. Trigger on feed PM, create issues, create PM tasks, split work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
+description: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into an implementation-ready plan and PM tasks. Requires a task/request description plus implementation details such as desired behavior, affected surfaces, data model/API notes, known constraints, non-goals, or preferred implementation direction. It analyzes the repository with Serena MCP, recommends Plan Mode, asks focused questions during analysis, proposes a complete project-correlated task plan, creates PM tasks only after explicit user approval, and returns a concise recap. Trigger on feed PM, create issues, create PM tasks, split work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
 ---
 
 # Feed PM
 
 ## Summary
 
-Turn one product or engineering request into a repository-grounded plan and PM tasks.
+Turn one product or engineering request into a repository-grounded implementation plan and PM tasks.
 
-Plan Mode is recommended because it gives the model room to explore, ask targeted questions, preserve context, and revise the task split before mutating the PM system.
+The input must include the requested outcome and a few implementation details. If those details are missing or too vague, ask for them before drafting tasks.
 
-Use the runner-native question or clarification tool when it exists. If no such tool exists, let repository exploration and the user's request be the source of truth, then state assumptions in the proposed plan.
+Plan Mode is recommended because it gives the model room to explore the repository, ask targeted questions, preserve context, and revise the task split before mutating the PM system.
+
+Always ask focused questions while preparing the plan. Use questions to improve project fit, implementation precision, data model/API choices, UX behavior, security posture, PM targeting, and blocker handling.
 
 Never create PM tasks before explicit user approval of the proposed plan.
+
+Do not plan new tests, new test files, or test-writing tasks unless the user explicitly requested tests. Verification should use existing checks or review points by default.
+
+Treat lines of code as future maintenance cost. Prefer the smallest coherent diff, and accept small implementation or product concessions when they remove hundreds of lines without violating the requested outcome, security, or documented architecture.
 
 Treat the user as the product and architecture authority, and as an experienced software engineer/architect.
 
@@ -21,66 +27,106 @@ Treat the user as the product and architecture authority, and as an experienced 
 
 ```mermaid
 flowchart TD
-  A[Read request, pm_tool, project_id, and tasks] --> B[Load relevant skills and references]
-  B --> C[Analyze repository with Serena]
-  C --> D{Runner question tool?}
-  D -->|Yes| E[Ask targeted UX, data, PM, or blocker questions]
-  D -->|No| F[Use code and request as source of truth]
-  E --> G[Draft complete plan and task set]
-  F --> G
-  G --> H[Show PM tool, project, plan, and tasks]
-  H --> I{User response}
-  I -->|Challenge plan| J[Recover previous plan and revise only changed points]
-  J --> H
-  I -->|Approves creation| K{Safe PM target?}
-  K -->|No| L[Stop with blocker recap]
-  K -->|Yes| M[Create PM tasks with compact summaries]
-  M --> N[Recap task URLs and next implement-pm command]
+  A[Read request and implementation details] --> B{Details enough?}
+  B -->|No| C[Ask focused implementation questions]
+  C --> A
+  B -->|Yes| D[Load governing instructions and references]
+  D --> E[Analyze repository with Serena]
+  E --> F[Build responsibility map and file impact]
+  F --> G[Ask targeted quality questions]
+  G --> H[Draft minimal-diff task plan]
+  H --> I[Show PM target, assumptions, tasks, and verification]
+  I --> J{User response}
+  J -->|Challenge plan| K[Recover prior plan and revise only changed points]
+  K --> I
+  J -->|Approves creation| L{Safe PM target?}
+  L -->|No| M[Stop with blocker recap]
+  L -->|Yes| N[Create PM tasks]
+  N --> O[Recap task URLs and implement-pm command]
+  J -->|Requests implementation| P[Proceed directly without PM tasks]
 ```
 
-## Workflow
-
-### Inputs
+## Inputs
 
 Read the explicit invocation or user message as:
 
+- `task_request`: required product request, feature scope, bug, refactor, or backlog idea.
+- `implementation_details`: required useful implementation context. Accept any mix of desired behavior, target UX, affected surface, data model/API notes, existing files or modules to reuse, constraints, non-goals, rollout needs, security concerns, or preferred implementation direction.
 - `pm_tool`: optional, for example `github`, `jira`, `notion`, or another installed PM MCP/CLI.
 - `project_id`: optional repository, board, project, database, or PM target.
-- `tasks`: required unless the request is clear from the conversation.
 
-If `pm_tool` or `project_id` are missing or unclear, fall back to GitHub Issues on the repository or repositories concerned by the request when the remotes, `gh` authentication, and issue settings make that safe. If the PM target cannot be resolved safely, use the runner-native clarification tool when available; otherwise stop before creation and report the missing PM target detail.
+If `task_request` is missing, stop and ask for it.
+
+If `implementation_details` are missing or too generic to produce implementation-ready tasks, ask focused technical questions before drafting the plan. Keep the questions few and high leverage.
+
+If `pm_tool` or `project_id` are missing or unclear, fall back to GitHub Issues on the repository or repositories concerned by the request when the remotes, `gh` authentication, and issue settings make that safe. If the PM target cannot be resolved safely, ask for the missing PM target detail before creation.
 
 Preserve the language used by the user to describe the requested work for PM task titles, task bodies, proposed plans, and final recaps. Keep code identifiers, paths, commands, API names, and product terms literal.
 
-### References
+## References
 
-Load only the references needed for the current PM tool:
+Load only the references needed for the current PM tool and request:
 
 - `references/architecture-rules.md` before task decomposition.
 - `references/codebase-analysis.md` for Serena exploration.
 - `references/task-specification.md` for concise PM task bodies.
 - `references/pm-tools.md` for PM discovery and item creation commands.
 
-### Planning Rules
+## Workflow
 
-- Use Serena before drafting tasks. If Serena is unavailable, stop instead of creating implementation-ready tasks from local search alone.
-- Load and apply `references/architecture-rules.md`; use it to identify ownership, reuse, duplication, validation, typing, design-system, data, backend, frontend, security, and task-boundary concerns before proposing PM tasks.
-- Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
-- Load relevant architecture, design, and security resources if any before decomposing tasks.
-- Discover repository facts before asking the user: files, ownership, schemas, routes, services, components, validators, conventions, and check commands.
-- Recommend Plan Mode when the runner supports it.
-- Use the runner-native question or clarification tool when available for questions that materially change the plan, especially UX, database/data model, PM target, security posture, and blocking architecture decisions.
-- If no question or clarification tool is available, do not invent a separate approval gate. Use the codebase and request as the source of truth, then list assumptions and defaults in the proposed plan.
-- Treat duplication as a primary decomposition concern: detect duplicated code and near-duplicate code that should be standardized, such as two close React components that should become one component with variants.
-- Match the PM task language to the dominant language the user used to describe the work.
-- Do not force tasks to have equal size. Uneven tasks are correct when the engineering boundaries are uneven.
-- Separate frontend, backend, and devops work into distinct PM tasks whenever the request touches more than one of those surfaces. Omit a surface only when it has no real implementation work.
-- Keep shared contracts, schemas, tokens, or foundations in their own task only when they are reused by several surfaces; do not hide frontend, backend, or devops implementation inside that shared task.
-- Do not write local planning Markdown.
-- Do not create duplicate tasks for the same business rule, validator, component, or workflow.
-- Do not invent labels, statuses, assignees, milestones, project fields, or PM schema values.
+### Prepare
 
-### Plan Revision
+Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
+
+Load relevant architecture, design, security, framework, and provider resources before decomposing tasks when the request touches those areas.
+
+Recommend Plan Mode when the runner supports it. Use the runner-native question or clarification tool when available; otherwise ask directly in chat.
+
+### Analyze The Project
+
+Use Serena before drafting tasks. If Serena is unavailable, stop instead of creating implementation-ready tasks from local search alone.
+
+Load and apply `references/architecture-rules.md` before task decomposition. Use it to identify ownership, reuse, duplication, validation, typing, design-system, data, backend, frontend, security, and task-boundary concerns.
+
+Discover repository facts before final questions: files, ownership, schemas, routes, services, components, validators, conventions, check commands, and PM target signals.
+
+Correlate the plan tightly to the project. Each task should name the owner area and expected new, modified, and deleted files using exact paths when discoverable and owner folders otherwise. If the project lacks enough architecture direction to plan safely, ask the user for the missing architecture decision instead of inventing it from the codebase.
+
+Do not write local planning Markdown.
+
+### Ask Quality Questions
+
+Always ask at least one focused question set during planning, after initial repository exploration and before finalizing the proposed plan.
+
+Prioritize questions that materially improve the task plan:
+
+- UX behavior and user journeys;
+- database tables, migrations, schema ownership, or data model changes;
+- API contracts, validation, permissions, auth, and security boundaries;
+- concrete implementation details, non-goals, rollout, and compatibility constraints;
+- PM target, dependency order, or blockers that cannot be discovered from the repository.
+
+Do not add repeated approval loops. Ask the focused question set, ask follow-up questions only for blockers, then present the complete plan for approval or challenge.
+
+### Decompose Tasks
+
+Treat duplication as a primary decomposition concern. Detect duplicated code and near-duplicate code that should be standardized, such as two close React components that should become one component with variants.
+
+Minimize total implementation lines, not just task count. Prefer reusing or extending existing owners over creating new abstractions. A small concession in polish, generality, configuration, or optional behavior is acceptable when it removes a large diff and does not break the requested outcome.
+
+Do not force tasks to have equal size. Uneven tasks are correct when engineering boundaries are uneven.
+
+Separate frontend, backend, and devops work into distinct PM tasks whenever the request touches more than one of those surfaces. Omit a surface only when it has no real implementation work.
+
+Keep shared contracts, schemas, tokens, or foundations in their own task only when they are reused by several surfaces; do not hide frontend, backend, or devops implementation inside that shared task.
+
+Do not create duplicate tasks for the same business rule, validator, component, or workflow.
+
+Do not invent labels, statuses, assignees, milestones, project fields, or PM schema values.
+
+Do not include new tests, test files, test tasks, or test-writing acceptance criteria unless the user explicitly requested tests. Verification should reference existing lint, typecheck, test, build, or review commands when they already exist.
+
+### Revise A Challenged Plan
 
 When the user challenges the proposed plan:
 
@@ -91,7 +137,7 @@ When the user challenges the proposed plan:
 
 If the previous plan is no longer available in context, ask the user to provide or confirm the missing plan details before regenerating. This prevents accidental task loss.
 
-### Task Creation
+### Create Tasks Or Implement Directly
 
 After explicit user approval:
 
@@ -103,14 +149,14 @@ After explicit user approval:
 
 If the user refuses creation, challenges the plan, changes the scope so much that the task set is invalid, or the PM target is unsafe to mutate, do not create tasks. Revise the plan or report the blocker as appropriate.
 
+If the user asks to proceed directly with implementation, do not create PM tasks. Continue from the approved plan using the runner's normal implementation workflow.
+
 ## Expected Response Format
 
-### Proposed Plan
-
-Use this exact shape before PM creation:
+Use this shape for planning, task creation, or direct implementation handoff:
 
 ```markdown
-## Feed PM Plan
+## Feed PM
 
 PM tool: <tool>
 Project: <project, repository, board, database, or PM target name>
@@ -118,60 +164,37 @@ Project: <project, repository, board, database, or PM target name>
 Summary:
 <brief technical summary of the requested work>
 
+Implementation details used:
+
+- <detail or constraint from the user/repository>
+
 Assumptions:
+
 - <assumption or "None">
 
+Minimal diff strategy:
+<how the task split avoids unnecessary lines, duplication, and new abstractions>
+
 Tasks to create:
+
 - <task title 1> - <frontend|backend|devops|shared> - <one-line technical summary>
 - <task title 2> - <frontend|backend|devops|shared> - <one-line technical summary>
 
 Dependency order:
+
 1. <task title 1>
 2. <task title 2>
 
 Verification:
-- <existing check command or review point>
 
-Est-ce que je peux passer a l'ajout de ces taches dans l'outil PM ?
-```
+- <existing check command or review point; no new tests unless explicitly requested>
 
-### Final Response
-
-```markdown
-## Feed PM
-
-PM target: <tool and project/repository target>
-
-Created:
-
-- <task id/title>: <url>
-
-Dependency order:
-
-1. <task id/title>
-2. <task id/title>
+Result:
+<Proposed plan awaiting user choice | Created task URLs | Direct implementation selected>
 
 Next:
-Use `implement-pm` with `<pm-tool>` and `<task-ids>`.
+
+- Challenge the proposed plan
+- Add the tasks in the PM tool
+- Proceed directly with the implementation
 ```
-
-If no tasks were created, replace `Created` with `Not created` and give the blocking reason.
-
-## Checklist
-
-- [ ] Repository and PM target resolved safely.
-- [ ] Relevant architecture, design, and security resources if any are loaded before task decomposition.
-- [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
-- [ ] `references/architecture-rules.md` loaded before task decomposition.
-- [ ] Serena used before task drafting.
-- [ ] Plan Mode recommended when the runner supports it.
-- [ ] Runner-native question or clarification tool used when available and materially useful.
-- [ ] Existing architecture, validation, typing, business logic, and design-system patterns identified.
-- [ ] Duplicated and near-duplicate code standardization opportunities identified and reflected in the task split.
-- [ ] PM task language matches the language used by the user to describe the work.
-- [ ] Frontend, backend, and devops work separated whenever more than one surface is involved.
-- [ ] Each task summary lists expected new, modified, and deleted files, plus a one-sentence technical readout or compact plain-text diagram.
-- [ ] Previous proposed plan recovered before revising a challenged plan.
-- [ ] No local planning Markdown written.
-- [ ] PM tasks created only after explicit user approval.
-- [ ] Final recap includes task URLs, dependency order, and the next `implement-pm` request details.

@@ -31,9 +31,7 @@ flowchart TD
   H --> I[Run review-pr]
 ```
 
-## Workflow
-
-### Inputs
+## Inputs
 
 No argument is required by default. Resolve the PM tool and task IDs from each repository branch.
 
@@ -42,11 +40,13 @@ Optional overrides:
 - `repository`: current repo or child repo path.
 - `base`: PR base branch when local branch metadata is missing or wrong.
 
-### References
+## References
 
 Load only what is needed:
 
 - `references/pr-and-backlinks.md` for Git/GitHub PR commands, PM task URL resolution, and backlink updates.
+
+## Workflow
 
 ### Repository Selection
 
@@ -80,7 +80,7 @@ For each selected repository:
 
 ## Expected Response Format
 
-### Final Response
+### Response
 
 Return this only after `review-pr` finishes or if PR creation/backlinking is blocked.
 
@@ -99,13 +99,3 @@ Review:
 Next:
 <exact next step>
 ```
-
-## Checklist
-
-- [ ] Repository set resolved from current repo and matching child repo branches.
-- [ ] Branch names parsed as `<pm-tool>/<task-ids>`.
-- [ ] PM task URLs resolved.
-- [ ] Draft PRs created with minimal PM task links in the body.
-- [ ] PR URLs written back to PM tasks.
-- [ ] PR body and backlinks verified.
-- [ ] `review-pr` run immediately after successful PR creation.

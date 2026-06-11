@@ -35,9 +35,7 @@ flowchart TD
   J --> K[Run post-merge cleanup]
 ```
 
-## Workflow
-
-### Inputs
+## Inputs
 
 Optional:
 
@@ -46,7 +44,7 @@ Optional:
 
 Default to the PR associated with the current branch. In a workspace, include matching child-repository PRs.
 
-### References
+## References
 
 Load only what is needed:
 
@@ -55,6 +53,8 @@ Load only what is needed:
 - `../implement-pm/references/development-rules.md` before judging concrete implementation hygiene, local change safety, checks, and finalization readiness.
 - `references/pr-scoring.md` before assigning any score or verdict. It is the scoring source of truth.
 - `references/merge-finalization.md` only after the verdict is `PROD READY` and the user explicitly approved merge/finalization.
+
+## Workflow
 
 ### Rules
 
@@ -73,14 +73,11 @@ Load only what is needed:
 - Do not merge or close PM tasks unless the verdict is `PROD READY`, local CI passes, required remote checks pass, and the user explicitly approved finalization.
 - After merge and approved PM task actions, run the post-merge cleanup script to switch to the PR base branch, fast-forward pull it, and delete the local merged PR branch.
 - Do not lower the review bar because a PR is small.
-
-## Review Standard
-
-Use `references/pr-scoring.md` as the only scoring source of truth. If it was not loaded, do not assign a score or verdict.
+- Use `references/pr-scoring.md` as the only scoring source of truth. If it was not loaded, do not assign a score or verdict.
 
 ## Expected Response Format
 
-### Final Response
+### Response
 
 ```markdown
 ## Review PR
@@ -107,22 +104,3 @@ Next:
 ```
 
 If there are no findings, write `No blocking or major findings found.`
-
-## Checklist
-
-- [ ] PR set resolved from current branch or explicit input.
-- [ ] Linked PM tasks and prior discussion read.
-- [ ] Serena used for changed files and affected code paths.
-- [ ] `../feed-pm/references/architecture-rules.md` loaded and enforced.
-- [ ] `../implement-pm/references/development-rules.md` loaded and enforced.
-- [ ] Global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` instructions loaded and respected.
-- [ ] `references/pr-scoring.md` loaded before score or verdict.
-- [ ] Governing architecture and reuse expectations identified from instruction files, not code, unless project-specific instructions were missing.
-- [ ] Architecture detail gaps assessed; Exa MCP used when a named architecture was missing, inconsistent, or imprecise.
-- [ ] Duplicated and near-duplicate code standardization opportunities reviewed as a primary concern.
-- [ ] Full local CI suite run for each affected repository.
-- [ ] Security, architecture, reuse, correctness, reliability, and maintainability reviewed.
-- [ ] Score and verdict calculated from concrete production risk.
-- [ ] One concise review posted per PR.
-- [ ] Merge/finalization performed only with explicit approval and passing local CI.
-- [ ] Post-merge cleanup script run after approved merge and PM task actions.
