@@ -18,7 +18,7 @@ PBAW treats the user as the product and architecture authority, and as an experi
 
 ## Skills
 
-- `brainstorm`: analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI to compare handmade and dependency-based approaches before PM planning.
+- `brainstorm`: analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to compare handmade and dependency-based approaches before PM planning.
 - `feed-pm`: analyze the repository with Serena MCP, propose a PM-ready plan, revise it when challenged, create PM tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, then run `review-pr`.
@@ -29,13 +29,17 @@ PBAW treats the user as the product and architecture authority, and as an experi
 
 Required:
 
-- Git.
-- A coding agent that supports skills and, when possible, Plan Mode with question/clarification tools.
-- Serena MCP configured.
-- Exa MCP configured for current technical research.
-- Context7 MCP configured for official dependency and framework documentation.
-- `gh` authenticated for GitHub PRs and Issues when GitHub is used.
-- The PM tool MCP or CLI for Jira, Notion, Linear, or another selected PM system.
+- **Git**, for obvious reasons.
+- **A coding agent** that supports skills and, ideally, plan mode.
+- **Exa MCP** for giving more technical context.
+- **Context7 MCP** for official dependency and framework documentation, in addition to Exa.
+- **gh CLI** for GitHub PRs, issues and external repositories queries.
+- **Repomix MCP** to gather context from actual GitHub repositories.
+
+Good to have:
+
+- **Serena MCP** for more accurate codebase analysis.
+- Any PM tool MCP or CLI if needed.
 
 ## Installation
 
