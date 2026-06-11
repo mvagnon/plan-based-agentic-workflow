@@ -39,7 +39,8 @@ When rules conflict in a way that changes the task plan or review verdict, surfa
 - Use a shared foundation task only when several surfaces depend on the same schema, contract, token, data model, or reusable primitive.
 - Do not hide frontend, backend, or devops implementation inside a shared task.
 - Do not introduce new dependencies, broad abstractions, broad rewrites, hidden behavior, or unrelated refactors as part of planning or review approval.
-- Minimize total implementation lines. Prefer small concessions in optional behavior, polish, generality, or configurability when they avoid a much larger diff without violating explicit requirements, security, or documented architecture.
+- Minimize net new implementation lines. Prefer plans with fewer added lines after accounting for deleted lines, and prefer deletion, reuse, or extension over adding parallel code.
+- Surface small concessions in optional behavior, polish, generality, or configurability when they avoid a much larger diff without violating explicit requirements, security, or documented architecture; require user approval before depending on those concessions.
 - Treat one line of code as one potential maintenance debt when choosing between otherwise valid plans.
 
 ## Frontend Architecture
@@ -70,5 +71,5 @@ When rules conflict in a way that changes the task plan or review verdict, surfa
 - For `review-pr`, judge architecture from governing instructions and these rules; use code to verify compliance, not to lower the bar.
 - Treat duplication in changed code as a bug, including near-duplicate files or components that should become one component with variants.
 - Treat missed reuse, duplicated business logic, duplicated validation, duplicated permission checks, or duplicated data transformations as blockers when they affect changed code.
-- For `feed-pm`, include the smallest coherent file impact and the reuse or concession that keeps the implementation compact.
+- For `feed-pm`, include the smallest coherent file impact, expected added/deleted file impact, and any reuse or user-approved concession that keeps the implementation compact.
 - Do not plan new tests, new test files, or test-writing work unless the user explicitly requested tests.

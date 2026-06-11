@@ -15,6 +15,7 @@ The review is strict on:
 - declared architecture boundaries and dependency direction from governing project instruction files;
 - reuse of existing business logic, validators, schemas, services, components, and design-system primitives;
 - duplicated and near-duplicate code that should be standardized, including close UI components that should become one component with variants.
+- avoidable net line growth, especially when deletion, reuse, or a small user-approved concession could satisfy the same scope with far fewer added lines.
 
 Local CI passing is mandatory for `PROD READY`, merge, and PM task closure.
 
@@ -66,6 +67,7 @@ Load only what is needed:
 - For architecture review, use the governing instruction files as the source of truth, not the code. Use code only to verify compliance, unless project-specific instruction files are missing.
 - When architecture instructions name an architecture but details are missing, inconsistent, or imprecise, use Exa MCP to research best practices for that same architecture and stack before judging the PR.
 - Treat duplication in changed code as a bug, including duplicated business logic, validation, permission logic, transformations, services, hooks, schemas, utilities, and near-duplicate components that should be variants.
+- Review added lines relative to deleted lines. Treat avoidable large net additions as maintainability findings when a smaller reuse/deletion path or small user-approved concession would preserve the PM scope.
 - Read linked PM tasks before judging scope coverage.
 - Read previous comments, reviews, and threads before posting new feedback.
 - Run the full local CI suite for each affected repository before posting the final review.

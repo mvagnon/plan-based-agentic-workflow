@@ -15,7 +15,7 @@ Use this skill to produce a repository-grounded recommendation with:
 - one external dependency approach when a credible dependency exists;
 - one recommendation with assumptions, risks, and next step.
 
-Treat lines of code as future maintenance cost. Prefer a small concession in scope, polish, generality, or configurability when it can reduce the diff by hundreds of lines without violating the user's core goal, security, or documented architecture.
+Treat lines of code as future maintenance cost. Prefer approaches with the fewest added lines after accounting for deleted lines. When a small concession in scope, polish, generality, or configurability can reduce the diff by hundreds of added lines without violating the user's core goal, security, or documented architecture, present it as a user decision to approve.
 
 This skill does not write code, create PM tasks, open PRs, or mutate external systems.
 
@@ -58,7 +58,7 @@ Gather the following inputs using user's prompt.
 - preferred approach (optional, default to _both_):
   - handmade
   - external dependency
-- line budget, acceptable concessions, or non-negotiable behavior (optional)
+- line budget, acceptable concessions, or non-negotiable behavior (optional; concessions still need explicit user approval when they change behavior or scope)
 
 Also, while working, ask for as many questions as you need with a clear goal in mind: give a precise, efficient answer.
 
@@ -127,7 +127,7 @@ Include:
 - likely implementation path;
 - existing code to reuse or extend;
 - expected files, modules, or owner folders touched;
-- expected diff size and any small concessions that keep the implementation compact;
+- expected added/deleted line impact and any small concessions that could keep the implementation compact if the user approves them;
 - data model and API impact;
 - security and authorization implications;
 - operational and maintenance cost;
@@ -144,7 +144,7 @@ Include:
 - why it fits the requested integration;
 - integration path in this repository;
 - API fit with existing code;
-- expected glue-code size and whether the dependency avoids a larger handmade diff;
+- expected glue-code additions/deletions and whether the dependency avoids a larger handmade diff;
 - maintenance, license, and release signals;
 - bundle, runtime, deployment, or operational impact;
 - security and supply-chain implications;
@@ -164,7 +164,7 @@ Base the recommendation on:
 - Context7 official docs;
 - GitHub repository evidence from `gh`;
 - the rubric in `references/recommendation-rubric.md`.
-- the smallest coherent diff, including acceptable concessions that reduce implementation lines.
+- the smallest coherent diff, including concessions that could reduce implementation lines if the user approves them.
 
 End with three next-step options only:
 
@@ -235,7 +235,7 @@ Risks:
 | Fit with repo | <assessment> | <assessment>        |
 | Complexity    | <assessment> | <assessment>        |
 | Maintenance   | <assessment> | <assessment>        |
-| Diff size     | <assessment> | <assessment>        |
+| Net additions | <assessment> | <assessment>        |
 | Security      | <assessment> | <assessment>        |
 | Lock-in       | <assessment> | <assessment>        |
 | Time to ship  | <assessment> | <assessment>        |
@@ -250,6 +250,10 @@ Confidence:
 What would change this:
 
 - <evidence that would change the recommendation>
+
+Concessions to approve:
+
+- <small concession that would materially reduce added lines, or "None">
 
 Next steps:
 

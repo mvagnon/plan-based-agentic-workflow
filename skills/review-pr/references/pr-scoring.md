@@ -73,7 +73,7 @@ Calculate the category score, then apply automatic caps:
 
 - Maintainability and local style: `0-1`
   - `1`: code is simple, readable, named consistently, and fits local conventions.
-  - `0`: avoidable complexity, unclear naming, dead code, weak typing, or inconsistent local style.
+  - `0`: avoidable complexity, unclear naming, dead code, weak typing, inconsistent local style, or large avoidable net additions where deletion, reuse, or a small user-approved concession would preserve scope with much less code.
 
 ## Verdicts
 
@@ -93,4 +93,5 @@ Before awarding architecture/reuse points:
 - use Exa MCP for missing, inconsistent, or imprecise details of a named architecture;
 - verify existing owners before accepting new logic, components, schemas, services, hooks, or utilities;
 - search for near-duplicates when the PR adds a component, hook, service, validator, schema, utility, or business rule;
+- compare added lines to deleted lines and challenge large avoidable net additions when a smaller reuse/deletion path or user-approved concession would preserve the PM scope;
 - report duplication as a finding when it appears in changed code.

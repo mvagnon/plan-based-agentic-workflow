@@ -19,7 +19,7 @@ Never create PM tasks before explicit user approval of the proposed plan.
 
 Do not plan new tests, new test files, or test-writing tasks unless the user explicitly requested tests. Verification should use existing checks or review points by default.
 
-Treat lines of code as future maintenance cost. Prefer the smallest coherent diff, and accept small implementation or product concessions when they remove hundreds of lines without violating the requested outcome, security, or documented architecture.
+Treat lines of code as future maintenance cost. Prefer the smallest coherent diff, especially the fewest added lines after accounting for deleted lines. Propose small implementation or product concessions when they can remove hundreds of added lines without violating the requested outcome, security, or documented architecture, but wait for user approval before relying on those concessions.
 
 Treat the user as the product and architecture authority, and as an experienced software engineer/architect.
 
@@ -112,7 +112,7 @@ Do not add repeated approval loops. Ask the focused question set, ask follow-up 
 
 Treat duplication as a primary decomposition concern. Detect duplicated code and near-duplicate code that should be standardized, such as two close React components that should become one component with variants.
 
-Minimize total implementation lines, not just task count. Prefer reusing or extending existing owners over creating new abstractions. A small concession in polish, generality, configuration, or optional behavior is acceptable when it removes a large diff and does not break the requested outcome.
+Minimize net new implementation lines, not just task count. Prefer reusing, deleting, or extending existing owners over creating new abstractions. When a small concession in polish, generality, configuration, or optional behavior could remove many added lines, surface that concession for explicit user approval before making it part of the plan.
 
 Do not force tasks to have equal size. Uneven tasks are correct when engineering boundaries are uneven.
 
@@ -173,7 +173,7 @@ Assumptions:
 - <assumption or "None">
 
 Minimal diff strategy:
-<how the task split avoids unnecessary lines, duplication, and new abstractions>
+<how the task split minimizes added lines relative to deleted lines, avoids duplication, and lists any concession needing user approval>
 
 Tasks to create:
 

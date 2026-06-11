@@ -11,8 +11,8 @@ User intent fit:
 Repository fit:
 Architecture fit:
 Reuse of existing code:
-Estimated implementation lines:
-Small acceptable concessions:
+Net added lines after deletions:
+Small concessions requiring approval:
 Implementation complexity:
 Data model impact:
 Security and privacy risk:
@@ -31,7 +31,7 @@ Prefer handmade when:
 
 - the required behavior is narrow and close to existing code;
 - the repository already has primitives that cover most of the feature;
-- the handmade path can stay small by reusing existing owners and avoiding broad abstractions;
+- the handmade path can stay small by deleting, reusing, or extending existing owners and avoiding broad abstractions;
 - dependency APIs would force architecture drift;
 - security, privacy, or data ownership risk is high;
 - the external package is stale, broad, poorly licensed, or difficult to remove.
@@ -48,8 +48,9 @@ Prefer an external dependency when:
 Prefer the smaller coherent diff when:
 
 - both approaches satisfy the user's core goal;
-- the smaller approach only requires minor concessions in optional behavior, polish, configurability, or generality;
+- the smaller approach only requires minor user-approved concessions in optional behavior, polish, configurability, or generality;
 - those concessions avoid large amounts of code and do not violate documented architecture, security, data ownership, or explicit non-goals.
+- the reduction is primarily fewer added lines after accounting for deleted lines, not just fewer files or tasks.
 
 Prefer a prototype before final decision when:
 

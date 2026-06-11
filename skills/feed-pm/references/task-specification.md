@@ -41,7 +41,7 @@ Expected deleted files:
 
 - Owner area: <folder/layer/component/service>
 - Reuse: <existing service/schema/component/hook/validator/pattern>
-- Minimal diff: <reuse, simplification, or small concession that avoids unnecessary lines>
+- Minimal diff: <reuse, deletion, simplification, or user-approved concession that minimizes added lines relative to deleted lines>
 - Constraints: <architecture, validation, auth, data, migration, or compatibility constraint>
 
 ## Acceptance Criteria
@@ -70,7 +70,7 @@ Use the task summary as the fastest engineering read.
 - Use a one-sentence technical readout by default.
 - Use a compact plain-text diagram only when ownership, data flow, sequence, dependencies, or state transitions are clearer visually.
 - Match the task language to the language the user used to describe the requested work. Keep paths, commands, identifiers, APIs, and product names literal.
-- Include the smallest coherent file impact. Prefer reuse or a small concession when it removes large amounts of code without breaking explicit requirements.
+- Include the smallest coherent file impact. Prefer reuse, deletion, or a small user-approved concession when it removes large amounts of added code without breaking explicit requirements.
 
 ## Split Rules
 
@@ -108,4 +108,4 @@ Do not use merging to hide frontend, backend, or devops work in the same PM task
 - Titles are action-oriented: `<verb> <scoped technical outcome>`.
 - Verification references existing checks unless the user explicitly requested new tests.
 - Task scope does not include new tests, new test files, or test-writing work unless the user explicitly requested tests.
-- Implementation notes explain how the task avoids unnecessary lines or duplicated code.
+- Implementation notes explain how the task minimizes added lines relative to deleted lines and avoids duplicated code.

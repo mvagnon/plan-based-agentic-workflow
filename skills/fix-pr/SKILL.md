@@ -67,6 +67,7 @@ Load only what is needed:
 - Group duplicate feedback into one fix, but map every conversation to a reply, resolution, or no-change reason.
 - Reuse existing code, schemas, services, validators, components, hooks, and design-system primitives.
 - Do not add dependencies, logs, broad refactors, unrelated cleanup, or new tests by default.
+- Minimize added lines relative to deleted lines in every remediation. Prefer deletion, reuse, and extension; if a small concession would reduce added lines substantially, include it in the remediation plan and wait for explicit user approval.
 - Do not merge, mark PRs ready, close PM tasks, or update PM status.
 - Reply to each handled thread with what changed, the commit SHA when available, and the checks run.
 
@@ -80,7 +81,7 @@ For every remediation plan:
 2. Use the runner-native question or clarification tool when available for decisions that materially change the fix.
 3. If no question or clarification tool is available, use PR feedback, repository evidence, and the approved PM scope as the source of truth.
 4. Include all fixes, explicit non-fixes, assumptions, checks, and PR reply handling.
-5. Wait for explicit user approval before editing.
+5. Include any concession that would materially reduce added lines, and wait for explicit user approval before editing.
 
 When the user challenges the remediation plan:
 
@@ -120,6 +121,10 @@ Leave unchanged:
 Checks:
 
 - `<command>`
+
+Diff discipline:
+
+- <how remediation minimizes added lines relative to deleted lines, or concession needing approval>
 
 PR replies:
 

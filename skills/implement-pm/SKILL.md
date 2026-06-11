@@ -73,6 +73,7 @@ $pm_tool/$task_ids
 - Preserve unrelated local work. Do not stash, reset, delete, unstage, or commit unrelated changes unless explicitly requested.
 - Do not create PRs, PR descriptions, PM backlinks, review comments, or PM status updates.
 - Do not add dependencies, logs, broad refactors, or new tests by default.
+- During implementation and final diff review, minimize added lines relative to deleted lines. Prefer deletion, reuse, and extension over parallel code; if a small product or implementation concession would materially reduce added lines, stop and ask for user approval before taking it.
 - Use the repository's existing check commands that are relevant to the touched area.
 
 ## Expected Response Format
@@ -96,6 +97,10 @@ Checks:
 Remaining:
 
 - <risk/blocker or "none">
+
+Diff discipline:
+
+- <how added lines were minimized relative to deleted lines, or concession approval needed>
 
 Next:
 `create-pr`

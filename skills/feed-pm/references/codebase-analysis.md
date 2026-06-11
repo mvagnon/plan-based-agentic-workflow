@@ -26,7 +26,7 @@ Capture only what affects task boundaries:
 - dependency direction and package boundaries;
 - public API, data model, migration, authorization, validation, and rollout constraints;
 - expected new, modified, and deleted files for each task, using exact paths when discoverable and owner folders otherwise;
-- the smallest coherent file impact, including reuse opportunities and small concessions that avoid unnecessary lines;
+- the smallest coherent file impact, including expected added/deleted line pressure, reuse opportunities, and small concessions that could avoid unnecessary added lines if the user approves them;
 - frontend, backend, and devops surfaces touched by the request;
 - existing check commands from scripts, task runners, CI config, or project instructions;
 - product or architecture uncertainty that is not discoverable from code.
