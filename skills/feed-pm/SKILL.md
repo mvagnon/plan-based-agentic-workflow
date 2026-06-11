@@ -7,11 +7,11 @@ description: "Use this skill when the user wants to turn a product request, feat
 
 ## Summary
 
-Turn one product or engineering request into a repository-grounded implementation plan and PM tasks.
+Turn one product or engineering request into a repository-grounded Technical Roadmap and execution-ready PM tasks.
 
 The input must include the requested outcome and a few implementation details. If those details are missing or too vague, ask for them before drafting tasks.
 
-Plan Mode is recommended because it gives the model room to explore the repository, ask targeted questions, preserve context, and revise the task split before mutating the PM system.
+Plan Mode is recommended because it gives the model room to explore the repository, ask targeted questions, preserve context, review the Technical Roadmap, and revise the task split before mutating the PM system.
 
 Always ask focused questions while preparing the plan. Use questions to improve project fit, implementation precision, data model/API choices, UX behavior, security posture, PM targeting, and blocker handling.
 
@@ -34,8 +34,8 @@ flowchart TD
   D --> E[Analyze repository with Serena]
   E --> F[Build responsibility map and file impact]
   F --> G[Ask targeted quality questions]
-  G --> H[Draft minimal-diff task plan]
-  H --> I[Show PM target, assumptions, tasks, and verification]
+  G --> H[Draft roadmap and execution contracts]
+  H --> I[Show Mermaid summary, roadmap, and task previews]
   I --> J{User response}
   J -->|Challenge plan| K[Recover prior plan and revise only changed points]
   K --> I
@@ -70,9 +70,10 @@ Load only the references needed for the current PM tool and request:
 
 - `references/architecture-rules.md` before task decomposition.
 - `references/codebase-analysis.md` for Serena exploration.
-- `references/task-specification.md` for concise PM task bodies.
+- `references/task-specification.md` for execution-ready PM task bodies.
 - `references/pm-tools.md` for PM discovery and item creation commands.
 - `references/direct-implementation.md` when direct implementation is selected.
+- `mermaid-diagrams` skill only for one compact Mermaid summary in the pre-approval Technical Roadmap.
 
 ## Workflow
 
@@ -110,7 +111,7 @@ Prioritize questions that materially improve the task plan:
 
 Do not add repeated approval loops. Ask the focused question set, ask follow-up questions only for blockers, then present the complete plan for approval or challenge.
 
-### Decompose Tasks
+### Build The Roadmap And Task Contracts
 
 Treat duplication as a primary decomposition concern. Detect duplicated code and near-duplicate code that should be standardized, such as two close React components that should become one component with variants.
 
@@ -125,6 +126,12 @@ Keep shared contracts, schemas, tokens, or foundations in their own task only wh
 Do not create duplicate tasks for the same business rule, validator, component, or workflow.
 
 Do not invent labels, statuses, assignees, milestones, project fields, or PM schema values.
+
+Before asking for approval, present a Technical Roadmap for the whole task set. It must include one compact Mermaid diagram at the top as the roadmap summary, then prose sections for implementation sequence, ownership boundaries, data/API/interface impact, risks, concessions requiring approval, and verification strategy.
+
+Use `mermaid-diagrams` only for the pre-approval roadmap summary. Do not require Mermaid inside generated PM task bodies.
+
+After the roadmap, show task previews. Each preview should summarize the execution contract that will be created in the PM item: implementation objective, owner and reuse path, expected file impact, interfaces/data flow, implementation steps, edge cases, external dependencies, acceptance criteria, verification, and task dependencies.
 
 Do not include new tests, test files, test tasks, or test-writing acceptance criteria unless the user explicitly requested tests. Verification should reference existing lint, typecheck, test, build, or review commands when they already exist.
 
@@ -146,7 +153,7 @@ After explicit user approval:
 1. Reconfirm the approved plan in memory before mutating the PM system.
 2. Create one PM item per task in dependency order.
 3. Include task dependencies using native PM relationships when safely available; otherwise include dependency URLs in the task body.
-4. Include a compact task summary with expected new, modified, and deleted files plus either a one-sentence technical readout or a compact plain-text diagram.
+4. Create each PM item as an execution contract using `references/task-specification.md`; the task body must be precise enough for an LLM to implement without re-planning the whole roadmap.
 5. Return a short recap with task URLs and the next `implement-pm` request details.
 
 If the user refuses creation, challenges the plan, changes the scope so much that the task set is invalid, or the PM target is unsafe to mutate, do not create tasks. Revise the plan or report the blocker as appropriate.
@@ -163,7 +170,7 @@ Then follow `references/direct-implementation.md` from the approved plan.
 
 Use this shape for planning, task creation, or direct implementation handoff:
 
-```markdown
+````markdown
 ## Feed PM
 
 PM tool: <tool>
@@ -173,6 +180,21 @@ Direct branch command: `skills/implement-pm/scripts/create-pm-branch.sh "direct"
 Summary:
 <brief technical summary of the requested work>
 
+Roadmap summary:
+
+```mermaid
+<compact flowchart, sequence diagram, or dependency graph summarizing the roadmap>
+```
+
+Technical Roadmap:
+
+- Implementation sequence: <ordered technical sequence across tasks>
+- Ownership boundaries: <owner areas and responsibility split>
+- Data/API/interface impact: <schemas, contracts, APIs, UI states, or "None">
+- Minimal diff strategy: <reuse, deletion, simplification, and concessions needing approval>
+- Risks and blockers: <risk or "None">
+- Verification strategy: <existing checks or review points; no new tests unless explicitly requested>
+
 Implementation details used:
 
 - <detail or constraint from the user/repository>
@@ -181,13 +203,14 @@ Assumptions:
 
 - <assumption or "None">
 
-Minimal diff strategy:
-<how the task split minimizes added lines relative to deleted lines, avoids duplication, and lists any concession needing user approval>
+Concessions needing approval:
 
-Tasks to create:
+- <concession or "None">
 
-- <task title 1> - <frontend|backend|devops|shared> - <one-line technical summary>
-- <task title 2> - <frontend|backend|devops|shared> - <one-line technical summary>
+Task previews:
+
+- <task title 1> - <frontend|backend|devops|shared> - <implementation objective, owner/reuse path, expected file impact, external dependencies, verification>
+- <task title 2> - <frontend|backend|devops|shared> - <implementation objective, owner/reuse path, expected file impact, external dependencies, verification>
 
 Dependency order:
 
@@ -206,4 +229,4 @@ Next:
 - Challenge the proposed plan
 - Add the tasks in the PM tool
 - Proceed directly with the implementation
-```
+````

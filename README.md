@@ -19,7 +19,7 @@ PBAW treats the user as the product and architecture authority, and as an experi
 ## Skills
 
 - `brainstorm`: ask targeted questions, analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to resolve complex technical decisions before PM planning or direct implementation.
-- `feed-pm`: analyze the repository with Serena MCP, propose a PM-ready plan, revise it when challenged, create PM tasks after explicit approval, then recap.
+- `feed-pm`: analyze the repository with Serena MCP, propose a Technical Roadmap with task previews, revise it when challenged, create execution-ready PM tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, then run `review-pr`.
 - `review-pr`: perform a strict production-readiness review with mandatory full local CI.
@@ -125,7 +125,7 @@ That workflow favors tests for user journeys and product flows rather than fragi
 ## Safety Rules
 
 - `brainstorm` can ask targeted clarification questions. It does not write code, create PM tasks, open PRs, or mutate external systems.
-- `feed-pm` proposes a complete plan first, preserves it when challenged, and creates PM tasks only after explicit approval.
+- `feed-pm` proposes a complete Technical Roadmap first, preserves it when challenged, and creates execution-ready PM tasks only after explicit approval.
 - `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, with explicit `direct/<scope-slug>` branch arguments and without invoking `implement-pm`.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - The branch script creates or switches to the target branch and pushes it immediately. It does not stash, reset, or clean local work; inspect the worktree first when unrelated local changes matter.

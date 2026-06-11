@@ -1,13 +1,26 @@
 # Task Specification Reference
 
-Use this reference to create concise PM task bodies. The PM item itself is the durable source of truth.
+Use this reference to create PM task bodies as execution contracts. The PM item itself is the durable source of truth for the implementer.
 
-## Task Body Template
+## Execution Contract Template
 
 ```markdown
 ## Summary
 
-<One-sentence technical readout OR a compact plain-text diagram when that is faster to scan.>
+<One-sentence technical readout of the task and its role in the roadmap.>
+
+## Implementation Objective
+
+<The exact technical outcome this task must deliver.>
+
+## Owner Area And Reuse
+
+- Owner area: <folder/layer/component/service>
+- Reuse: <existing service/schema/component/hook/validator/pattern>
+- Minimal diff: <reuse, deletion, simplification, or user-approved concession that minimizes added lines relative to deleted lines>
+- Constraints: <architecture, validation, auth, data, migration, compatibility, or design-system constraint>
+
+## Expected File Impact
 
 Expected new files:
 
@@ -24,25 +37,28 @@ Expected deleted files:
 - `<path>` - <reason>
 - None expected
 
-## Outcome
+## Interfaces And Data Flow
 
-<One sentence describing the user/developer-visible result.>
+- Inputs: <API params, props, form fields, events, data sources, or "None">
+- Outputs: <responses, UI states, emitted events, persisted data, or "None">
+- Data flow: <short plain-text flow or "No cross-boundary data flow">
 
-## Scope
+## Implementation Steps
 
-- <included work>
-- <included work>
+1. <concrete implementation step>
+2. <concrete implementation step>
+3. <concrete implementation step>
 
-## Non-Goals
+## Edge Cases / Failure Modes
 
-- <explicitly excluded work, or "None">
+- <case and expected handling, or "None">
 
-## Implementation Notes
+## External Dependencies
 
-- Owner area: <folder/layer/component/service>
-- Reuse: <existing service/schema/component/hook/validator/pattern>
-- Minimal diff: <reuse, deletion, simplification, or user-approved concession that minimizes added lines relative to deleted lines>
-- Constraints: <architecture, validation, auth, data, migration, or compatibility constraint>
+- Dependency: <name, service, package, API, or "None">
+- Why needed: <reason or "N/A">
+- Source/package/API: <identifier or "N/A">
+- Documentation: <Before implementation, use Context7 to read current official documentation, or "N/A">
 
 ## Acceptance Criteria
 
@@ -50,27 +66,28 @@ Expected deleted files:
 - [ ] <observable criterion>
 - [ ] <edge/failure criterion when relevant>
 
+## Verification
+
+- <existing command or review point; do not add new tests unless explicitly requested>
+
 ## Dependencies
 
 - Depends on: <task URL/title or "none">
 - Unblocks: <task URL/title or "none">
-
-## Verification
-
-- <existing command or review point; do not add new tests unless explicitly requested>
 ```
 
-## Summary Rules
+## Contract Rules
 
-Use the task summary as the fastest engineering read.
-
+- Write enough technical detail for an LLM to implement without re-planning the whole roadmap.
+- Keep each task scoped to one primary owner area.
 - Use exact file paths when repository analysis makes them discoverable.
 - Use `<folder>/...` only when the owner area is clear but the exact file cannot be known before implementation.
 - Write "None expected" for empty file categories.
-- Use a one-sentence technical readout by default.
-- Use a compact plain-text diagram only when ownership, data flow, sequence, dependencies, or state transitions are clearer visually.
 - Match the task language to the language the user used to describe the requested work. Keep paths, commands, identifiers, APIs, and product names literal.
 - Include the smallest coherent file impact. Prefer reuse, deletion, or a small user-approved concession when it removes large amounts of added code without breaking explicit requirements.
+- Keep external dependencies inside each relevant task only. Do not add a global dependency section to the PM item set.
+- If a task has no external dependency, write `Dependency: None` and keep the Context7 documentation line only when a dependency exists.
+- Do not include Mermaid in PM task bodies by default. Use ordinary prose or compact plain-text sketches.
 
 ## Split Rules
 
@@ -104,6 +121,9 @@ Do not use merging to hide frontend, backend, or devops work in the same PM task
 - One primary owner area per task.
 - Dependencies are explicit and acyclic.
 - Shared rules, validators, schemas, services, and query keys have one owner.
+- Implementation steps are concrete and ordered.
+- Interfaces and data flow identify the inputs, outputs, and cross-boundary behavior.
+- Edge cases and failure modes are stated when they materially affect implementation.
 - Acceptance criteria are observable.
 - Titles are action-oriented: `<verb> <scoped technical outcome>`.
 - Verification references existing checks unless the user explicitly requested new tests.

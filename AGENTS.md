@@ -26,7 +26,7 @@ Use `## Workflow` as the standard concrete content section for the skill. You ca
 
 Every `SKILL.md` should include a compact `## Diagram` section.
 
-Use Mermaid only for static workflow diagrams inside the skills in this repository. Keep diagrams operational, not decorative:
+For repository skill documentation, use Mermaid only for static workflow diagrams inside the skills in this repository. Keep diagrams operational, not decorative:
 
 - show the major workflow states and decision points;
 - show user decision, clarification, approval, and blocker paths when they affect the workflow;
@@ -34,7 +34,7 @@ Use Mermaid only for static workflow diagrams inside the skills in this reposito
 - keep node labels short enough to scan quickly;
 - update the diagram whenever workflow order, ownership, or stopping behavior changes.
 
-Do not make runtime workflows load `mermaid-diagrams`, and do not push generated PM tasks, PRs, reviews, or comments to use Mermaid by default. PM task bodies may use ordinary prose or compact plain-text sketches when that is the clearest durable spec.
+Do not make runtime workflows load `mermaid-diagrams`, and do not push generated PM tasks, PRs, reviews, or comments to use Mermaid by default. Exception: `feed-pm` may load `mermaid-diagrams` only to add one compact Mermaid summary at the top of the pre-approval Technical Roadmap. PM task bodies should use ordinary prose or compact plain-text sketches when that is the clearest durable spec.
 
 ## Collaboration Model
 
