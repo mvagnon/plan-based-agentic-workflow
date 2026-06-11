@@ -81,84 +81,19 @@ plan-based-agentic-workflow/
 
 ## Workflow
 
-Use this framework as a decision-to-delivery path.
+Use this framework as a decision-to-delivery path:
 
-### 0. Brainstorm The Approach
+1. Brainstorm the approach with `brainstorm` in plan mode.
+2. Create the plan and add the PM tasks with `feed-pm` in plan mode.
+3. Implement the plan in a specific git branch with `implement-pm`.
+4. Create and review the PR with `create-pr`.
+5. "Fix" the PR by implementing previous' step recommendations with `fix-pr` in plan mode.
 
-Use `brainstorm` when the best integration strategy is not settled yet.
+You can also burn some steps if you want to implement fast:
 
-The skill treats the user's request as complete, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and `gh` CLI. It returns one handmade approach, one external-dependency approach when credible, and a recommendation.
-
-At the end, `brainstorm` offers exactly two next steps: invoke `feed-pm` with the recommended strategy, or challenge the strategy.
-
-### 1. Plan And Create PM Tasks
-
-Use `feed-pm` for a product request, bug, refactor, or backlog idea.
-
-Run it in Plan Mode first. The skill resolves the PM target, analyzes the repository with Serena MCP, uses runner-native questions when available, and proposes a complete task plan with PM tool, project, task split, dependencies, and verification.
-
-Challenge the plan until it is correct. Once approved, switch to Build mode and ask `feed-pm` to create the PM tasks.
-
-### 2. Implement PM Tasks
-
-Use `implement-pm <pm-tool> <task-ids>` with the PM system name and exact task IDs created by `feed-pm`.
-
-Example:
-
-```text
-implement-pm jira pp-12-14-15
-```
-
-`implement-pm` first runs:
-
-```bash
-skills/implement-pm/scripts/create-pm-branch.sh <pm-tool> <task-ids>
-```
-
-The script creates and pushes branch:
-
-```text
-<pm-tool>/<task-ids>
-```
-
-Then the skill retrieves the tasks, analyzes the codebase with Serena, implements the work, and stops with a concise report. It does not create PRs or update PM backlinks.
-
-### 3. Create The PR And Run The First Review
-
-Run `create-pr` after implementation.
-
-It reads branch names like:
-
-```text
-jira/pp-12-14-15
-github/123-124
-```
-
-Then it:
-
-1. Resolves PM task URLs.
-2. Creates draft PRs.
-3. Adds PM task URLs to the PR body.
-4. Writes PR URLs back to the PM tasks.
-5. Runs `review-pr` immediately.
-
-PR bodies stay minimal because task bodies are the source of truth.
-
-### 4. Fix Review Issues
-
-If the review finds issues, use `fix-pr`.
-
-Run it in Plan Mode first. The skill collects PR feedback, builds a feedback ledger, inspects the code with Serena MCP, and proposes a complete remediation plan.
-
-Challenge the plan until it is correct. Once approved, switch to Build mode and ask `fix-pr` to apply the fixes, run relevant checks, commit, push, and reply to handled PR conversations.
-
-### 5. Review Again And Merge If Ready
-
-Run `review-pr` again after `fix-pr`, or directly after `create-pr` when the first review had no issues.
-
-`review-pr` performs the production-readiness review on changed code and directly affected paths. It is strict on security, architecture boundaries, code reuse, centralized business logic, correctness, and production regressions.
-
-Local CI is mandatory for `PROD READY`, merge, and PM task closure. If local CI passes and the PR is production-ready, `review-pr` can proceed with merge/finalization according to the repository and PM-tool rules.
+1. Brainstorm or plan the integration with `brainstorm` (large feature) or `feed-pm` (medium-sized feature), in plan mode.
+2. Implement directly without adding tasks to the PM tool.
+3. ...
 
 ## Test Authoring Strategy
 
