@@ -55,29 +55,23 @@ plan-based-agentic-workflow/
 `-- skills/
     |-- brainstorm/
     |   |-- SKILL.md
-    |   |-- agents/
     |   `-- references/
     |-- feed-pm/
     |   |-- SKILL.md
-    |   |-- agents/
     |   `-- references/
     |-- implement-pm/
     |   |-- SKILL.md
-    |   |-- agents/
     |   |-- references/
     |   `-- scripts/
     |       `-- create-pm-branch.sh
     |-- create-pr/
     |   |-- SKILL.md
-    |   |-- agents/
     |   `-- references/
     |-- review-pr/
     |   |-- SKILL.md
-    |   |-- agents/
     |   `-- references/
     `-- fix-pr/
         |-- SKILL.md
-        |-- agents/
         `-- references/
 ```
 

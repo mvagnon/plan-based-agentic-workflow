@@ -4,41 +4,27 @@
 
 Every `skills/<skill-name>/SKILL.md` must keep this shape:
 
-````markdown
+```markdown
 # Skill Name
 
 ## Summary
 
 ## Diagram
 
+## Inputs
+
+## References
+
 ## Workflow
 
-_This part is yours. Use the best structure for the skill._
-
 ## Expected Response Format
-
-### User Decision Or Plan
-
-_Only include this subsection when the skill can stop for a user decision, proposed plan, or clarification._
-
-```markdown
-Expected response format
 ```
 
-### Final Response
-
-```markdown
-Expected response format
-```
-
-## Checklist
-````
-
-Use `## Workflow` as the standard concrete content section for the user's `## ton contenu` slot unless a skill has a clearer domain-specific section name.
+Use `## Workflow` as the standard concrete content section for the skill. You can adapt it depending on the skill being built.
 
 ## Mermaid Diagrams
 
-Every `SKILL.md` should include a compact `## Diagram` section between `## Summary` and `## Workflow`.
+Every `SKILL.md` should include a compact `## Diagram` section.
 
 Use Mermaid only for static workflow diagrams inside the skills in this repository. Keep diagrams operational, not decorative:
 
@@ -67,7 +53,6 @@ Do not make runtime workflows load `mermaid-diagrams`, and do not push generated
 - Keep final response formats concise and task-specific.
 - Do not create tests or logs by default.
 - Quote every `description` value in `SKILL.md` frontmatter. Frontmatter is YAML; unquoted `: ` inside descriptions can make `npx skills add` and `npx skills update` silently skip the skill.
-- Update `agents/openai.yaml` whenever trigger policy or user-facing skill metadata changes.
 
 ## Workflow Rules
 

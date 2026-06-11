@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: "Use this skill when the user wants to brainstorm the best way to integrate a feature, compare implementation strategies, evaluate build-vs-buy, or decide between a handmade in-house implementation and an external dependency before PM task creation or implementation. It treats the user's request as complete, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and gh CLI before returning two approaches and one recommendation."
+description: "Use this skill when the user wants to brainstorm the best way to integrate a feature, compare implementation strategies, evaluate build-vs-buy, or decide between a handmade in-house implementation and an external dependency before PM task creation or implementation. It treats the user's request as complete, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and gh CLI + Repomix before returning two approaches and one recommendation."
 ---
 
 # Brainstorm
@@ -15,18 +15,15 @@ Use this skill to produce a repository-grounded recommendation with:
 - one external dependency approach when a credible dependency exists;
 - one recommendation with assumptions, risks, and next step.
 
-Treat the user's request as exhaustive. Do not ask clarification questions and do not recommend Plan Mode. If evidence is incomplete but the request is safe and actionable, state the assumption or risk and continue.
-
 This skill does not write code, create PM tasks, open PRs, or mutate external systems.
 
 ## Diagram
 
 ```mermaid
 flowchart TD
-  A[User feature or integration idea] --> B[Read request as complete]
-  B --> C[Read repo instructions]
-  C --> D[Analyze repository with Serena]
-  D --> E[Map intent, constraints, and reuse]
+  A[User feature or integration idea] --> B[Understand user's request and goal]
+  B --> C[Analyze repository with Serena]
+  C --> D[Map intent, constraints, and reuse]
   E --> F[Explore broadly with Exa]
   F --> G[Verify official docs with Context7]
   G --> H[Inspect candidate repos with gh CLI]
@@ -39,27 +36,26 @@ flowchart TD
   M --> N[Recommend next step]
 ```
 
-## Workflow
+## Inputs
 
-### Inputs
+Gather the following inputs using user's prompt.
 
-Read the user message as the complete feature, integration, bug, refactor, or technical decision to explore.
+- feature, integration, bug, refactor, or technical decision to explore (blocking)
+- preferred approach (optional, default to _both_):
+  - handmade
+  - external dependency
 
-Do not pause for product clarification, architecture clarification, PM target selection, or Plan Mode. When a choice is not discoverable, continue with an explicit assumption and mark the recommendation confidence accordingly.
+Also, while working, ask for as many questions as you need with a clear goal in mind: give a precise, efficient answer.
 
-Stop only when:
-
-- Serena is unavailable, because repository-grounded brainstorming requires local code intelligence;
-- the request is unsafe or asks for unauthorized access, credential exposure, or harmful behavior;
-- the repository cannot be read.
-
-### References
+## References
 
 Load only the references needed for the current decision:
 
 - `references/repo-analysis.md` for repository and Serena evidence collection.
 - `references/external-research.md` for Exa, Context7, and gh CLI research commands.
 - `references/recommendation-rubric.md` before writing the final comparison and recommendation.
+
+## Workflow
 
 ### Repository Analysis
 
@@ -83,13 +79,29 @@ Use code to understand current implementation and reuse opportunities. Do not in
 
 ### External Research Order
 
-After repository analysis, research from broad to precise:
+After repository analysis, search for useful external resources:
 
-1. Use Exa first to discover current approaches, alternatives, implementation patterns, and risk areas.
-2. Use Context7 next to verify official docs for frameworks, SDKs, APIs, and candidate dependencies.
-3. Use `gh` CLI last to inspect concrete GitHub repositories, release activity, maintenance signals, issues, license, and API fit.
+1. **Use gh CLI first.**
 
-Prefer primary sources. Use secondary sources to discover alternatives or compare tradeoffs, not as the final authority.
+Discover projects that could match the request:
+
+```bash
+gh search repos --language "searched-language" --topic "searched-topic"
+```
+
+Use the following command to understand a repository by reading its `README.md`:
+
+```bash
+gh repo view owner/repo
+```
+
+Then, if user's is interested in the handmade approach, understand implementation patterns using `Repomix` MCP's `pack_remote_repository`, `read_repomix_output` and `grep_repomix_output` tools.
+
+2. **Use Context7 to verify official docs for frameworks, SDKs, APIs, and candidate dependencies.**
+
+I the user is asking for the handmade approach, skip this step.
+
+3. Finally, use `Exa` MCP to enrich the gathered information if needed.
 
 ### Handmade Approach
 
@@ -143,7 +155,7 @@ End with two next-step options only:
 
 ## Expected Response Format
 
-### Final Response
+Adapt depending on user's preferred approach (handmade, external dependency or both).
 
 ```markdown
 ## Brainstorm Recommendation
@@ -155,10 +167,12 @@ User intent:
 <what the user wants, interpreted from the exhaustive request>
 
 Repository context:
+
 - <Serena/repo finding>
 - <constraint or reuse opportunity>
 
 Research checked:
+
 - Exa: <topics or sources checked>
 - Context7: <official docs checked>
 - GitHub: <repos/packages checked with gh CLI>
@@ -168,12 +182,15 @@ Research checked:
 <concrete in-house approach>
 
 Pros:
+
 - <point>
 
 Cons:
+
 - <point>
 
 Risks:
+
 - <point>
 
 ## Approach 2: External Dependency
@@ -181,24 +198,27 @@ Risks:
 <dependency approach, or why no credible dependency exists>
 
 Pros:
+
 - <point>
 
 Cons:
+
 - <point>
 
 Risks:
+
 - <point>
 
 ## Comparison
 
-| Criterion | Handmade | External dependency |
-|---|---|---|
-| Fit with repo | <assessment> | <assessment> |
-| Complexity | <assessment> | <assessment> |
-| Maintenance | <assessment> | <assessment> |
-| Security | <assessment> | <assessment> |
-| Lock-in | <assessment> | <assessment> |
-| Time to ship | <assessment> | <assessment> |
+| Criterion     | Handmade     | External dependency |
+| ------------- | ------------ | ------------------- |
+| Fit with repo | <assessment> | <assessment>        |
+| Complexity    | <assessment> | <assessment>        |
+| Maintenance   | <assessment> | <assessment>        |
+| Security      | <assessment> | <assessment>        |
+| Lock-in       | <assessment> | <assessment>        |
+| Time to ship  | <assessment> | <assessment>        |
 
 ## Recommendation
 
@@ -208,25 +228,12 @@ Confidence:
 <low | medium | high>
 
 What would change this:
+
 - <evidence that would change the recommendation>
 
 Next steps:
+
+- Directly proceed to implementation
 - Invoke `feed-pm`: <suggested feed-pm request using the recommended strategy>
 - Challenge the strategy: <specific angle the user could challenge, such as assumptions, dependency choice, risk tolerance, or scope>
 ```
-
-## Checklist
-
-- [ ] User request treated as complete.
-- [ ] No clarification question or Plan Mode recommendation introduced.
-- [ ] Governing instruction files read.
-- [ ] Serena used before external research.
-- [ ] Existing reuse opportunities and constraints identified.
-- [ ] Architecture gaps stated as risks instead of guessed.
-- [ ] Exa used first for broad current research.
-- [ ] Context7 used second for official docs.
-- [ ] `gh` CLI used third for GitHub repository evidence.
-- [ ] Handmade approach proposed.
-- [ ] External dependency approach proposed or absence justified.
-- [ ] Recommendation includes assumptions, risks, confidence, and exactly two next-step options: invoke `feed-pm` or challenge the strategy.
-- [ ] No code, PM task, PR, or external mutation performed.
