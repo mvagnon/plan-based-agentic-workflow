@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: "Use this skill when the user wants to brainstorm the best way to integrate a feature, compare implementation strategies, evaluate build-vs-buy, or decide between a handmade in-house implementation and an external dependency before PM task creation or implementation. It treats the user's request as complete, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and gh CLI + Repomix before returning two approaches and one recommendation."
+description: "Use this skill when the user wants to brainstorm the best way to integrate a feature, compare implementation strategies, evaluate build-vs-buy, or decide between a handmade in-house implementation and an external dependency before PM task creation or implementation. It understands the user's request, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and gh CLI + Repomix before returning two approaches and one recommendation."
 ---
 
 # Brainstorm
