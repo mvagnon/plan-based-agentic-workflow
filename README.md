@@ -10,7 +10,7 @@
 
 ---
 
-# Plan Based Agentic Workflow
+# Plan-Based Agentic Workflow
 
 Agent Skills for a decision-to-delivery workflow with short skills, Plan Mode-friendly user decisions, and technical references kept out of the main skill body.
 
@@ -18,7 +18,7 @@ PBAW treats the user as the product and architecture authority, and as an experi
 
 ## Skills
 
-- `brainstorm`: analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to compare handmade and dependency-based approaches before PM planning.
+- `brainstorm`: ask targeted questions, analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to resolve complex technical decisions before PM planning or direct implementation.
 - `feed-pm`: analyze the repository with Serena MCP, propose a PM-ready plan, revise it when challenged, create PM tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, then run `review-pr`.
@@ -31,14 +31,14 @@ Required:
 
 - **Git**, for obvious reasons.
 - **A coding agent** that supports skills and, ideally, plan mode.
-- **Exa MCP** for giving more technical context.
+- **Exa MCP** for additional technical context.
 - **Context7 MCP** for official dependency and framework documentation, in addition to Exa.
-- **gh CLI** for GitHub PRs, issues and external repositories queries.
+- **gh CLI** for GitHub PRs, issues, and external repository queries.
 - **Repomix MCP** to gather context from actual GitHub repositories.
+- **Serena MCP** for accurate codebase analysis in PM planning, implementation, PR review, and PR remediation.
 
 Good to have:
 
-- **Serena MCP** for more accurate codebase analysis.
 - Any PM tool MCP or CLI if needed.
 
 ## Installation
@@ -87,13 +87,15 @@ Use this framework as a decision-to-delivery path:
 2. Create the plan and add the PM tasks with `feed-pm` in plan mode.
 3. Implement the plan in a specific git branch with `implement-pm`.
 4. Create and review the PR with `create-pr`.
-5. "Fix" the PR by implementing previous' step recommendations with `fix-pr` in plan mode.
+5. Fix the PR by implementing the previous step's recommendations with `fix-pr` in plan mode.
+6. Review the PR again with `review-pr`; repeat `fix-pr` and `review-pr` until the PR is `PROD READY`.
 
-You can also burn some steps if you want to implement fast:
+You can also skip PM-task creation when you want to implement faster:
 
 1. Brainstorm with `brainstorm` or plan the integration with `feed-pm`, in plan mode.
-2. Implement directly without adding tasks to the PM tool.
-3. ...
+2. Proceed directly with implementation from the approved plan.
+3. Create and review the PR with `create-pr`.
+4. Fix and re-review until the PR is `PROD READY`.
 
 ## Test Authoring Strategy
 
@@ -109,9 +111,10 @@ That workflow favors tests for user journeys and product flows rather than fragi
 
 ## Safety Rules
 
-- `brainstorm` does not write code, create PM tasks, open PRs, mutate external systems, ask clarification questions, or recommend Plan Mode.
+- `brainstorm` can ask targeted clarification questions. It does not write code, create PM tasks, open PRs, or mutate external systems.
 - `feed-pm` proposes a complete plan first, preserves it when challenged, and creates PM tasks only after explicit approval.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
+- The branch script creates or switches to the target branch and pushes it immediately. It does not stash, reset, or clean local work; inspect the worktree first when unrelated local changes matter.
 - `create-pr` creates draft PRs and PM backlinks, then runs `review-pr`.
 - `review-pr` does not implement fixes and cannot merge or close PM tasks without passing local CI and explicit approval.
 - `fix-pr` does not merge, mark PRs ready, close PM tasks, or update PM status.

@@ -52,7 +52,7 @@ flowchart TD
 
 ## Inputs
 
-Gather the following inputs using user's prompt.
+Gather the following inputs using the user's prompt.
 
 - feature, integration, bug, refactor, or technical decision to explore (blocking)
 - preferred approach (optional, default to _both_):
@@ -110,11 +110,11 @@ Use the following command to understand a repository by reading its `README.md`:
 gh repo view owner/repo
 ```
 
-Then, if user's is interested in the handmade approach, understand implementation patterns using `Repomix` MCP's `pack_remote_repository`, `read_repomix_output` and `grep_repomix_output` tools.
+Then, if the user is interested in the handmade approach, understand implementation patterns using Repomix MCP's `pack_remote_repository`, `read_repomix_output`, and `grep_repomix_output` tools.
 
 2. **Use Context7 to verify official docs for frameworks, SDKs, APIs, and candidate dependencies.**
 
-If the user is asking for the handmade approach, skip this step.
+If the user only asked for the handmade approach and official framework or dependency docs would not change the decision, skip this step.
 
 3. Finally, use `Exa` MCP to enrich the gathered information if needed.
 
@@ -168,7 +168,7 @@ Base the recommendation on:
 
 End with three next-step options only:
 
-- implement directly the solution;
+- implement the recommended solution directly;
 - invoke `feed-pm` with the recommended strategy when the user accepts the recommendation;
 - challenge the strategy when the user wants to change assumptions, tradeoffs, constraints, or the chosen direction.
 
@@ -257,7 +257,7 @@ Concessions to approve:
 
 Next steps:
 
-- Implement directly one solution
+- Implement the recommended solution directly
 - Invoke `feed-pm`: <suggested feed-pm request using the recommended strategy>
 - Challenge the strategy: <specific angle the user could challenge, such as assumptions, dependency choice, risk tolerance, or scope>
 ```

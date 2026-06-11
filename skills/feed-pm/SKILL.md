@@ -43,7 +43,8 @@ flowchart TD
   L -->|No| M[Stop with blocker recap]
   L -->|Yes| N[Create PM tasks]
   N --> O[Recap task URLs and implement-pm command]
-  J -->|Requests implementation| P[Proceed directly without PM tasks]
+  J -->|Requests implementation| P[Run branch script with explicit args]
+  P --> Q[Proceed directly without PM tasks]
 ```
 
 ## Inputs
@@ -71,6 +72,7 @@ Load only the references needed for the current PM tool and request:
 - `references/codebase-analysis.md` for Serena exploration.
 - `references/task-specification.md` for concise PM task bodies.
 - `references/pm-tools.md` for PM discovery and item creation commands.
+- `../implement-pm/references/development-rules.md` and `../implement-pm/references/implementation-git.md` when direct implementation is selected.
 
 ## Workflow
 
@@ -149,7 +151,13 @@ After explicit user approval:
 
 If the user refuses creation, challenges the plan, changes the scope so much that the task set is invalid, or the PM target is unsafe to mutate, do not create tasks. Revise the plan or report the blocker as appropriate.
 
-If the user asks to proceed directly with implementation, do not create PM tasks. Continue from the approved plan using the runner's normal implementation workflow.
+If the user asks to proceed directly with implementation, do not create PM tasks and do not invoke the `implement-pm` skill. Define explicit branch script arguments in the approved plan, usually `direct` as the first argument and a short scope slug as the second argument. Before editing, run:
+
+```bash
+skills/implement-pm/scripts/create-pm-branch.sh "direct" "<scope-slug>"
+```
+
+Then load `../implement-pm/references/development-rules.md` and continue from the approved plan using the runner's normal implementation workflow.
 
 ## Expected Response Format
 
@@ -160,6 +168,7 @@ Use this shape for planning, task creation, or direct implementation handoff:
 
 PM tool: <tool>
 Project: <project, repository, board, database, or PM target name>
+Direct branch command: `skills/implement-pm/scripts/create-pm-branch.sh "direct" "<scope-slug>"` or "none"
 
 Summary:
 <brief technical summary of the requested work>
