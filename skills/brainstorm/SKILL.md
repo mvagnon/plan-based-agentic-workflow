@@ -21,19 +21,30 @@ This skill does not write code, create PM tasks, open PRs, or mutate external sy
 
 ```mermaid
 flowchart TD
-  A[User feature or integration idea] --> B[Understand user's request and goal]
-  B --> C[Analyze repository with Serena]
-  C --> D[Map intent, constraints, and reuse]
-  E --> F[Explore broadly with Exa]
-  F --> G[Verify official docs with Context7]
-  G --> H[Inspect candidate repos with gh CLI]
-  H --> I[Draft handmade approach]
-  I --> J{Credible dependency?}
-  J -->|Yes| K[Draft dependency approach]
-  J -->|No| L[Explain no credible dependency]
-  K --> M[Compare tradeoffs]
+  A[User decision request] --> B{Goal clear?}
+  B -->|No| C[Ask targeted question]
+  C --> B
+  B -->|Yes| D[Read governing instructions]
+  D --> E{Serena available?}
+  E -->|No| F[Use repo search fallback]
+  E -->|Yes| G[Analyze repo with Serena]
+  F --> H[Map constraints and reuse]
+  G --> H
+  H --> I[Search candidates with gh CLI]
+  I --> J{Handmade requested?}
+  J -->|Yes| K[Inspect patterns with Repomix]
+  J -->|No| L[Skip Repomix]
+  K --> M{Dependency docs needed?}
   L --> M
-  M --> N[Recommend next step]
+  M -->|Yes| N[Verify docs with Context7]
+  M -->|No| O[Skip Context7]
+  N --> P{More research needed?}
+  O --> P
+  P -->|Yes| Q[Enrich with Exa]
+  P -->|No| R[Apply rubric]
+  Q --> R
+  R --> S[Compare approaches]
+  S --> T[Recommend next step]
 ```
 
 ## Inputs
@@ -66,7 +77,7 @@ Read governing global and project-specific instruction files before analyzing im
 - `GEMINI.md`
 - relevant `README.md` files
 
-Use Serena before external research to identify the actual repository context:
+Use Serena when available before external research to identify the actual repository context:
 
 - current implementation surface and likely owner folders;
 - existing modules, services, hooks, components, schemas, validators, clients, routes, commands, integrations, or reusable primitives;

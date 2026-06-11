@@ -4,7 +4,7 @@ Use this reference for repository evidence before external research.
 
 ## Startup
 
-Use Serena as the required code-intelligence layer.
+Use Serena as the preferred code-intelligence layer when available.
 
 Local discovery commands that can support Serena:
 
@@ -23,7 +23,7 @@ GEMINI.md
 README.md
 ```
 
-If Serena is unavailable, stop. Do not produce a repository-grounded recommendation from local text search alone.
+If Serena is unavailable, continue with repository search and clearly lower confidence where code-intelligence evidence would have mattered.
 
 ## Evidence To Capture
 
