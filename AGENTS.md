@@ -69,6 +69,7 @@ After editing skills, run:
 
 ```bash
 bash -n skills/implement-pm/scripts/create-pm-branch.sh
+scripts/validate-skills.sh
 git diff --check
 ```
 

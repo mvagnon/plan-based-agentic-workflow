@@ -56,6 +56,9 @@ plan-based-agentic-workflow/
 |-- .claude-plugin/
 |   `-- plugin.json
 |-- README.md
+|-- scripts/
+|   |-- validate-skills.py
+|   `-- validate-skills.sh
 `-- skills/
     |-- brainstorm/
     |   |-- SKILL.md
@@ -83,19 +86,29 @@ plan-based-agentic-workflow/
 
 Use this framework as a decision-to-delivery path:
 
-1. Brainstorm the approach with `brainstorm` in plan mode.
-2. Create the plan and add the PM tasks with `feed-pm` in plan mode.
+1. Brainstorm the approach with `brainstorm` in **plan mode**.
+2. Create the plan and add the PM tasks with `feed-pm` in **plan mode**.
 3. Implement the plan in a specific git branch with `implement-pm`.
 4. Create and review the PR with `create-pr`.
-5. Fix the PR by implementing the previous step's recommendations with `fix-pr` in plan mode.
+5. Fix the PR by implementing the previous step's recommendations with `fix-pr` in **plan mode**.
 6. Review the PR again with `review-pr`; repeat `fix-pr` and `review-pr` until the PR is `PROD READY`.
 
 You can also skip PM-task creation when you want to implement faster:
 
-1. Brainstorm with `brainstorm` or plan the integration with `feed-pm`, in plan mode.
+1. Brainstorm with `brainstorm` or plan the integration with `feed-pm`, in **plan mode**.
 2. Proceed directly with implementation from the approved plan.
 3. Create and review the PR with `create-pr`.
 4. Fix and re-review until the PR is `PROD READY`.
+
+## Validation
+
+After editing skills, validate the skill shape and local references:
+
+```bash
+scripts/validate-skills.sh
+```
+
+The validator checks frontmatter descriptions, required `SKILL.md` headings, Mermaid diagrams, fenced code blocks, and local files referenced from each `## References` section.
 
 ## Test Authoring Strategy
 
@@ -113,6 +126,7 @@ That workflow favors tests for user journeys and product flows rather than fragi
 
 - `brainstorm` can ask targeted clarification questions. It does not write code, create PM tasks, open PRs, or mutate external systems.
 - `feed-pm` proposes a complete plan first, preserves it when challenged, and creates PM tasks only after explicit approval.
+- `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, with explicit `direct/<scope-slug>` branch arguments and without invoking `implement-pm`.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - The branch script creates or switches to the target branch and pushes it immediately. It does not stash, reset, or clean local work; inspect the worktree first when unrelated local changes matter.
 - `create-pr` creates draft PRs and PM backlinks, then runs `review-pr`.
