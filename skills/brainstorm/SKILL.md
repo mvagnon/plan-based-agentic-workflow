@@ -36,15 +36,13 @@ flowchart TD
   I --> J{Handmade requested?}
   J -->|Yes| K[Inspect patterns with Repomix]
   J -->|No| L[Skip Repomix]
-  K --> M{Dependency docs needed?}
+  K --> M[Enrich with Exa]
   L --> M
-  M -->|Yes| N[Verify docs with Context7]
-  M -->|No| O[Skip Context7]
-  N --> P{More research needed?}
-  O --> P
-  P -->|Yes| Q[Enrich with Exa]
-  P -->|No| R[Apply rubric]
-  Q --> R
+  M --> N{Docs verification needed?}
+  N -->|Yes| O[Verify docs with Context7]
+  N -->|No| P[Skip Context7]
+  O --> R[Apply rubric]
+  P --> R
   R --> S[Compare approaches]
   S --> T[Prefer smallest coherent diff]
   T --> U[Recommend next step]
@@ -112,11 +110,13 @@ gh repo view owner/repo
 
 Then, if the user is interested in the handmade approach, understand implementation patterns using Repomix MCP's `pack_remote_repository`, `read_repomix_output`, and `grep_repomix_output` tools.
 
-2. **Use Context7 to verify official docs for frameworks, SDKs, APIs, and candidate dependencies.**
+2. **Use `Exa` MCP to enrich gathered information and search implementation practices through the web (forums, etc.).**
+
+Exemple: `How to implement x in y with z`.
+
+3. **Finally, use Context7 to verify official docs for frameworks, SDKs, APIs, and candidate dependencies.**
 
 If the user only asked for the handmade approach and official framework or dependency docs would not change the decision, skip this step.
-
-3. Finally, use `Exa` MCP to enrich the gathered information if needed.
 
 ### Handmade Approach
 
