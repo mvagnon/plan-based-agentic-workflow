@@ -226,7 +226,5 @@ Result:
 
 Next:
 
-- Challenge the proposed plan
-- Add the tasks in the PM tool
-- Proceed directly with the implementation
+<Challenge the proposed plan | Add the tasks in the PM tool | Proceed directly with the implementation>
 ````

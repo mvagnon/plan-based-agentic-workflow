@@ -88,14 +88,14 @@ Return this only after `review-pr` finishes or if PR creation/backlinking is blo
 ## Create PR
 
 Created:
+
 - <repo path>: <draft PR URL>
 
 PM tasks:
+
 - <task id/title>: <task URL> - backlink <verified|blocked>
 
 Review:
-- <review-pr verdict or blocker>
 
-Next:
-<exact next step>
+- <review-pr verdict or blocker>
 ```

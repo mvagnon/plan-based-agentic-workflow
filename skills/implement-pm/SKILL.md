@@ -103,5 +103,6 @@ Diff discipline:
 - <how added lines were minimized relative to deleted lines, or concession approval needed>
 
 Next:
-`create-pr`
+
+<Run `create-pr`>
 ```

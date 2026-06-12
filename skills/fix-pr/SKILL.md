@@ -138,5 +138,5 @@ Result:
 <Remediation plan awaiting approval | Applied focused fixes | Blocked or not changed>
 
 Next:
-<approve remediation | `review-pr` | exact blocker action>
+<Approve remediation | Challenge plan>
 ```

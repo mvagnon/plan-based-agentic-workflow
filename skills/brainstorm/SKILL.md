@@ -255,9 +255,7 @@ Concessions to approve:
 
 - <small concession that would materially reduce added lines, or "None">
 
-Next steps:
+Next:
 
-- Implement the recommended solution directly
-- Invoke `feed-pm`: <suggested feed-pm request using the recommended strategy>
-- Challenge the strategy: <specific angle the user could challenge, such as assumptions, dependency choice, risk tolerance, or scope>
+<Implement the recommended solution directly | Invoke `feed-pm` | Challenge the strategy>
 ```

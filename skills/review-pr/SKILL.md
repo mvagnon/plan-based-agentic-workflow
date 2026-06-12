@@ -90,19 +90,23 @@ Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
 Architecture basis: <instruction files, inferred, or Exa-backed details>
 
 Findings:
+
 - <severity> - <file:line or area> - <impact and required fix>
 
 Checks:
+
 - `<command>`: <passed|failed|not run> - <short note>
 
 PR updates:
+
 - <review/comment/body/ready/finalization action>
 
 Finalization:
+
 - <merge/PM closure result, approval needed, or blocker>
 
 Next:
-<exact next step, usually `fix-pr` or explicit merge approval>
+<Run `fix-pr` | Explicit merge approval (if PROD READY)>
 ```
 
 If there are no findings, write `No blocking or major findings found.`
