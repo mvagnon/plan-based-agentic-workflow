@@ -43,16 +43,10 @@ Direct implementation path when PM tasks are unnecessary:
 ```mermaid
 flowchart TD
     A([Approved strategy or roadmap]) --> B["$feed-pm direct implementation path<br/>No PM task creation"]
-    B --> C["Define explicit branch arguments<br/>direct/&lt;scope-slug&gt;"]
-    C --> D["Run branch script"]
-    D --> E["Implement from the approved plan"]
-    E --> F["Clear or compact context"]
-    F --> G["$create-pr"]
-    G --> H["$review-pr"]
-    H --> I{"PROD READY?"}
-    I -->|No| J["$fix-pr"]
-    J --> H
-    I -->|Yes| K([Ready for user-approved finalization])
+    B --> C["Implement on current branch/worktree<br/>No automatic branch creation"]
+    C --> D["Run relevant existing checks"]
+    D --> E["Review diff"]
+    E --> F([Report implementation result])
 ```
 
 ## Skills
@@ -154,7 +148,7 @@ That workflow favors tests for user journeys and product flows rather than fragi
 
 - `brainstorm` can ask targeted clarification questions. It does not write code, create PM tasks, open PRs, or mutate external systems.
 - `feed-pm` proposes a complete Technical Roadmap first, preserves it when challenged, and creates execution-ready PM tasks only after explicit approval.
-- `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, with explicit `direct/<scope-slug>` branch arguments and without invoking `implement-pm`.
+- `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, without creating PM tasks, creating a branch, invoking `implement-pm`, creating a PR, launching `review-pr`, or entering the `fix-pr` loop.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - The branch script creates or switches to the target branch and pushes it immediately. It does not stash, reset, or clean local work; inspect the worktree first when unrelated local changes matter.
 - `create-pr` creates draft PRs and PM backlinks, then runs `review-pr`.

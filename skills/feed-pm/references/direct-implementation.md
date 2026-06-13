@@ -6,45 +6,24 @@ Use this reference only when the user chooses to implement directly from an appr
 
 Direct implementation is not the default path.
 
-Do not invoke the `implement-pm` skill. Reuse its branch script and development rules only:
+Do not create PM tasks, create PM backlinks, create branches, open PRs, write PR descriptions, post review comments, update PM status, invoke `implement-pm`, launch `review-pr`, or enter the `fix-pr` loop from this path.
 
-- `../../implement-pm/scripts/create-pm-branch.sh`
+Reuse only the implementation development rules:
+
 - `../../implement-pm/references/development-rules.md`
-- `../../implement-pm/references/implementation-git.md`
 
-Do not create PM tasks, PM backlinks, PR descriptions, review comments, or PM status updates from this path.
+## Worktree Boundary
 
-## Branch Arguments
+Implement on the current branch and current worktree. Do not switch branches, create branches, push, or open a PR unless the user separately asks for that outside the direct implementation path.
 
-The approved plan must include explicit branch script arguments:
-
-```text
-pm_tool: direct
-task_ids: <scope-slug>
-```
-
-Choose `<scope-slug>` from the approved scope:
-
-- use lowercase kebab-case;
-- keep it short and readable;
-- include only letters, numbers, dots, underscores, and hyphens;
-- do not include spaces, slashes, secrets, URLs, or PM IDs that were not provided.
-
-Examples:
-
-```bash
-skills/implement-pm/scripts/create-pm-branch.sh "direct" "checkout-error-state"
-skills/implement-pm/scripts/create-pm-branch.sh "direct" "dashboard-filters"
-```
+Before editing, inspect the worktree enough to preserve unrelated local changes. If the current branch/worktree makes direct implementation unsafe, stop and ask for explicit direction.
 
 ## Workflow
 
 1. Confirm the user selected direct implementation from the latest approved `feed-pm` plan.
 2. Load `../../implement-pm/references/development-rules.md`.
-3. Run the branch script with the explicit arguments from the plan before editing.
+3. Inspect the current branch and worktree for unrelated changes that affect the approved scope.
 4. Implement only the approved scope.
 5. Run relevant existing checks.
 6. Review the diff for scope, reuse, net added lines, dead code, and regressions.
-7. Report the implementation result and next `create-pr` step.
-
-If the approved plan lacks explicit branch script arguments, ask for or propose the exact `direct/<scope-slug>` branch arguments before editing.
+7. Report the implementation result without creating a PR, launching review, or proposing a `fix-pr` loop.
