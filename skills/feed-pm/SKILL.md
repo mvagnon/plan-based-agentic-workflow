@@ -1,6 +1,8 @@
 ---
 name: feed-pm
 description: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, or backlog idea into an implementation-ready plan and PM tasks. Requires a task/request description plus implementation details such as desired behavior, affected surfaces, data model/API notes, known constraints, non-goals, or preferred implementation direction. It analyzes the repository with Serena MCP, recommends Plan Mode, asks focused questions during analysis, proposes a complete project-correlated task plan, creates PM tasks only after explicit user approval, and returns a concise recap. Trigger on feed PM, create issues, create PM tasks, split work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
+disable-model-invocation: true
+user-invocable: true
 ---
 
 # Feed PM

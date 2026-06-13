@@ -98,6 +98,12 @@ def validate_skill(path: Path) -> list[str]:
     ):
         errors.append(f"{rel}: frontmatter description must be quoted")
 
+    if metadata.get("disable-model-invocation") != "true":
+        errors.append(f"{rel}: frontmatter disable-model-invocation must be true")
+
+    if metadata.get("user-invocable") != "true":
+        errors.append(f"{rel}: frontmatter user-invocable must be true")
+
     headings, in_code = top_level_headings(lines)
     if in_code:
         errors.append(f"{rel}: unclosed fenced code block")

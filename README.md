@@ -16,7 +16,48 @@ Agent Skills for a decision-to-delivery workflow with short skills, Plan Mode-fr
 
 PBAW treats the user as the product and architecture authority, and as an experienced software engineer/architect. Questions and proposed plans should stay technical at that level, with priority on UX and database/data-model decisions; other questions should stay focused on blockers.
 
+## Workflow
+
+Primary PM-backed path:
+
+```mermaid
+flowchart TD
+    A([Request or technical decision]) --> B["$brainstorm in Plan Mode<br/>Clarify, research, recommend"]
+    B --> C["$feed-pm in Plan Mode<br/>Technical Roadmap + PM task previews"]
+    C --> D{"User approves?"}
+    D -->|Revise| C
+    D -->|Approve| E["Create PM tasks"]
+    E --> F["Clear or compact context"]
+    F --> G["$implement-pm<br/>Branch + implementation"]
+    G --> H["Clear or compact context"]
+    H --> I["$create-pr<br/>Draft PR + PM backlinks"]
+    I --> J["$review-pr<br/>Strict review + local CI"]
+    J --> K{"PROD READY?"}
+    K -->|No| L["$fix-pr<br/>Focused remediation + push"]
+    L --> J
+    K -->|Yes| M([User-approved merge/finalization])
+```
+
+Direct implementation path when PM tasks are unnecessary:
+
+```mermaid
+flowchart TD
+    A([Approved strategy or roadmap]) --> B["$feed-pm direct implementation path<br/>No PM task creation"]
+    B --> C["Define explicit branch arguments<br/>direct/&lt;scope-slug&gt;"]
+    C --> D["Run branch script"]
+    D --> E["Implement from the approved plan"]
+    E --> F["Clear or compact context"]
+    F --> G["$create-pr"]
+    G --> H["$review-pr"]
+    H --> I{"PROD READY?"}
+    I -->|No| J["$fix-pr"]
+    J --> H
+    I -->|Yes| K([Ready for user-approved finalization])
+```
+
 ## Skills
+
+All PBAW skills are manual-only: each `SKILL.md` sets `disable-model-invocation: true` and `user-invocable: true`. This keeps the skills available for explicit user invocation while preventing accidental model invocation. The workflow is intentionally heavy: it can analyze repositories, research external sources, create PM tasks, create branches, open PRs, run CI, and push fixes, so it should start only when the user explicitly asks for a PBAW skill.
 
 - `brainstorm`: ask targeted questions, analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to resolve complex technical decisions before PM planning or direct implementation.
 - `feed-pm`: analyze the repository with Serena MCP, propose a Technical Roadmap with task previews, revise it when challenged, create execution-ready PM tasks after explicit approval, then recap.
@@ -87,36 +128,6 @@ plan-based-agentic-workflow/
         `-- references/
 ```
 
-## Workflow
-
-Use this framework as a decision-to-delivery path:
-
-1. Brainstorm the approach with `brainstorm` in **plan mode**.
-2. Create the plan and add the PM tasks with `feed-pm` in **plan mode**.
-
----- CLEAR/COMPACT CONTEXT ----
-
-3. Implement the plan in a specific git branch with `implement-pm`.
-
----- CLEAR/COMPACT CONTEXT ----
-
-4. Create and review the PR with `create-pr`.
-5. Fix the PR by implementing the previous step's recommendations with `fix-pr`.
-
----- CLEAR/COMPACT CONTEXT ----
-
-6. Review the PR again with `review-pr`; repeat `fix-pr` and `review-pr` until the PR is `PROD READY`.
-
-You can also skip PM-task creation when you want to implement faster:
-
-1. Brainstorm with `brainstorm` or plan the integration with `feed-pm`, in **plan mode**.
-2. Proceed directly with implementation from the approved plan.
-
----- CLEAR/COMPACT CONTEXT ----
-
-3. Create and review the PR with `create-pr`.
-4. Fix and re-review until the PR is `PROD READY`.
-
 ## Validation
 
 After editing skills, validate the skill shape and local references:
@@ -125,7 +136,7 @@ After editing skills, validate the skill shape and local references:
 scripts/validate-skills.sh
 ```
 
-The validator checks frontmatter descriptions, required `SKILL.md` headings, Mermaid diagrams, fenced code blocks, and local files referenced from each `## References` section.
+The validator checks frontmatter descriptions, manual invocation flags, required `SKILL.md` headings, Mermaid diagrams, fenced code blocks, and local files referenced from each `## References` section.
 
 ## Test Authoring Strategy
 

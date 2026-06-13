@@ -1,6 +1,8 @@
 ---
 name: implement-pm
 description: "Implementation workflow for PM tasks. Requires both inputs: PM system name and exact task IDs. It creates and pushes branch `{pm-tool}/{task-ids}`, retrieves PM tasks, analyzes the repository with Serena MCP, and focuses only on implementation."
+disable-model-invocation: true
+user-invocable: true
 ---
 
 # Implement PM

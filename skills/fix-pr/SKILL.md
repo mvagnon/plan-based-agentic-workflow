@@ -1,6 +1,8 @@
 ---
 name: fix-pr
 description: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects comments, reviews, threads, and checks, analyzes the actionable feedback, applies focused fixes directly with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not rescore, approve, merge, close tasks, move PM items, or pause before fixing unless blocked by an explicit user decision.'
+disable-model-invocation: true
+user-invocable: true
 ---
 
 # Fix PR
