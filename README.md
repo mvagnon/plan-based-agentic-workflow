@@ -93,15 +93,27 @@ Use this framework as a decision-to-delivery path:
 
 1. Brainstorm the approach with `brainstorm` in **plan mode**.
 2. Create the plan and add the PM tasks with `feed-pm` in **plan mode**.
+
+---- CLEAR/COMPACT CONTEXT ----
+
 3. Implement the plan in a specific git branch with `implement-pm`.
+
+---- CLEAR/COMPACT CONTEXT ----
+
 4. Create and review the PR with `create-pr`.
 5. Fix the PR by implementing the previous step's recommendations with `fix-pr`.
+
+---- CLEAR/COMPACT CONTEXT ----
+
 6. Review the PR again with `review-pr`; repeat `fix-pr` and `review-pr` until the PR is `PROD READY`.
 
 You can also skip PM-task creation when you want to implement faster:
 
 1. Brainstorm with `brainstorm` or plan the integration with `feed-pm`, in **plan mode**.
 2. Proceed directly with implementation from the approved plan.
+
+---- CLEAR/COMPACT CONTEXT ----
+
 3. Create and review the PR with `create-pr`.
 4. Fix and re-review until the PR is `PROD READY`.
 
