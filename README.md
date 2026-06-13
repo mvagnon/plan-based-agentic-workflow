@@ -21,9 +21,9 @@ PBAW treats the user as the product and architecture authority, and as an experi
 - `brainstorm`: ask targeted questions, analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to resolve complex technical decisions before PM planning or direct implementation.
 - `feed-pm`: analyze the repository with Serena MCP, propose a Technical Roadmap with task previews, revise it when challenged, create execution-ready PM tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
-- `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, then run `review-pr`.
-- `review-pr`: perform a strict production-readiness review with mandatory full local CI.
-- `fix-pr`: propose a PR remediation plan, revise it when challenged, then apply fixes after explicit approval.
+- `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, report every PR URL, then run `review-pr`.
+- `review-pr`: perform a strict production-readiness review with mandatory full local CI, post details on the PR, and return only PR URLs in chat.
+- `fix-pr`: collect PR feedback, inspect cited code, apply focused fixes directly, run checks, push, then reply to handled conversations.
 
 ## Prerequisites
 
@@ -95,7 +95,7 @@ Use this framework as a decision-to-delivery path:
 2. Create the plan and add the PM tasks with `feed-pm` in **plan mode**.
 3. Implement the plan in a specific git branch with `implement-pm`.
 4. Create and review the PR with `create-pr`.
-5. Fix the PR by implementing the previous step's recommendations with `fix-pr` in **plan mode**.
+5. Fix the PR by implementing the previous step's recommendations with `fix-pr`.
 6. Review the PR again with `review-pr`; repeat `fix-pr` and `review-pr` until the PR is `PROD READY`.
 
 You can also skip PM-task creation when you want to implement faster:

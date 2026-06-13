@@ -138,7 +138,7 @@ Payload shape:
 ```json
 {
   "event": "COMMENT",
-  "body": "Score: 8/10 - FIX BEFORE MERGE\n\nChecks:\n- npm test: passed\n\nFindings:\n- Major: ...",
+  "body": "Verdict: FIX BEFORE MERGE\n\nChecks:\n- npm test: passed\n\nFindings:\n- Major: ...",
   "comments": [
     {
       "path": "src/file.ts",

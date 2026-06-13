@@ -10,14 +10,14 @@ This file covers implementation mechanics. Use `../../feed-pm/references/archite
 - Use Serena to inspect the affected code path and nearby ownership before changing files.
 - Search for an existing equivalent before adding any component, hook, utility, type, schema, decorator, service, repository, validator, query key, or abstraction.
 - If an existing owner is close but incomplete, extend it, compose it, add a variant, or make a focused refactor instead of creating a parallel implementation.
-- Before choosing an additive solution, check whether deletion, reuse, extension, or a small user-approved concession would reduce added lines relative to deleted lines.
+- Before choosing an additive solution, check whether deletion, reuse, extension, or a small user-approved concession would reduce added lines relative to deleted lines. In `fix-pr`, only use a concession when the PR feedback explicitly requests it.
 - Preserve unrelated local work. Do not stash, reset, unstage, delete, overwrite, force-delete, or commit unrelated changes unless the user explicitly asks.
 
 ## Focused Implementation
 
-- Keep changes scoped to the PM task, approved remediation plan, or explicit user request.
+- Keep changes scoped to the PM task, PR feedback remediation, or explicit user request.
 - Prefer the smallest correct change that fits the existing architecture and local conventions.
-- Optimize for the fewest added lines after accounting for deleted lines. Do not treat a large net addition as acceptable when a small approved concession, reuse path, or deletion would preserve the core outcome with much less code.
+- Optimize for the fewest added lines after accounting for deleted lines. Do not treat a large net addition as acceptable when a small approved concession, reuse path, or deletion would preserve the core outcome with much less code. In `fix-pr`, report unrequested concessions as blockers instead of applying them.
 - Follow existing data-fetching, validation, typing, component, backend, security, and error-handling patterns.
 - Keep code clear, explicitly named, consistently organized, strictly typed where useful, and free of dead code, unused imports, unused variables, obsolete files, and hidden behavior.
 - Do not weaken types to silence errors.
@@ -90,4 +90,4 @@ Report commands as `not run` when no relevant existing command exists or when th
 - Review the diff for scope, duplication, dead code, inconsistent naming, missed reuse, and regressions.
 - Review the added/deleted line balance. Explain any large net addition, or revise toward deletion/reuse unless a user-approved concession or explicit requirement justifies the added surface.
 - Update README files only when setup, commands, environment variables, architecture, or project conventions changed.
-- Follow the owning skill's Git behavior: `implement-pm` commits without pushing, `fix-pr` commits and pushes after approved remediation, and `review-pr` does not implement fixes.
+- Follow the owning skill's Git behavior: `implement-pm` commits without pushing, `fix-pr` commits and pushes after focused remediation, and `review-pr` does not implement fixes.

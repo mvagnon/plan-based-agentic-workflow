@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: "Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback, and only allows merge or PM task closure when local CI passes. It uses the PR scoring reference as the source of truth, judges declared project architecture from instruction files, and treats changed-code duplication as a bug."
+description: "Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback on the PR, and returns only PR URLs in chat. It only allows merge or PM task closure when local CI passes. It uses the PR scoring reference as the source of truth, judges declared project architecture from instruction files, and treats changed-code duplication as a bug."
 ---
 
 # Review PR
@@ -8,6 +8,8 @@ description: "Use when one or more pull requests exist and the user wants a stri
 ## Summary
 
 Review PRs as if they will deploy immediately after merge.
+
+Post review details on the PR. In chat, return only the reviewed PR URLs so the user can open the PRs and add comments or feedback there. Do not include a review recap, score, verdict, findings, checks, or finalization summary in the chat response.
 
 The review is strict on:
 
@@ -30,10 +32,11 @@ flowchart TD
   E --> F[Score production risk]
   F --> L[Post one concise review]
   L --> G{Merge approved and eligible?}
-  G -->|No| H[Report next fix-pr or approval step]
+  G -->|No| H[Return PR URLs]
   G -->|Yes| I[Finalize merge]
   I --> J[Close or update PM tasks only after CI passes]
   J --> K[Run post-merge cleanup]
+  K --> M[Return PR URLs]
 ```
 
 ## Inputs
@@ -76,6 +79,8 @@ Load only what is needed:
 - After merge and approved PM task actions, run the post-merge cleanup script to switch to the PR base branch, fast-forward pull it, and delete the local merged PR branch.
 - Do not lower the review bar because a PR is small.
 - Use `references/pr-scoring.md` as the only scoring source of truth. If it was not loaded, do not assign a score or verdict.
+- Use numeric scoring internally for consistency, but do not include the numeric score in the PR review/comment unless the user explicitly asks for it.
+- Do not include the review recap, score, verdict, findings, checks, PR updates, finalization summary, or next-step recommendation in the chat response. Put review details in the PR review/comment instead.
 
 ## Expected Response Format
 
@@ -84,29 +89,7 @@ Load only what is needed:
 ```markdown
 ## Review PR
 
-PR: <url>
-Score: <N>/10 | not available
-Verdict: <PROD READY | FIX BEFORE MERGE | DO NOT MERGE>
-Architecture basis: <instruction files, inferred, or Exa-backed details>
+PR URLs:
 
-Findings:
-
-- <severity> - <file:line or area> - <impact and required fix>
-
-Checks:
-
-- `<command>`: <passed|failed|not run> - <short note>
-
-PR updates:
-
-- <review/comment/body/ready/finalization action>
-
-Finalization:
-
-- <merge/PM closure result, approval needed, or blocker>
-
-Next:
-<Run `fix-pr` | Explicit merge approval (if PROD READY)>
+- <repo path>: <PR URL>
 ```
-
-If there are no findings, write `No blocking or major findings found.`

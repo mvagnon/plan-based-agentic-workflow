@@ -60,8 +60,8 @@ Do not make runtime workflows load `mermaid-diagrams`, and do not push generated
 - `implement-pm`: require PM system name and exact task IDs, regardless of prompt shape. Describe required inputs in the `SKILL.md` frontmatter description.
 - `implement-pm`: first action is always running `scripts/create-pm-branch.sh` with the declared `pm_tool` and `task_ids` variables.
 - `create-pr`: owns draft PR creation, PM task backlinks, and launching `review-pr`. For GitHub Issues, use one closing keyword per issue when valid; validate links for non-default bases when possible; verify PM backlinks after writing.
-- `review-pr`: local CI is required for `PROD READY`, merge, and PM task closure. Be strict on security, architecture, and code reuse.
-- `fix-pr`: fixes and replies only. It does not rescore, approve, merge, close issues, or move PM items. Always recommend Plan Mode, use runner-native questions when available, propose a complete remediation plan, preserve the previous plan when challenged, and apply remediation only after explicit user approval.
+- `review-pr`: local CI is required for `PROD READY`, merge, and PM task closure. Be strict on security, architecture, and code reuse. Post review details on the PR and return only PR URLs in chat.
+- `fix-pr`: fixes and replies directly. It does not rescore, approve, merge, close issues, or move PM items. Collect PR feedback, inspect cited code, apply focused fixes, run checks, commit and push, then reply to handled conversations. Ask the user only for blockers that require an explicit product, architecture, security, access, or scope decision.
 
 ## Checks
 

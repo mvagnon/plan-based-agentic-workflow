@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects feedback, recommends Plan Mode, uses the runner-native question or clarification tool when available, proposes a complete remediation plan for explicit approval, applies the approved focused fixes with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not rescore, approve, merge, close tasks, or move PM items.'
+description: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects comments, reviews, threads, and checks, analyzes the actionable feedback, applies focused fixes directly with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not rescore, approve, merge, close tasks, move PM items, or pause before fixing unless blocked by an explicit user decision.'
 ---
 
 # Fix PR
@@ -9,11 +9,9 @@ description: 'Use this skill after a PR review, low score, requested changes, "f
 
 Fix PR review feedback in one focused pass.
 
-This skill fixes and replies. It does not rescore, approve, merge, close issues, or move PM items.
+This skill fixes and replies directly. It does not rescore, approve, merge, close issues, or move PM items.
 
-Always propose a remediation plan before editing. Wait for explicit user approval before applying any PR feedback fixes.
-
-Recommend Plan Mode, use the runner-native question or clarification tool when available, and make the plan complete enough to apply without further decisions. If no question or clarification tool is available, use PR feedback, repository evidence, and the approved PM scope as the source of truth, then state assumptions in the remediation plan.
+Collect the PR feedback, classify each item, inspect cited code, apply focused fixes, run checks, commit and push, then reply to PR conversations. Ask the user only when a blocker requires a product, architecture, security, access, or scope decision that cannot be inferred from the PR feedback and repository instructions.
 
 ## Diagram
 
@@ -22,20 +20,15 @@ flowchart TD
   A[Resolve PR] --> B[Collect reviews, comments, threads, checks]
   B --> C[Inspect cited code with Serena]
   C --> D[Build feedback ledger]
-  D --> E{Runner question tool?}
-  E -->|Yes| F[Ask targeted remediation questions]
-  E -->|No| G[Use feedback, code, and PM scope]
-  F --> H[Propose remediation plan]
-  G --> H
-  H --> I{User response}
-  I -->|Challenge plan| J[Recover previous plan and revise only changed points]
-  J --> H
-  I -->|Approves remediation| K[Apply approved focused fixes]
-  I -->|Refuses or invalidates scope| L[Stop with recap]
-  K --> M[Run relevant checks]
-  M --> N[Commit and push]
-  N --> O[Reply to handled conversations]
-  O --> P[Report result]
+  D --> E{Blocked decision?}
+  E -->|Yes| F[Stop with blocker]
+  E -->|No| G{Actionable fixes?}
+  G -->|No| H[Report already handled]
+  G -->|Yes| I[Apply focused fixes]
+  I --> J[Run relevant checks]
+  J --> K[Commit and push]
+  K --> L[Reply to handled conversations]
+  L --> M[Report result]
 ```
 
 ## Inputs
@@ -67,34 +60,24 @@ Load only what is needed:
 - Group duplicate feedback into one fix, but map every conversation to a reply, resolution, or no-change reason.
 - Reuse existing code, schemas, services, validators, components, hooks, and design-system primitives.
 - Do not add dependencies, logs, broad refactors, unrelated cleanup, or new tests by default.
-- Minimize added lines relative to deleted lines in every remediation. Prefer deletion, reuse, and extension; if a small concession would reduce added lines substantially, include it in the remediation plan and wait for explicit user approval.
+- Minimize added lines relative to deleted lines in every remediation. Prefer deletion, reuse, and extension. If a small concession would reduce added lines substantially but change behavior or scope, do not take it unless the PR feedback explicitly asks for it.
 - Do not merge, mark PRs ready, close PM tasks, or update PM status.
 - Reply to each handled thread with what changed, the commit SHA when available, and the checks run.
 
-### Remediation Planning
+### Feedback Fixing
 
-Always build a remediation plan after the feedback ledger is built and before editing.
+After the feedback ledger is built, proceed directly to focused fixes.
 
-For every remediation plan:
-
-1. Recommend Plan Mode when the runner supports it.
-2. Use the runner-native question or clarification tool when available for decisions that materially change the fix.
-3. If no question or clarification tool is available, use PR feedback, repository evidence, and the approved PM scope as the source of truth.
-4. Include all fixes, explicit non-fixes, assumptions, checks, and PR reply handling.
-5. Include any concession that would materially reduce added lines, and wait for explicit user approval before editing.
-
-When the user challenges the remediation plan:
-
-1. Recover the previous remediation plan from the conversation before revising.
-2. Preserve every detail that the user did not ask to change.
-3. Adjust only the challenged fix, assumption, non-fix, check, reply, or scope boundary.
-4. Return a complete replacement remediation plan, not a partial diff.
-
-If the previous remediation plan is no longer available in context, ask the user to provide or confirm the missing details before regenerating. This prevents accidental feedback loss.
+1. Record one entry per distinct actionable item and map every review thread, PR comment, failed check, or reviewer note to that entry.
+2. Classify each entry as `needs-fix`, `needs-user-decision`, `clarify-only`, `already-fixed`, `obsolete`, or `out-of-scope`.
+3. Verify outdated threads against the current head before treating them as already handled or obsolete.
+4. Apply focused fixes for every `needs-fix` item in the owning repository.
+5. Stop only for `needs-user-decision`, missing access, unsafe scope change, or contradictory feedback that cannot be resolved from repository instructions and current PR context.
+6. Run relevant checks, review the final diff, commit and push the focused fix, then reply to handled PR conversations.
 
 ## Expected Response Format
 
-Use this shape for the remediation plan, applied fix recap, or blocker:
+Use this shape for the applied fix recap or blocker:
 
 ```markdown
 ## Fix PR
@@ -104,7 +87,7 @@ Branch: <branch>
 Commit: <sha or "none">
 
 Summary:
-<brief technical summary of the feedback and intended remediation>
+<brief technical summary of the feedback and result>
 
 Assumptions:
 
@@ -124,7 +107,7 @@ Checks:
 
 Diff discipline:
 
-- <how remediation minimizes added lines relative to deleted lines, or concession needing approval>
+- <how the fix minimizes added lines relative to deleted lines, or concession not taken>
 
 PR replies:
 
@@ -135,8 +118,8 @@ Remaining:
 - <blocker or "none">
 
 Result:
-<Remediation plan awaiting approval | Applied focused fixes | Blocked or not changed>
+<Applied focused fixes | Blocked or not changed>
 
 Next:
-<Approve remediation | Challenge plan>
+<Run review-pr | Provide blocker decision>
 ```

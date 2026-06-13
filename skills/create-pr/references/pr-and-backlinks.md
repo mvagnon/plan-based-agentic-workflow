@@ -99,6 +99,8 @@ gh pr create --draft --base <base-branch> --head <head-branch> --title "<branch 
 gh pr view <pr> --json number,url,body,baseRefName,headRefName,closingIssuesReferences,linkedIssues
 ```
 
+Capture each `url` value in a per-repository ledger for the final `create-pr` response.
+
 If closing keywords were expected to link issues, verify each issue appears in `closingIssuesReferences` or `linkedIssues`. If the PR base is non-default and links are absent, create manual links when the tool supports it; otherwise keep plain task URLs in the body and report the limitation.
 
 If the provider requires a diff before PR creation, stop and report that implementation commits are missing. Do not create empty commits from `create-pr`.

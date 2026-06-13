@@ -39,7 +39,7 @@ Treat duplication as a bug. Do not describe it as cleanup, polish, or a later re
 
 ## Scoring
 
-The score is `/10` and communicates production risk. A high score is never allowed when a hard blocker exists.
+The score is `/10` and communicates production risk internally. A high score is never allowed when a hard blocker exists. Do not include the numeric score in chat responses or PR reviews unless the user explicitly asks for it.
 
 Calculate the category score, then apply automatic caps:
 

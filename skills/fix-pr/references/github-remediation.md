@@ -83,7 +83,7 @@ Location:
 Concern:
 Production risk:
 Status: needs-fix | needs-user-decision | clarify-only | already-fixed | obsolete | out-of-scope
-Planned response:
+Response:
 Current head verification:
 Threads/comments to reply to:
 Resolve after response: yes/no
