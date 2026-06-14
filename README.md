@@ -26,7 +26,7 @@ flowchart TD
     B --> C["$feed-pm in Plan Mode<br/>Technical Roadmap + PM task previews"]
     C --> D{"User approves?"}
     D -->|Revise| C
-    D -->|Approve| E["Create PM tasks"]
+    D -->|Approve| E["Create or update PM tasks"]
     E --> F["Clear or compact context"]
     F --> G["$implement-pm<br/>Branch + implementation"]
     G --> H["Clear or compact context"]
@@ -42,7 +42,7 @@ Direct implementation path when PM tasks are unnecessary:
 
 ```mermaid
 flowchart TD
-    A([Approved strategy or roadmap]) --> B["$feed-pm direct implementation path<br/>No PM task creation"]
+    A([Approved strategy or roadmap]) --> B["$feed-pm direct implementation path<br/>No PM task creation or update"]
     B --> C["Implement on current branch/worktree<br/>No automatic branch creation"]
     C --> D["Run relevant existing checks"]
     D --> E["Review diff"]
@@ -51,10 +51,10 @@ flowchart TD
 
 ## Skills
 
-All PBAW skills are manual-only: each `SKILL.md` sets `disable-model-invocation: true` and `user-invocable: true`. This keeps the skills available for explicit user invocation while preventing accidental model invocation. The workflow is intentionally heavy: it can analyze repositories, research external sources, create PM tasks, create branches, open PRs, run CI, and push fixes, so it should start only when the user explicitly asks for a PBAW skill.
+All PBAW skills are manual-only: each `SKILL.md` sets `disable-model-invocation: true` and `user-invocable: true`. This keeps the skills available for explicit user invocation while preventing accidental model invocation. The workflow is intentionally heavy: it can analyze repositories, research external sources, create or update PM tasks, create branches, open PRs, run CI, and push fixes, so it should start only when the user explicitly asks for a PBAW skill.
 
 - `brainstorm`: ask targeted questions, analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to resolve complex technical decisions before PM planning or direct implementation.
-- `feed-pm`: analyze the repository with Serena MCP, propose a Technical Roadmap with task previews, revise it when challenged, create execution-ready PM tasks after explicit approval, then recap.
+- `feed-pm`: analyze the repository with Serena MCP, retrieve cited PM task IDs or URLs when provided, propose a Technical Roadmap with task previews, revise it when challenged, create new execution-ready PM tasks or overwrite cited tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, report every PR URL, then run `review-pr`.
 - `review-pr`: perform a strict production-readiness review with mandatory full local CI, post details on the PR, and return only PR URLs in chat.
@@ -147,8 +147,8 @@ That workflow favors tests for user journeys and product flows rather than fragi
 ## Safety Rules
 
 - `brainstorm` can ask targeted clarification questions. It does not write code, create PM tasks, open PRs, or mutate external systems.
-- `feed-pm` proposes a complete Technical Roadmap first, preserves it when challenged, and creates execution-ready PM tasks only after explicit approval.
-- `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, without creating PM tasks, creating a branch, invoking `implement-pm`, creating a PR, launching `review-pr`, or entering the `fix-pr` loop.
+- `feed-pm` proposes a complete Technical Roadmap first, preserves it when challenged, and creates new execution-ready PM tasks or overwrites cited source PM tasks only after explicit approval.
+- `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, without creating or updating PM tasks, creating a branch, invoking `implement-pm`, creating a PR, launching `review-pr`, or entering the `fix-pr` loop.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - The branch script creates or switches to the target branch and pushes it immediately. It does not stash, reset, or clean local work; inspect the worktree first when unrelated local changes matter.
 - `create-pr` creates draft PRs and PM backlinks, then runs `review-pr`.

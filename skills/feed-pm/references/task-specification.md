@@ -1,6 +1,6 @@
 # Task Specification Reference
 
-Use this reference to create PM task bodies as execution contracts. The PM item itself is the durable source of truth for the implementer.
+Use this reference to create or update PM task bodies as execution contracts. The PM item itself is the durable source of truth for the implementer.
 
 ## Execution Contract Template
 

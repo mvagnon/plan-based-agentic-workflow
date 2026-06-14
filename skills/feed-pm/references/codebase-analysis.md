@@ -4,7 +4,7 @@ Use this reference for the technical evidence behind `feed-pm`.
 
 ## Serena Startup
 
-Use Serena as the required code-intelligence layer before creating PM tasks.
+Use Serena as the required code-intelligence layer before creating or updating PM tasks.
 
 ```bash
 git rev-parse --show-toplevel
@@ -13,7 +13,7 @@ rg --files -g 'AGENTS.md' -g 'CLAUDE.md' -g 'GEMINI.md' -g 'README.md'
 
 Prefer Serena symbol overview, symbol lookup, reference lookup, diagnostics, and pattern search before reading full files. Use local search only as a supplement.
 
-If Serena is unavailable, stop. Do not create implementation-ready PM tasks from local search alone.
+If Serena is unavailable, stop. Do not create or update implementation-ready PM tasks from local search alone.
 
 ## Evidence To Collect
 
