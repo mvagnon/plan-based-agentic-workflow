@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: "Use when one or more pull requests exist and the user wants a strict production-readiness review, approval signal, or merge finalization. It resolves PRs from the current repository or child repositories, reads linked PM tasks and prior discussion, reviews changed code with Serena MCP, runs the full local CI suite, posts concise review feedback on the PR, and returns only PR URLs in chat. It only allows merge or PM task closure when local CI passes. It uses the PR scoring reference as the source of truth, judges declared project architecture from instruction files, and treats changed-code duplication as a bug."
+description: "Use to review existing PRs for production readiness, run full local CI, post PR feedback, and return only PR URLs; trigger on review, approve, merge, or finalize."
 disable-model-invocation: true
 user-invocable: true
 ---
@@ -28,17 +28,12 @@ Local CI passing is mandatory for `PROD READY`, merge, and PM task closure.
 ```mermaid
 flowchart TD
   A[Resolve PR set] --> B[Read PM tasks and prior discussion]
-  B --> C[Inspect diff and affected code with Serena]
-  C --> D[Run full local CI]
-  D --> E[Load scoring reference]
-  E --> F[Score production risk]
-  F --> L[Post one concise review]
-  L --> G{Merge approved and eligible?}
-  G -->|No| H[Return PR URLs]
-  G -->|Yes| I[Finalize merge]
-  I --> J[Close or update PM tasks only after CI passes]
-  J --> K[Run post-merge cleanup]
-  K --> M[Return PR URLs]
+  B --> C[Inspect diff with Serena]
+  C --> D[Run local CI and score]
+  D --> E[Post one concise review]
+  E --> F{Finalization approved and eligible?}
+  F -->|No| G[Return PR URLs]
+  F -->|Yes| H[Merge, update PM tasks, cleanup, return URLs]
 ```
 
 ## Inputs

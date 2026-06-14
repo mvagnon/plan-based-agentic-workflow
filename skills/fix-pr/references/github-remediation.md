@@ -5,13 +5,7 @@ Use this reference for collecting PR feedback, building the remediation ledger, 
 ## Resolve PR Context
 
 ```bash
-git rev-parse --show-toplevel
-git status --short --branch
-git branch --show-current
-git remote -v
-gh pr view --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup
-gh pr diff
-gh pr checks
+scripts/gh-pr-context.sh [pr-number-url-or-branch] [owner/repo]
 ```
 
 Child repositories:
@@ -26,7 +20,7 @@ git -C <child-repo> remote -v
 Resolve matching child PRs:
 
 ```bash
-gh -R <owner/repo> pr view <branch-or-pr> --json number,title,body,url,state,isDraft,baseRefName,headRefName,headRepository,headRepositoryOwner,author,files,comments,reviews,reviewDecision,statusCheckRollup
+scripts/gh-pr-context.sh <branch-or-pr> <owner/repo>
 ```
 
 ## Comments, Reviews, And Threads
@@ -40,36 +34,10 @@ gh api /repos/<owner>/<repo>/pulls/<number>/reviews --paginate
 Review threads, including outdated and resolved threads:
 
 ```bash
-gh api graphql -f query='
-query($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
-  repository(owner: $owner, name: $repo) {
-    pullRequest(number: $number) {
-      reviewThreads(first: 100, after: $cursor) {
-        pageInfo { hasNextPage endCursor }
-        nodes {
-          id
-          isResolved
-          isOutdated
-          path
-          line
-          originalLine
-          comments(first: 20) {
-            nodes {
-              id
-              body
-              author { login }
-              url
-              createdAt
-            }
-          }
-        }
-      }
-    }
-  }
-}' -F owner=<owner> -F repo=<repo> -F number=<number>
+scripts/gh-review-threads.sh <owner> <repo> <pr-number>
 ```
 
-Paginate until `hasNextPage` is false.
+The script paginates until `hasNextPage` is false.
 
 Treat outdated threads as historical context. Before marking them obsolete or already fixed, inspect current head and verify whether the concern is actually addressed.
 

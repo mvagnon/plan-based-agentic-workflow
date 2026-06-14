@@ -57,28 +57,7 @@ This file covers implementation mechanics. Use `../../feed-pm/references/archite
 Discover relevant existing checks:
 
 ```bash
-rg --files -g 'package.json' -g 'turbo.json' -g 'pnpm-workspace.yaml' -g 'pyproject.toml' -g 'pytest.ini' -g '.github/workflows/*.yml' -g '.github/workflows/*.yaml'
-rg -n '"(lint|typecheck|check|test|format|build)"\s*:' package.json apps packages services src 2>/dev/null
-```
-
-Prefer existing repo-level commands when relevant:
-
-```bash
-npm test
-npm run lint
-npm run typecheck
-npm run build
-pnpm test
-pnpm lint
-pnpm typecheck
-pnpm build
-yarn test
-yarn lint
-yarn typecheck
-yarn build
-pytest
-ruff check .
-mypy .
+scripts/discover-checks.sh [repo-root]
 ```
 
 Do not start dev servers, watch commands, containers, or browser automation by default.

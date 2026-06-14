@@ -12,7 +12,7 @@
 
 # Plan-Based Agentic Workflow
 
-Agent Skills for a decision-to-delivery workflow with short skills, Plan Mode-friendly user decisions, and technical references kept out of the main skill body.
+Agent Skills for a decision-to-delivery workflow with short skills, Plan Mode-friendly user decisions, deterministic helper scripts, and technical references kept out of the main skill body.
 
 PBAW treats the user as the product and architecture authority, and as an experienced software engineer/architect. Questions and proposed plans should stay technical at that level, with priority on UX and database/data-model decisions; other questions should stay focused on blockers.
 
@@ -97,6 +97,9 @@ plan-based-agentic-workflow/
 |   `-- plugin.json
 |-- README.md
 |-- scripts/
+|   |-- discover-checks.sh
+|   |-- gh-pr-context.sh
+|   |-- gh-review-threads.sh
 |   |-- validate-skills.py
 |   `-- validate-skills.sh
 `-- skills/
@@ -127,7 +130,9 @@ plan-based-agentic-workflow/
 After editing skills, validate the skill shape and local references:
 
 ```bash
+find scripts skills -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
 scripts/validate-skills.sh
+git diff --check
 ```
 
 The validator checks frontmatter descriptions, manual invocation flags, required `SKILL.md` headings, Mermaid diagrams, fenced code blocks, and local files referenced from each `## References` section.
@@ -158,6 +163,6 @@ That workflow favors tests for user journeys and product flows rather than fragi
 
 ## Technical References
 
-References are bundled per skill and contain commands, templates, research mechanics, and PM/Git mechanics only. The main `SKILL.md` files define the human workflow and expected response format.
+References are bundled per skill and contain commands, templates, research mechanics, and PM/Git mechanics only. Repeated deterministic mechanics live in `scripts/` so agents can run them without loading long command blocks into context. The main `SKILL.md` files define the human workflow and expected response format.
 
 Repository-level authoring rules live in `AGENTS.md`.

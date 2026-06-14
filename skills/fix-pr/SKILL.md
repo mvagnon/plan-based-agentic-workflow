@@ -1,6 +1,6 @@
 ---
 name: fix-pr
-description: 'Use this skill after a PR review, low score, requested changes, "fix before merge" verdict, inline comments, failed checks, or reviewer recommendations. It resolves the PR, collects comments, reviews, threads, and checks, analyzes the actionable feedback, applies focused fixes directly with Serena MCP, runs relevant checks, commits and pushes, and updates PR conversations. It does not rescore, approve, merge, close tasks, move PM items, or pause before fixing unless blocked by an explicit user decision.'
+description: 'Use after PR review feedback, failed checks, inline comments, or fix-before-merge verdicts to apply focused fixes, push, and reply without merging or moving PM tasks.'
 disable-model-invocation: true
 user-invocable: true
 ---
@@ -20,17 +20,13 @@ Collect the PR feedback, classify each item, inspect cited code, apply focused f
 ```mermaid
 flowchart TD
   A[Resolve PR] --> B[Collect reviews, comments, threads, checks]
-  B --> C[Inspect cited code with Serena]
-  C --> D[Build feedback ledger]
-  D --> E{Blocked decision?}
-  E -->|Yes| F[Stop with blocker]
-  E -->|No| G{Actionable fixes?}
-  G -->|No| H[Report already handled]
-  G -->|Yes| I[Apply focused fixes]
-  I --> J[Run relevant checks]
-  J --> K[Commit and push]
-  K --> L[Reply to handled conversations]
-  L --> M[Report result]
+  B --> C[Inspect code and build ledger]
+  C --> D{Blocked decision?}
+  D -->|Yes| E[Stop with blocker]
+  D -->|No| F{Actionable fixes?}
+  F -->|No| I[Report result]
+  F -->|Yes| H[Fix, check, commit, push, reply]
+  H --> I[Report result]
 ```
 
 ## Inputs

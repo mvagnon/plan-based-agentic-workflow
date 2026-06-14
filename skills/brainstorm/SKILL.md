@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: "Use this skill when the user wants to brainstorm the best way to integrate a feature, compare implementation strategies, evaluate build-vs-buy, or decide between a handmade in-house implementation and an external dependency before PM task creation or implementation. It understands the user's request, analyzes the repository with Serena MCP, then researches from broad to precise with Exa, Context7, and gh CLI + Repomix before returning two approaches and one recommendation."
+description: "Use when comparing implementation strategies, build-vs-buy, handmade vs dependency, or planning a technical recommendation before PM tasks or code."
 disable-model-invocation: true
 user-invocable: true
 ---
@@ -25,29 +25,13 @@ This skill does not write code, create PM tasks, open PRs, or mutate external sy
 
 ```mermaid
 flowchart TD
-  A[User decision request] --> B{Goal clear?}
+  A[Decision request] --> B{Goal clear?}
   B -->|No| C[Ask targeted question]
   C --> B
-  B -->|Yes| D[Read governing instructions]
-  D --> E{Serena available?}
-  E -->|No| F[Use repo search fallback]
-  E -->|Yes| G[Analyze repo with Serena]
-  F --> H[Map constraints and reuse]
-  G --> H
-  H --> I[Search candidates with gh CLI]
-  I --> J{Handmade requested?}
-  J -->|Yes| K[Inspect patterns with Repomix]
-  J -->|No| L[Skip Repomix]
-  K --> M[Enrich with Exa]
-  L --> M
-  M --> N{Docs verification needed?}
-  N -->|Yes| O[Verify docs with Context7]
-  N -->|No| P[Skip Context7]
-  O --> R[Apply rubric]
-  P --> R
-  R --> S[Compare approaches]
-  S --> T[Prefer smallest coherent diff]
-  T --> U[Recommend next step]
+  B -->|Yes| D[Read instructions and repo context]
+  D --> E[Research gh, Repomix, Exa, Context7 as needed]
+  E --> F[Apply rubric and compare paths]
+  F --> G[Recommend next step]
 ```
 
 ## Inputs
@@ -181,83 +165,21 @@ Adapt depending on user's preferred approach (handmade, external dependency or b
 ```markdown
 ## Brainstorm Recommendation
 
-Summary:
-<one-paragraph recommendation>
+Summary: <one-paragraph recommendation>
 
-User intent:
-<what the user wants, interpreted from the exhaustive request>
+Context checked:
+- Repo: <key constraints and reuse opportunities>
+- Research: <gh/Repomix/Exa/Context7 sources used or skipped>
 
-Repository context:
+Approaches:
+- Handmade: <path, line impact, security/data/API impact, risks>
+- Dependency: <credible option and integration impact, or why none fits>
 
-- <Serena/repo finding>
-- <constraint or reuse opportunity>
+Comparison: <fit, complexity, maintenance, net additions, security, lock-in, time to ship>
 
-Research checked:
-
-- Exa: <topics or sources checked>
-- Context7: <official docs checked>
-- GitHub: <repos/packages checked with gh CLI and Repomix>
-
-## Approach 1: Handmade
-
-<concrete in-house approach>
-
-Pros:
-
-- <point>
-
-Cons:
-
-- <point>
-
-Risks:
-
-- <point>
-
-## Approach 2: External Dependency
-
-<dependency approach, or why no credible dependency exists>
-
-Pros:
-
-- <point>
-
-Cons:
-
-- <point>
-
-Risks:
-
-- <point>
-
-## Comparison
-
-| Criterion     | Handmade     | External dependency |
-| ------------- | ------------ | ------------------- |
-| Fit with repo | <assessment> | <assessment>        |
-| Complexity    | <assessment> | <assessment>        |
-| Maintenance   | <assessment> | <assessment>        |
-| Net additions | <assessment> | <assessment>        |
-| Security      | <assessment> | <assessment>        |
-| Lock-in       | <assessment> | <assessment>        |
-| Time to ship  | <assessment> | <assessment>        |
-
-## Recommendation
-
-<chosen path and why>
-
-Confidence:
-<low | medium | high>
-
-What would change this:
-
-- <evidence that would change the recommendation>
-
-Concessions to approve:
-
-- <small concession that would materially reduce added lines, or "None">
-
-Next:
-
-<Implement the recommended solution directly | Invoke `feed-pm` | Challenge the strategy>
+Recommendation: <chosen path and why>
+Confidence: <low | medium | high>
+What would change this: <evidence>
+Concessions to approve: <small diff-saving concession or "None">
+Next: <Implement directly | Invoke `feed-pm` | Challenge the strategy>
 ```

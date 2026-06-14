@@ -1,6 +1,6 @@
 ---
 name: feed-pm
-description: "Use this skill when the user wants to turn a product request, feature scope, bug, refactor, backlog idea, or cited PM task IDs/URLs into an implementation-ready plan and PM tasks. Requires a task/request description, cited source PM tasks, or both, plus implementation details such as desired behavior, affected surfaces, data model/API notes, known constraints, non-goals, or preferred implementation direction. It analyzes the repository with Serena MCP, recommends Plan Mode, asks focused questions during analysis, proposes a complete project-correlated task plan, creates or updates PM tasks only after explicit user approval, and returns a concise recap. Trigger on feed PM, create issues, update issues, create PM tasks, update PM tasks, split work into tickets, prepare Jira/GitHub/Notion tasks, or plan-based agentic workflow."
+description: "Use to turn a request or cited PM tasks into a Plan Mode Technical Roadmap and approved PM task creation/updates; trigger on feed PM, create/update issues, or split work into tickets."
 disable-model-invocation: true
 user-invocable: true
 ---
@@ -29,30 +29,15 @@ Treat the user as the product and architecture authority, and as an experienced 
 
 ```mermaid
 flowchart TD
-  A[Read request and cited PM tasks] --> B{Source tasks cited?}
-  B -->|Yes| C{Safe PM target?}
-  C -->|No| D[Ask for PM target detail]
-  C -->|Yes| E[Retrieve source tasks]
-  B -->|No| F[Use request text]
-  E --> G{Details enough?}
-  F --> G
-  G -->|No| H[Ask focused implementation questions]
-  H --> A
-  G -->|Yes| I[Load governing instructions and references]
-  I --> J[Analyze repository with Serena]
-  J --> K[Build responsibility map and file impact]
-  K --> L[Ask targeted quality questions]
-  L --> M[Draft roadmap and execution contracts]
-  M --> N[Show Mermaid summary, roadmap, and task previews]
-  N --> O{User response}
-  O -->|Challenge plan| P[Recover prior plan and revise only changed points]
-  P --> N
-  O -->|Approves mutation| Q{Safe PM mutation?}
-  Q -->|No| R[Stop with blocker recap]
-  Q -->|Yes| S[Update cited tasks and create new tasks]
-  S --> T[Recap task URLs and implement-pm command]
-  O -->|Requests implementation| U[Implement on current branch]
-  U --> V[Report result without PR review loop]
+  A[Request or cited tasks] --> B{Enough detail and safe PM target?}
+  B -->|No| C[Ask focused blocker question]
+  C --> A
+  B -->|Yes| D[Retrieve sources and analyze with Serena]
+  D --> E[Ask quality questions]
+  E --> F[Draft roadmap and task previews]
+  F --> G{User response}
+  G -->|Challenge| F
+  G -->|Approve mutation or direct implementation| H[Execute approved path and recap]
 ```
 
 ## Inputs
@@ -190,58 +175,30 @@ Use this shape for planning, task creation, or direct implementation handoff:
 ## Feed PM
 
 PM tool: <tool>
-Project: <project, repository, board, database, or PM target name>
+Project: <target>
 Source PM tasks: <task IDs/URLs or None>
 Direct implementation: <yes | no>
 
-Summary:
-<brief technical summary of the requested work>
+Summary: <brief technical summary>
 
 Roadmap summary:
-
 ```mermaid
-<compact flowchart, sequence diagram, or dependency graph summarizing the roadmap>
+<compact roadmap diagram>
 ```
 
 Technical Roadmap:
-
-- Implementation sequence: <ordered technical sequence across tasks>
-- Ownership boundaries: <owner areas and responsibility split>
-- Data/API/interface impact: <schemas, contracts, APIs, UI states, or "None">
-- Minimal diff strategy: <reuse, deletion, simplification, and concessions needing approval>
-- Risks and blockers: <risk or "None">
-- Verification strategy: <existing checks or review points; no new tests unless explicitly requested>
-
-Implementation details used:
-
-- <detail or constraint from the user/repository>
-
-Assumptions:
-
-- <assumption or "None">
-
-Concessions needing approval:
-
-- <concession or "None">
+- Sequence: <ordered task path>
+- Boundaries: <owner areas and responsibility split>
+- Data/API/interface impact: <impact or "None">
+- Minimal diff strategy: <reuse, deletion, simplification, concessions>
+- Risks/blockers: <risk or "None">
+- Verification: <existing checks or review points>
 
 Task previews:
+- <updates PM-ID | new> - <title> - <surface> - <objective, owner/reuse, file impact, dependencies, verification>
 
-- <updates <PM-ID> | new task> - <task title 1> - <frontend|backend|devops|shared> - <implementation objective, owner/reuse path, expected file impact, external dependencies, verification>
-- <updates <PM-ID> | new task> - <task title 2> - <frontend|backend|devops|shared> - <implementation objective, owner/reuse path, expected file impact, external dependencies, verification>
-
-Dependency order:
-
-1. <task title 1>
-2. <task title 2>
-
-Verification:
-
-- <existing check command or review point; no new tests unless explicitly requested>
-
-Result:
-<Proposed plan awaiting user choice | Updated task URLs and created task URLs | Direct implementation selected>
-
-Next:
-
-<Challenge the proposed plan | Update/create the tasks in the PM tool | Proceed directly on the current branch | implement-pm request details for all resulting task IDs>
+Assumptions: <assumptions or "None">
+Concessions needing approval: <concessions or "None">
+Result: <Proposed plan awaiting user choice | Updated/created task URLs | Direct implementation selected>
+Next: <Challenge plan | Mutate PM tasks | Proceed directly | implement-pm request details>
 ````

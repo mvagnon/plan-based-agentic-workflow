@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: "Use this skill after `implement-pm` when implementation branches already exist. It derives PM tool and task IDs from branches named `{pm-tool}/{task-ids}`, creates draft PRs for the current repository and child repositories on matching PM branches, attaches PM task URLs in the PR body, and immediately runs `review-pr`. It does not write PR links, comments, fields, relations, or status changes back to PM tasks. Trigger on phrases like create PR, open draft PR, attach tasks to PR, or continue after implement-pm."
+description: "Use after `implement-pm` on `{pm-tool}/{task-ids}` branches to open draft PRs, attach PM task links, and run `review-pr`; trigger on create/open draft PR."
 disable-model-invocation: true
 user-invocable: true
 ---
@@ -26,13 +26,10 @@ flowchart TD
   A[Find Git repos] --> B[Read current branch]
   B --> C{Branch matches pm-tool/task-ids?}
   C -->|No| D[Skip child repo or stop if current repo]
-  C -->|Yes| E[Resolve PM task URLs]
-  E --> F[Create draft PR]
-  F --> G[Capture PR URL]
-  G --> H[Verify PR body task links]
-  H --> I[Report PR URLs to user]
-  I --> J[Run review-pr]
-  J --> K[Return PR URLs]
+  C -->|Yes| E[Resolve PM task URLs and base]
+  E --> F[Create draft PR and verify links]
+  F --> G[Report URLs and run review-pr]
+  G --> H[Return PR URLs]
 ```
 
 ## Inputs

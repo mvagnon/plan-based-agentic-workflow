@@ -68,7 +68,7 @@ Do not make runtime workflows load `mermaid-diagrams`, and do not push generated
 After editing skills, run:
 
 ```bash
-bash -n skills/implement-pm/scripts/create-pm-branch.sh
+find scripts skills -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
 scripts/validate-skills.sh
 git diff --check
 ```
