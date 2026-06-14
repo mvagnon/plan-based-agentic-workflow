@@ -17,7 +17,7 @@ The review is strict on:
 
 - security, authentication, authorization, privacy, and secrets;
 - declared architecture boundaries and dependency direction from governing project instruction files;
-- documented dependency usage, including official dependency best practices and project examples when a dependency is added, upgraded, or materially used differently;
+- documented dependency usage, including official dependency best practices and project examples when external dependency usage is added, upgraded, or materially changed;
 - reuse of existing business logic, validators, schemas, services, components, and design-system primitives;
 - duplicated and near-duplicate code that should be standardized, including close UI components that should become one component with variants.
 - avoidable net line growth, especially when deletion, reuse, or a small user-approved concession could satisfy the same scope with far fewer added lines.
