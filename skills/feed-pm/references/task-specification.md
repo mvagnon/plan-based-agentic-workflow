@@ -4,9 +4,20 @@ Use this reference to create or update PM task bodies as execution contracts. Th
 
 ## Execution Contract Template
 
-```markdown
+````markdown
 ## Summary
 <One-sentence task purpose and roadmap role.>
+
+## Task Flow
+```mermaid
+flowchart TD
+  A[Task start] --> B{Preconditions met?}
+  B -->|No| C[Block or ask for decision]
+  B -->|Yes| D[Implement main path]
+  D --> E{Edge case or failure?}
+  E -->|Yes| F[Handle explicit fallback]
+  E -->|No| G[Verify acceptance]
+```
 
 ## Contract
 - Objective: <exact outcome>
@@ -19,7 +30,7 @@ Use this reference to create or update PM task bodies as execution contracts. Th
 - Acceptance: <observable criteria>
 - Verification: <existing checks or review points; no new tests unless requested>
 - Dependencies: <depends on / unblocks, or "None">
-```
+````
 
 ## Contract Rules
 
@@ -28,7 +39,10 @@ Use this reference to create or update PM task bodies as execution contracts. Th
 - Preserve the user's language for titles and prose; keep paths, commands, identifiers, APIs, and product names literal.
 - Include the smallest coherent file impact: reuse, deletion, simplification, or user-approved concession before parallel code.
 - Keep external dependencies inside the relevant task only; write `None` when absent.
-- Do not include Mermaid in PM task bodies by default.
+- Include exactly one Mermaid `flowchart` in each PM task body under `## Task Flow`.
+- Keep the diagram task-local, operational, and compact; do not add a global roadmap diagram to task bodies.
+- Replace template node labels with concrete task-specific steps, decisions, edge cases, fallbacks, blockers, and verification points.
+- Make the diagram and `Edge cases` field cover the same material branches: validation failures, missing permissions, unavailable dependencies, migration/backfill risks, rollback or compatibility paths, blocked prerequisites, and approved concessions when they affect the task.
 
 ## Split Rules
 
@@ -42,5 +56,6 @@ Use this reference to create or update PM task bodies as execution contracts. Th
 - Dependencies are explicit and acyclic.
 - Shared rules, validators, schemas, services, and query keys have one owner.
 - Steps are concrete and ordered; acceptance criteria are observable.
+- Edge cases are explicit in prose and represented in the task flow when they change implementation behavior.
 - Verification references existing checks unless the user explicitly requested new tests.
 - Task scope excludes new tests, test files, and test-writing work unless explicitly requested.

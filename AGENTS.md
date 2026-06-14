@@ -34,7 +34,7 @@ For repository skill documentation, use Mermaid only for static workflow diagram
 - keep node labels short enough to scan quickly;
 - update the diagram whenever workflow order, ownership, or stopping behavior changes.
 
-Do not make runtime workflows load `mermaid-diagrams`, and do not push generated PM tasks, PRs, reviews, or comments to use Mermaid by default. Exception: `feed-pm` may load `mermaid-diagrams` only to add one compact Mermaid summary at the top of the pre-approval Technical Roadmap. PM task bodies should use ordinary prose or compact plain-text sketches when that is the clearest durable spec.
+Do not make runtime workflows load `mermaid-diagrams`, and do not push generated PRs, reviews, or comments to use Mermaid by default. Exception: `feed-pm` may load `mermaid-diagrams` to add one compact Mermaid `flowchart` per task preview and generated PM task body. Each task diagram must be task-local and must show material edge-case or blocker paths that affect implementation.
 
 ## Collaboration Model
 

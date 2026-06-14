@@ -54,7 +54,7 @@ flowchart TD
 All PBAW skills are manual-only: each `SKILL.md` sets `disable-model-invocation: true` and `user-invocable: true`. This keeps the skills available for explicit user invocation while preventing accidental model invocation. The workflow is intentionally heavy: it can analyze repositories, research external sources, create or update PM tasks, create branches, open PRs, run CI, and push fixes, so it should start only when the user explicitly asks for a PBAW skill.
 
 - `brainstorm`: ask targeted questions, analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to resolve complex technical decisions before PM planning or direct implementation.
-- `feed-pm`: analyze the repository with Serena MCP, retrieve cited PM task IDs or URLs when provided, propose a Technical Roadmap with task previews, revise it when challenged, create new execution-ready PM tasks or overwrite cited tasks after explicit approval, then recap.
+- `feed-pm`: analyze the repository with Serena MCP, retrieve cited PM task IDs or URLs when provided, propose a Technical Roadmap with per-task Mermaid flow previews, revise it when challenged, create new execution-ready PM tasks or overwrite cited tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
 - `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs in PR bodies, report every PR URL, then run `review-pr`.
 - `review-pr`: perform a strict production-readiness review with mandatory full local CI, post details on the PR, and return only PR URLs in chat.
@@ -152,7 +152,7 @@ That workflow favors tests for user journeys and product flows rather than fragi
 ## Safety Rules
 
 - `brainstorm` can ask targeted clarification questions. It does not write code, create PM tasks, open PRs, or mutate external systems.
-- `feed-pm` proposes a complete Technical Roadmap first, preserves it when challenged, and creates new execution-ready PM tasks or overwrites cited source PM tasks only after explicit approval.
+- `feed-pm` proposes a complete Technical Roadmap first, preserves it when challenged, includes one task-local Mermaid flow with material edge cases per task, and creates new execution-ready PM tasks or overwrites cited source PM tasks only after explicit approval.
 - `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, without creating or updating PM tasks, creating a branch, invoking `implement-pm`, creating a PR, launching `review-pr`, or entering the `fix-pr` loop.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - The branch script creates or switches to the target branch and pushes it immediately. It does not stash, reset, or clean local work; inspect the worktree first when unrelated local changes matter.

@@ -71,7 +71,7 @@ Load only the references needed for the current PM tool and request:
 - `references/task-specification.md` for execution-ready PM task bodies.
 - `references/pm-tools.md` for PM discovery, source retrieval, item creation, and approved update commands.
 - `references/direct-implementation.md` when direct implementation is selected.
-- `mermaid-diagrams` skill only for one compact Mermaid summary in the pre-approval Technical Roadmap.
+- `mermaid-diagrams` skill for one compact Mermaid flow per task preview and PM task body.
 
 ## Workflow
 
@@ -133,11 +133,15 @@ Do not create duplicate tasks for the same business rule, validator, component, 
 
 Do not invent labels, statuses, assignees, milestones, project fields, or PM schema values.
 
-Before asking for approval, present a Technical Roadmap for the whole task set. It must include one compact Mermaid diagram at the top as the roadmap summary, then prose sections for implementation sequence, ownership boundaries, data/API/interface impact, risks, concessions requiring approval, and verification strategy.
+Before asking for approval, present a Technical Roadmap for the whole task set. Use prose sections for implementation sequence, ownership boundaries, data/API/interface impact, risks, concessions requiring approval, and verification strategy. Do not include a single global Mermaid roadmap summary.
 
-Use `mermaid-diagrams` only for the pre-approval roadmap summary. Do not require Mermaid inside generated PM task bodies.
+Use `mermaid-diagrams` for task-local diagrams only. Each task preview must include exactly one compact Mermaid `flowchart` for that task, and the same diagram must be included in the generated PM task body.
 
-After the roadmap, show task previews. Each preview should summarize the execution contract that will be created in the PM item: implementation objective, owner and reuse path, expected file impact, interfaces/data flow, implementation steps, edge cases, external dependencies, acceptance criteria, verification, and task dependencies.
+After the roadmap, show task previews. Each preview should summarize the execution contract that will be created in the PM item: implementation objective, owner and reuse path, expected file impact, interfaces/data flow, implementation steps, edge cases, external dependencies, acceptance criteria, verification, task dependencies, and the task-local Mermaid flow.
+
+For each task, think through material edge cases before writing the diagram. The edge-case text and the Mermaid flow must stay consistent: include decision or failure nodes for validation failures, missing permissions, unavailable dependencies, migration/backfill risks, rollback or compatibility paths, blocked prerequisites, and user-approved concessions when those cases affect that task. Omit irrelevant branches that do not change implementation.
+
+Do not copy the generic response-format diagram as-is. Replace every node with task-specific labels that name the real preconditions, implementation steps, edge cases, fallback handling, and acceptance verification for that task.
 
 Do not include new tests, test files, test tasks, or test-writing acceptance criteria unless the user explicitly requested tests. Verification should reference existing lint, typecheck, test, build, or review commands when they already exist.
 
@@ -181,11 +185,6 @@ Direct implementation: <yes | no>
 
 Summary: <brief technical summary>
 
-Roadmap summary:
-```mermaid
-<compact roadmap diagram>
-```
-
 Technical Roadmap:
 - Sequence: <ordered task path>
 - Boundaries: <owner areas and responsibility split>
@@ -195,7 +194,26 @@ Technical Roadmap:
 - Verification: <existing checks or review points>
 
 Task previews:
-- <updates PM-ID | new> - <title> - <surface> - <objective, owner/reuse, file impact, dependencies, verification>
+
+### <updates PM-ID | new> - <title>
+Surface: <frontend | backend | devops | shared>
+Objective: <implementation objective>
+Owner/reuse: <owner area and existing primitive to reuse>
+File impact: <expected new/modified/deleted paths>
+Interfaces/data: <inputs, outputs, API/UI states, persisted data>
+Edge cases: <material cases and handling>
+Dependencies: <task or external dependency, or "None">
+Verification: <existing checks or review points>
+
+```mermaid
+flowchart TD
+  A[Task start] --> B{Preconditions met?}
+  B -->|No| C[Block or ask for decision]
+  B -->|Yes| D[Implement main path]
+  D --> E{Edge case or failure?}
+  E -->|Yes| F[Handle explicit fallback]
+  E -->|No| G[Verify acceptance]
+```
 
 Assumptions: <assumptions or "None">
 Concessions needing approval: <concessions or "None">
