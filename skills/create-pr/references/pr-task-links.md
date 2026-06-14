@@ -1,6 +1,6 @@
-# PR And Backlinks Reference
+# PR Task Links Reference
 
-Use this reference for concrete GitHub PR commands, PM task URL resolution, and PR backlinks.
+Use this reference for concrete GitHub PR commands and PM task URL resolution.
 
 ## Resolve Repositories
 
@@ -89,7 +89,7 @@ Resolves #123, #124
 #123 #124
 ```
 
-When the PR base is not the default branch, first use plain issue URLs. If the hosting provider supports manual issue linking for that base, create the manual links and verify them with `gh pr view`.
+When the PR base is not the default branch, use plain issue URLs instead of closing keywords.
 
 ## Create Draft PR
 
@@ -101,34 +101,16 @@ gh pr view <pr> --json number,url,body,baseRefName,headRefName,closingIssuesRefe
 
 Capture each `url` value in a per-repository ledger for the final `create-pr` response.
 
-If closing keywords were expected to link issues, verify each issue appears in `closingIssuesReferences` or `linkedIssues`. If the PR base is non-default and links are absent, create manual links when the tool supports it; otherwise keep plain task URLs in the body and report the limitation.
+Verify the PR body contains every required PM task URL or supported GitHub closing keyword. If closing keywords were expected to link issues, verify each issue appears in `closingIssuesReferences` or `linkedIssues`. If any required task link is missing from the PR body, update the PR body before running `review-pr`.
+
+```bash
+gh pr edit <pr> --body-file <body-file>
+```
 
 If the provider requires a diff before PR creation, stop and report that implementation commits are missing. Do not create empty commits from `create-pr`.
 
-## Write Backlinks
+## PM Task Mutation Boundary
 
-When GitHub closing keywords or linked issue metadata are present in the PR body, no extra issue edit is required for same-repository GitHub Issues.
+Do not write PR URLs, comments, fields, relations, description changes, or status changes back to PM tasks from `create-pr`.
 
-For cross-repository GitHub Issues where native linking is not available, add a concise comment:
-
-```bash
-gh issue comment <issue> --repo <owner/repo> --body-file <comment-file>
-```
-
-Comment body:
-
-```markdown
-Draft PR: <pr-url>
-```
-
-For Jira, Notion, Linear, or other PM tools, prefer backlink destinations in this order:
-
-1. Dedicated PR, pull request, development, URL, or relation field.
-2. Task comment.
-3. Clearly delimited PR links section in the task description/body.
-
-Write all PR URLs when one task spans multiple repositories. Do not stop after the first repository PR.
-
-After writing, re-read the task and verify every expected PR URL is present. Treat a missing PR URL as a backlink failure and stop before `review-pr`.
-
-Do not update task status from `create-pr`.
+When one task spans multiple repositories, include the same PM task URL in every relevant PR body. Do not stop after the first repository PR.

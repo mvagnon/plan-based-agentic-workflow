@@ -20,7 +20,7 @@ Do not merge if:
 - required remote checks are failing;
 - full local CI is missing or failing, including out-of-scope failures;
 - unresolved blocking review feedback exists;
-- PM task links or backlink state cannot be resolved when task closure is requested.
+- PM task links cannot be resolved when task closure is requested.
 
 ## Merge
 

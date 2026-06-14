@@ -6,7 +6,7 @@ Use this reference only when the user chooses to implement directly from an appr
 
 Direct implementation is not the default path.
 
-Do not create or update PM tasks, create PM backlinks, create branches, open PRs, write PR descriptions, post review comments, update PM status, invoke `implement-pm`, launch `review-pr`, or enter the `fix-pr` loop from this path.
+Do not create or update PM tasks, create PR task links, create branches, open PRs, write PR descriptions, post review comments, update PM status, invoke `implement-pm`, launch `review-pr`, or enter the `fix-pr` loop from this path.
 
 Reuse only the implementation development rules:
 

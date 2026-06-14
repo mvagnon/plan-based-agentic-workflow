@@ -73,7 +73,7 @@ $pm_tool/$task_ids
 - Reuse existing components, hooks, services, schemas, validators, DTOs, repositories, utilities, and design-system primitives before creating anything new.
 - Keep business logic centralized, handlers/controllers thin, boundary validation explicit, and server-side authorization enforced.
 - Preserve unrelated local work. Do not stash, reset, delete, unstage, or commit unrelated changes unless explicitly requested.
-- Do not create PRs, PR descriptions, PM backlinks, review comments, or PM status updates.
+- Do not create PRs, PR descriptions, PR task links, review comments, or PM status updates.
 - Do not add dependencies, logs, broad refactors, or new tests by default.
 - During implementation and final diff review, minimize added lines relative to deleted lines. Prefer deletion, reuse, and extension over parallel code; if a small product or implementation concession would materially reduce added lines, stop and ask for user approval before taking it.
 - Use the repository's existing check commands that are relevant to the touched area.

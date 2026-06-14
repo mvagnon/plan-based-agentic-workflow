@@ -38,4 +38,4 @@ If the selected PM tool cannot provide complete task content and the user did no
 
 If a requested task depends on another unresolved task that is not included in `<task-ids>`, ask whether to include it before implementation.
 
-Do not update PM status or write PR backlinks from `implement-pm`.
+Do not update PM status or create PR task links from `implement-pm`.

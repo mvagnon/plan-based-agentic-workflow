@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: "Use this skill after `implement-pm` when implementation branches already exist. It derives PM tool and task IDs from branches named `{pm-tool}/{task-ids}`, creates draft PRs for the current repository and child repositories on matching PM branches, attaches PM task URLs in the PR body, writes PR backlinks to the PM tasks, and immediately runs `review-pr`. Trigger on phrases like create PR, open draft PR, attach tasks to PR, backlink PM tasks, or continue after implement-pm."
+description: "Use this skill after `implement-pm` when implementation branches already exist. It derives PM tool and task IDs from branches named `{pm-tool}/{task-ids}`, creates draft PRs for the current repository and child repositories on matching PM branches, attaches PM task URLs in the PR body, and immediately runs `review-pr`. It does not write PR links, comments, fields, relations, or status changes back to PM tasks. Trigger on phrases like create PR, open draft PR, attach tasks to PR, or continue after implement-pm."
 disable-model-invocation: true
 user-invocable: true
 ---
@@ -17,7 +17,7 @@ The branch name is the source of truth:
 <pm-tool>/<task-ids>
 ```
 
-The PR body stays minimal because the PM tasks carry the full specification. After creating and backlinking PRs, report every created PR URL to the user, then run `review-pr` and repeat the URL set in the final response.
+The PR body stays minimal because the PM tasks carry the full specification. After creating PRs, report every created PR URL to the user, then run `review-pr` and repeat the URL set in the final response.
 
 ## Diagram
 
@@ -29,11 +29,10 @@ flowchart TD
   C -->|Yes| E[Resolve PM task URLs]
   E --> F[Create draft PR]
   F --> G[Capture PR URL]
-  G --> H[Write PR URL back to PM tasks]
-  H --> I[Verify PR body, URL, and backlinks]
-  I --> J[Report PR URLs to user]
-  J --> K[Run review-pr]
-  K --> L[Return PR URLs]
+  G --> H[Verify PR body task links]
+  H --> I[Report PR URLs to user]
+  I --> J[Run review-pr]
+  J --> K[Return PR URLs]
 ```
 
 ## Inputs
@@ -49,7 +48,7 @@ Optional overrides:
 
 Load only what is needed:
 
-- `references/pr-and-backlinks.md` for Git/GitHub PR commands, PM task URL resolution, and backlink updates.
+- `references/pr-task-links.md` for Git/GitHub PR commands and PM task URL resolution.
 
 ## Workflow
 
@@ -68,11 +67,10 @@ For each selected repository:
 3. Read `branch.<branch>.pbaw-base` from local Git config. If missing, use the repository default branch unless the user provided `base`.
 4. Create a draft PR and capture its URL.
 5. Put PM task URLs at the top of the PR body.
-6. Write the PR URL back to each PM task through a dedicated PR field, relation, comment, or description fallback.
-7. Re-read enough state to verify the PR body and PM backlinks.
-8. Report every created PR URL to the user.
-9. Keep every created PR URL for the final response.
-10. Immediately run `review-pr` for the created PR set.
+6. Re-read the PR and verify the body contains every required PM task URL or supported GitHub closing keyword.
+7. Report every created PR URL to the user.
+8. Keep every created PR URL for the final response.
+9. Immediately run `review-pr` for the created PR set.
 
 ### Rules
 
@@ -80,17 +78,18 @@ For each selected repository:
 - Do not copy full task bodies into the PR.
 - Do not invent expected outcomes, validation plans, labels, or PM statuses.
 - For GitHub Issues, use one closing keyword per issue when the PR base supports native linking.
-- For non-GitHub PM tasks, verify every PR URL after backlinking, especially when one task spans several repositories.
+- Do not write PR URLs, comments, fields, relations, description changes, or status changes back to PM tasks. The PR body is the only place where `create-pr` records task links.
+- For non-GitHub PM tasks, verify every task URL is present in the PR body.
 - Always report every created PR URL before `review-pr`, then return the same URL set in the final response, including when `review-pr` blocks or fails. For multi-repository PR sets, list one URL per repository.
 - Do not mark tasks done.
 - Do not merge.
-- Stop before `review-pr` if any required task URL or PR backlink cannot be verified.
+- Stop before `review-pr` if any required task URL cannot be resolved or cannot be verified in the PR body.
 
 ## Expected Response Format
 
 ### Response
 
-Return this only after `review-pr` finishes or if PR creation/backlinking is blocked.
+Return this only after `review-pr` finishes or if PR creation or task-link verification is blocked.
 
 ```markdown
 ## Create PR
@@ -101,7 +100,7 @@ Created PR URLs:
 
 PM tasks:
 
-- <task id/title>: <task URL> - backlink <verified|blocked>
+- <task id/title>: <task URL> - PR URL <verified|blocked>
 
 Review PR URLs:
 

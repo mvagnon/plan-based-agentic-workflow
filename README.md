@@ -30,7 +30,7 @@ flowchart TD
     E --> F["Clear or compact context"]
     F --> G["$implement-pm<br/>Branch + implementation"]
     G --> H["Clear or compact context"]
-    H --> I["$create-pr<br/>Draft PR + PM backlinks"]
+    H --> I["$create-pr<br/>Draft PR + PM task links"]
     I --> J["$review-pr<br/>Strict review + local CI"]
     J --> K{"PROD READY?"}
     K -->|No| L["$fix-pr<br/>Focused remediation + push"]
@@ -56,7 +56,7 @@ All PBAW skills are manual-only: each `SKILL.md` sets `disable-model-invocation:
 - `brainstorm`: ask targeted questions, analyze the repository with Serena MCP, then research with Exa, Context7, and `gh` CLI (+ Repomix) to resolve complex technical decisions before PM planning or direct implementation.
 - `feed-pm`: analyze the repository with Serena MCP, retrieve cited PM task IDs or URLs when provided, propose a Technical Roadmap with task previews, revise it when challenged, create new execution-ready PM tasks or overwrite cited tasks after explicit approval, then recap.
 - `implement-pm`: requires PM system name and exact task IDs, runs the branch script first, retrieves PM tasks, and focuses only on implementation.
-- `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs, backlink PRs to tasks, report every PR URL, then run `review-pr`.
+- `create-pr`: create draft PRs from `{pm-tool}/{task-ids}` branches, attach PM task URLs in PR bodies, report every PR URL, then run `review-pr`.
 - `review-pr`: perform a strict production-readiness review with mandatory full local CI, post details on the PR, and return only PR URLs in chat.
 - `fix-pr`: collect PR feedback, inspect cited code, apply focused fixes directly, run checks, push, then reply to handled conversations.
 
@@ -151,7 +151,7 @@ That workflow favors tests for user journeys and product flows rather than fragi
 - `feed-pm` can proceed directly with implementation only through `references/direct-implementation.md`, without creating or updating PM tasks, creating a branch, invoking `implement-pm`, creating a PR, launching `review-pr`, or entering the `fix-pr` loop.
 - `implement-pm` must run the branch script before PM retrieval, Serena analysis, or edits.
 - The branch script creates or switches to the target branch and pushes it immediately. It does not stash, reset, or clean local work; inspect the worktree first when unrelated local changes matter.
-- `create-pr` creates draft PRs and PM backlinks, then runs `review-pr`.
+- `create-pr` creates draft PRs with PM task links in the PR body, then runs `review-pr`.
 - `review-pr` does not implement fixes and cannot merge or close PM tasks without passing local CI and explicit approval.
 - `fix-pr` does not merge, mark PRs ready, close PM tasks, or update PM status.
 - No skill should add dependencies, logs, broad refactors, or new tests by default.
