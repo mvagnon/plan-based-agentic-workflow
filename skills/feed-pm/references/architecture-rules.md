@@ -18,6 +18,7 @@ When rules conflict in a way that changes the task plan or review verdict, surfa
 
 - Load governing project instruction files before planning or reviewing.
 - Load relevant architecture, design, security, framework, and provider skills when the request or codebase calls for them.
+- For added, upgraded, or materially changed external dependency usage, verify official dependency documentation through Context7 MCP when available, then GitHub README/changelog/issues when useful, and Exa MCP only when official sources are insufficient or outdated.
 - Treat declared project architecture, layering, dependency direction, and ownership rules as authoritative for concrete boundaries.
 - Use code to locate current implementation, reusable owners, and affected files. Do not treat existing folder shape, imports, or naming as architecture authority when governing instructions are missing or incomplete.
 - If architecture instructions are missing, incomplete, ambiguous, or insufficient for the plan, ask the user for architectural direction before decomposing architecture-sensitive work.
@@ -31,6 +32,13 @@ When rules conflict in a way that changes the task plan or review verdict, surfa
 - Business rules must have one owner. Do not duplicate conditions, transformations, validation, authorization, permissions, formatting, data-fetching workflows, query construction, or API workflows.
 - Reuse existing validation, typing, constants, enums, DTOs, interfaces, schemas, and validators. Do not redefine the same shape in several places.
 - Reuse existing design-system primitives, tokens, variants, spacing, typography, colors, icons, layouts, and UI patterns before local styling.
+
+## Dependency Documentation
+
+- Do not accept added, upgraded, or materially changed external dependency usage without checking it against official documentation and documented project examples.
+- Treat dependency-documented examples, documented project examples, and documented dependency best practices as review evidence.
+- If changed code deviates from documented examples or documented dependency best practices, require a precise technical reason from the PR, linked PM task, prior discussion, or code comments.
+- Treat unsupported material deviations as review findings, and as blockers when they affect architecture, security, correctness, reuse, data flow, or operational behavior.
 
 ## Task Boundaries
 

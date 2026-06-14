@@ -17,6 +17,7 @@ The review is strict on:
 
 - security, authentication, authorization, privacy, and secrets;
 - declared architecture boundaries and dependency direction from governing project instruction files;
+- documented dependency usage, including official dependency best practices and project examples when a dependency is added, upgraded, or materially used differently;
 - reuse of existing business logic, validators, schemas, services, components, and design-system primitives;
 - duplicated and near-duplicate code that should be standardized, including close UI components that should become one component with variants.
 - avoidable net line growth, especially when deletion, reuse, or a small user-approved concession could satisfy the same scope with far fewer added lines.
@@ -66,6 +67,8 @@ Load only what is needed:
 - Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 - For architecture review, use the governing instruction files as the source of truth, not the code. Use code only to verify compliance, unless project-specific instruction files are missing.
 - When architecture instructions name an architecture but details are missing, inconsistent, or imprecise, use Exa MCP to research best practices for that same architecture and stack before judging the PR.
+- When a PR adds, upgrades, or materially changes usage of an external dependency, verify the changed usage against official documentation through Context7 MCP when available, then GitHub README/changelog/issues when useful, and Exa MCP only when official sources are insufficient or outdated.
+- If changed code deviates from dependency-documented examples, documented project examples, or established documented patterns, require a precise technical reason from the PR, linked PM task, prior discussion, or code comments. Treat unsupported deviations as review findings, and as blockers when they affect architecture, security, correctness, reuse, data flow, or operational behavior.
 - Treat duplication in changed code as a bug, including duplicated business logic, validation, permission logic, transformations, services, hooks, schemas, utilities, and near-duplicate components that should be variants.
 - Review added lines relative to deleted lines. Treat avoidable large net additions as maintainability findings when a smaller reuse/deletion path or small user-approved concession would preserve the PM scope.
 - Read linked PM tasks before judging scope coverage.
