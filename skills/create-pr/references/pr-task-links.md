@@ -109,8 +109,34 @@ gh pr edit <pr> --body-file <body-file>
 
 If the provider requires a diff before PR creation, stop and report that implementation commits are missing. Do not create empty commits from `create-pr`.
 
+## PM Task PR URL Comments
+
+After all PRs for the `create-pr` run exist, comment on each linked PM task with the PR URL set relevant to that task.
+
+Use a terse comment body:
+
+```markdown
+PR created:
+
+- <repo>: <PR URL>
+- <repo>: <PR URL>
+```
+
+For GitHub Issues:
+
+```bash
+gh issue comment <number-or-url> --repo <owner/repo> --body-file <comment-file>
+gh issue view <number-or-url> --repo <owner/repo> --json comments
+```
+
+For Jira, Notion, Linear, or other PM tools, use the installed MCP or CLI for the selected `pm-tool`.
+
+When a task spans multiple repositories, include every relevant PR URL in the same task comment. If rerunning and the provider exposes comments, inspect existing comments and avoid posting an equivalent duplicate.
+
+Capture each task comment result in the per-repository or per-task ledger. If a PM provider cannot accept the comment, the integration is missing, or permissions prevent commenting, stop before `review-pr` and report the blocked task.
+
 ## PM Task Mutation Boundary
 
-Do not write PR URLs, comments, fields, relations, description changes, or status changes back to PM tasks from `create-pr`.
+The only PM task mutation allowed from `create-pr` is adding a comment with created PR URLs. Do not write fields, relations, description changes, or status changes back to PM tasks.
 
 When one task spans multiple repositories, include the same PM task URL in every relevant PR body. Do not stop after the first repository PR.

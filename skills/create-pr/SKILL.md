@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: "Use after `implement-pm` on `{pm-tool}/{task-ids}` branches to open draft PRs, attach PM task links, and run `review-pr`; trigger on create/open draft PR."
+description: "Use after `implement-pm` on `{pm-tool}/{task-ids}` branches to open draft PRs, attach PM task links, comment linked PM tasks with PR URLs, and run `review-pr`; trigger on create/open draft PR."
 disable-model-invocation: true
 user-invocable: true
 ---
@@ -17,7 +17,7 @@ The branch name is the source of truth:
 <pm-tool>/<task-ids>
 ```
 
-The PR body stays minimal because the PM tasks carry the full specification. After creating PRs, report every created PR URL to the user, then run `review-pr` and repeat the URL set in the final response.
+The PR body stays minimal because the PM tasks carry the full specification. After creating and verifying PRs, add a PR URL comment to each linked PM task, report every created PR URL to the user, then run `review-pr` and repeat the URL set in the final response.
 
 ## Diagram
 
@@ -28,8 +28,9 @@ flowchart TD
   C -->|No| D[Skip child repo or stop if current repo]
   C -->|Yes| E[Resolve PM task URLs and base]
   E --> F[Create draft PR and verify links]
-  F --> G[Report URLs and run review-pr]
-  G --> H[Return PR URLs]
+  F --> G[Comment PM tasks with PR URLs]
+  G --> H[Report URLs and run review-pr]
+  H --> I[Return PR URLs]
 ```
 
 ## Inputs
@@ -65,9 +66,11 @@ For each selected repository:
 4. Create a draft PR and capture its URL.
 5. Put PM task URLs at the top of the PR body.
 6. Re-read the PR and verify the body contains every required PM task URL or supported GitHub closing keyword.
-7. Report every created PR URL to the user.
-8. Keep every created PR URL for the final response.
-9. Immediately run `review-pr` for the created PR set.
+7. After all repository PR URLs for this `create-pr` run are known, add one comment to each linked PM task containing the relevant PR URL set.
+8. Verify each PM task comment was posted or visible when the provider supports read-back.
+9. Report every created PR URL to the user.
+10. Keep every created PR URL for the final response.
+11. Immediately run `review-pr` for the created PR set.
 
 ### Rules
 
@@ -75,12 +78,12 @@ For each selected repository:
 - Do not copy full task bodies into the PR.
 - Do not invent expected outcomes, validation plans, labels, or PM statuses.
 - For GitHub Issues, use one closing keyword per issue when the PR base supports native linking.
-- Do not write PR URLs, comments, fields, relations, description changes, or status changes back to PM tasks. The PR body is the only place where `create-pr` records task links.
-- For non-GitHub PM tasks, verify every task URL is present in the PR body.
+- Write back to PM tasks only by adding a comment that lists the created PR URL set. Do not write fields, relations, description changes, or status changes back to PM tasks.
+- For non-GitHub PM tasks, verify every task URL is present in the PR body and the PR URL comment was posted.
 - Always report every created PR URL before `review-pr`, then return the same URL set in the final response, including when `review-pr` blocks or fails. For multi-repository PR sets, list one URL per repository.
 - Do not mark tasks done.
 - Do not merge.
-- Stop before `review-pr` if any required task URL cannot be resolved or cannot be verified in the PR body.
+- Stop before `review-pr` if any required task URL cannot be resolved, cannot be verified in the PR body, or cannot receive the required PR URL comment.
 
 ## Expected Response Format
 
@@ -97,7 +100,7 @@ Created PR URLs:
 
 PM tasks:
 
-- <task id/title>: <task URL> - PR URL <verified|blocked>
+- <task id/title>: <task URL> - PR body link <verified|blocked>, PM comment <posted|blocked>
 
 Review PR URLs:
 
