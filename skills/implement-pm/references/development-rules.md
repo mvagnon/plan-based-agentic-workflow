@@ -2,7 +2,7 @@
 
 Use this reference during `implement-pm` before editing and final diff review, during `fix-pr` before remediation edits and replies, and during `review-pr` before judging concrete implementation hygiene, local change safety, checks, and finalization readiness.
 
-This file covers implementation mechanics. Use `../../feed-pm/references/architecture-rules.md` for broad planning, architecture, ownership, reuse, and duplication policy.
+This file covers implementation mechanics. Use governing project instruction files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and equivalents) for architecture, ownership, boundaries, and project conventions.
 
 ## Before Editing
 

@@ -20,7 +20,7 @@ If Serena is unavailable, stop. Do not create or update implementation-ready PM 
 Capture only what affects task boundaries:
 
 - implementation details supplied by the user, including desired behavior, affected surfaces, data model/API notes, constraints, non-goals, rollout needs, and preferred direction;
-- repository instructions and loaded architecture skills;
+- repository instructions and loaded relevant skills;
 - owner folders for UI, routes/controllers/actions, services/domain, repositories, schemas, validation, permissions, and integrations;
 - existing components, hooks, services, DTOs, validators, repositories, query keys, feature flags, and design-system primitives to reuse;
 - dependency direction and package boundaries;

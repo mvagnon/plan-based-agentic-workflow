@@ -6,21 +6,20 @@ This file is the source of truth for `review-pr` scoring and verdicts. Load it b
 
 Use this priority order:
 
-1. Explicit user instructions for the review or finalization request.
-2. Governing project instruction files: `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and equivalent repo-specific instruction files for concrete architecture, layering, ownership, commands, and conventions.
-3. Official dependency documentation and documented project examples when the PR adds, upgrades, or materially changes usage of an external dependency.
-4. `../../feed-pm/references/architecture-rules.md` for non-negotiable reuse, duplication, validation, typing, security, frontend, backend, data, and design-system expectations.
-5. `../../implement-pm/references/development-rules.md` for concrete implementation hygiene, local change safety, checks, and finalization readiness.
-6. This scoring reference.
-7. Project code, only to verify implementation details and compliance.
+| Priority | Source |
+| --- | --- |
+| 1 | Explicit user instructions for the review or finalization request. |
+| 2 | Governing project instruction files: `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and equivalents. |
+| 3 | Official dependency documentation through Context7 MCP when available, then GitHub README/changelog/issues when useful. |
+| 4 | `../../implement-pm/references/development-rules.md`. |
+| 5 | This scoring reference. |
+| 6 | Project code, only to verify implementation details and compliance. |
 
-For architecture, the instruction files are authoritative. Identify the named architecture, layering rules, dependency direction, module boundaries, ownership rules, and testing/check expectations from those files. Do not infer the architecture from the code unless project-specific instruction files are missing.
+For architecture, the instruction files are authoritative. Identify the named architecture, layering rules, dependency direction, module boundaries, ownership rules, and testing/check expectations from those files. Do not infer architecture from code.
 
-If the architecture instructions name an architecture but omit, contradict, or blur important details, use Exa MCP to research best practices for that same architecture and stack. Prefer official docs, maintainer material, and widely accepted technical references. Apply those best practices only to fill the missing or inconsistent details, and state that this is an inference from external architecture guidance.
+If governing instruction files are missing, incomplete, inconsistent, or too imprecise for an architecture-sensitive verdict, surface that as a review blocker and ask the user for architecture direction.
 
 Do not use Exa MCP to override explicit project instructions. If governing instruction files conflict with each other in a way that changes the verdict, surface the conflict as a review blocker instead of silently choosing.
-
-If project-specific instruction files are missing, infer architecture from folders, imports, naming, nearby implementations, and repository conventions. Mark the architecture basis as inferred in the review.
 
 When dependency usage is added, upgraded, or materially changed, verify the changed usage against official documentation through Context7 MCP when available, then GitHub README/changelog/issues when useful. Use Exa MCP only when official sources are insufficient or outdated. Treat dependency-documented examples, documented project examples, and documented best practices as review evidence.
 
@@ -28,77 +27,77 @@ When dependency usage is added, upgraded, or materially changed, verify the chan
 
 Any hard blocker prevents `PROD READY`.
 
-- Exploitable security issue, broken authn/authz, secret exposure, privacy leak, unsafe user input, injection, XSS, SSRF, path traversal, or unsafe file upload.
-- Data loss, corruption, outage risk, unsafe migration, or broken rollback path.
-- Architecture boundary violation against the project instruction files, or against researched best practices when instruction details are missing.
-- Unjustified material deviation from official dependency documentation, dependency-documented examples, documented project examples, or documented best practices when it affects architecture, security, correctness, reuse, data flow, or operational behavior.
-- New or retained duplicated business logic, validation, permission checks, data transformations, API workflows, query construction, data-fetching logic, or formatting rules where an owner exists.
-- Near-duplicate components, hooks, services, schemas, DTOs, validators, repositories, or utilities that should be unified or expressed as variants.
-- Failure to reuse an existing component, schema, service, validator, hook, repository, utility, or design-system primitive when that reuse is clearly available.
-- Missing or failing local CI.
-- Required remote checks failing.
-- Diff, linked PM tasks, or affected code paths cannot be inspected.
+| Area | Blocker |
+| --- | --- |
+| Security | Exploitable issue, broken authn/authz, secret exposure, privacy leak, unsafe input, injection, XSS, SSRF, path traversal, or unsafe upload. |
+| Data and operations | Data loss, corruption, outage risk, unsafe migration, or broken rollback path. |
+| Instructions | Violation of governing `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or equivalent project instructions. |
+| Dependency docs | Unjustified material deviation from official dependency docs or documented examples when it affects architecture, security, correctness, reuse, data flow, or operations. |
+| Reuse | Duplicated business logic, validation, permission checks, transformations, API workflows, query construction, data-fetching logic, or formatting rules where an owner exists. |
+| Reuse | Near-duplicate components, hooks, services, schemas, DTOs, validators, repositories, or utilities that should be unified or expressed as variants. |
+| Reuse | Failure to reuse a clearly available component, schema, service, validator, hook, repository, utility, or design-system primitive. |
+| CI | Local CI errors or required remote check failures. |
+| Inspection | Diff, linked PM tasks, or affected code paths cannot be inspected. |
 
 Treat duplication as a bug. Do not describe it as cleanup, polish, or a later refactor when it affects changed code. Components that differ only by text, small layout tweaks, styling, state, or optional behavior should normally be one component with variants.
 
 ## Scoring
 
-The score is `/10` and communicates production risk internally. A high score is never allowed when a hard blocker exists. Do not include the numeric score in chat responses or PR reviews unless the user explicitly asks for it.
+The score is `/15` and communicates production risk. Do not include the numeric score in chat responses. Include the score and category breakdown in the PR review or PR comment.
 
-Calculate the category score, then apply automatic caps:
+Local CI is not scored. Run it anyway. Any local CI error blocks `PROD READY`, merge, and PM task closure.
 
-- Any hard blocker: verdict cannot be `PROD READY`.
-- Diff cannot be inspected: `Score: not available` and `DO NOT MERGE`.
-- Severe security, data, outage, or rollback risk: maximum `5/10` and normally `DO NOT MERGE`.
-- Architecture boundary violation: Architecture and reuse is `0/3`; maximum total score is `7/10`.
-- Duplication in changed code: Architecture and reuse is `0/3`; maximum total score is `7/10`; verdict is at least `FIX BEFORE MERGE`.
-- Missing or failing local CI: Reliability, operations, and CI is `0/1`; verdict is at least `FIX BEFORE MERGE`.
+| Category | Points | Full credit |
+| --- | ---: | --- |
+| Instruction-file compliance | 3 | Follows loaded `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and equivalent project instructions. |
+| Reuse | 3 | Reuses existing owners and primitives; no duplicated or near-duplicated logic, components, schemas, services, hooks, utilities, or workflows. |
+| Dependency docs | 2 | Changed dependency usage matches official docs verified through Context7 MCP when available, plus documented project examples when relevant. |
+| Maintainability and style | 2 | Matches `../../implement-pm/references/development-rules.md`: simple, readable, focused, consistently named, type-safe where useful, and avoids unnecessary net line growth. |
+| Security | 3 | No credible security, authn/authz, privacy, secret-handling, or unsafe-input risk. |
+| Edge cases | 2 | Handles material edge cases, regressions, empty/error states, rollback/failure paths, and linked PM scope boundaries. |
 
-- Security and privacy: `0-3`
-  - `3`: no credible security, auth, privacy, or secret-handling risk.
-  - `2`: minor hardening issue without realistic exploit path.
-  - `1`: meaningful security weakness requiring changes.
-  - `0`: exploitable or severe security/privacy issue.
+Use this point scale inside each category:
 
-- Architecture and reuse: `0-3`
-  - `3`: follows declared architecture, dependency direction, documented dependency patterns, ownership boundaries, and reuse rules.
-  - `2`: minor local style or boundary concern that does not spread.
-  - `1`: architecture or reuse issue likely to spread or confuse ownership.
-  - `0`: architecture violation, undocumented dependency-pattern deviation, duplicated logic, duplicated component pattern, or missed obvious reuse.
+| Category max | Full | Partial | Zero |
+| ---: | --- | --- | --- |
+| 3 | Fully compliant. | Minor issue that is local and low risk. | Violation, duplication, missed obvious reuse, or unclear ownership. |
+| 2 | Fully compliant. | Minor issue that should be cleaned up before or soon after merge. | Material deviation, avoidable complexity, dead code, weak typing, or inconsistent style. |
 
-- Correctness and regressions: `0-2`
-  - `2`: behavior matches PM scope and no likely regression found.
-  - `1`: targeted correctness risk, edge case, or incomplete scenario.
-  - `0`: broken core behavior, PM scope miss, or likely regression.
+Apply caps after scoring:
 
-- Reliability, operations, and CI: `0-1`
-  - `1`: local CI and required remote checks pass; operational risks are handled.
-  - `0`: CI missing/failing, migration/deploy/rollback risk, or operational uncertainty.
-
-- Maintainability and local style: `0-1`
-  - `1`: code is simple, readable, named consistently, and fits local conventions.
-  - `0`: avoidable complexity, unclear naming, dead code, weak typing, inconsistent local style, or large avoidable net additions where deletion, reuse, or a small user-approved concession would preserve scope with much less code.
+| Condition | Cap / verdict |
+| --- | --- |
+| Any hard blocker | Cannot be `PROD READY`. |
+| Diff cannot be inspected | `Score: not available`; `DO NOT MERGE`. |
+| Severe security, data, outage, or rollback risk | Max `7/15`; normally `DO NOT MERGE`. |
+| Instruction-file violation | Instruction-file compliance is `0/3`; max `12/15`; at least `FIX BEFORE MERGE`. |
+| Duplication or missed obvious reuse in changed code | Reuse is `0/3`; max `12/15`; at least `FIX BEFORE MERGE`. |
+| Dependency-doc violation affecting behavior, data flow, security, or operations | Dependency docs is `0/2`; max `12/15`; at least `FIX BEFORE MERGE`. |
+| Meaningful security weakness | Security is at most `1/3`; at least `FIX BEFORE MERGE`. |
+| Material unhandled edge case or likely regression | Edge cases is at most `1/2`; at least `FIX BEFORE MERGE`. |
+| Local CI errors or required remote check failures | At least `FIX BEFORE MERGE`; no score penalty unless the failure reveals a scored issue. |
 
 ## Verdicts
 
-- `PROD READY`: score `9-10`, no hard blockers, full local CI passed, required remote checks passed, linked PM scope covered, and architecture/reuse review completed.
-- `FIX BEFORE MERGE`: targeted remediation is required, checks are incomplete/failing, duplication exists in changed code, or the PR cannot earn at least `9`.
-- `DO NOT MERGE`: severe security, data, outage, rollback, or architecture risk; or the diff cannot be inspected.
+| Verdict | Rule |
+| --- | --- |
+| `PROD READY` | Score `10-15`, no hard blockers, full local CI passed without errors, required remote checks passed, linked PM scope covered, and all scoring categories reviewed. |
+| `FIX BEFORE MERGE` | Targeted remediation is required, checks have errors, duplication exists in changed code, or the PR cannot earn at least `10`. |
+| `DO NOT MERGE` | Severe security, data, outage, rollback, or instruction/dependency risk; or the diff cannot be inspected. |
 
 If the diff cannot be inspected, do not fabricate a score. Use `Score: not available` and `DO NOT MERGE`.
 
 ## Review Evidence
 
-Before awarding architecture/reuse points:
+Before awarding points:
 
-- confirm the relevant instruction files were loaded;
-- name the governing architecture basis in the review notes;
-- do not rely on code to define architecture unless project-specific instruction files are missing;
-- use Exa MCP for missing, inconsistent, or imprecise details of a named architecture;
-- for added, upgraded, or materially changed dependency usage, verify official dependency documentation through Context7 MCP when available, then GitHub README/changelog/issues when useful, and Exa MCP only when official sources are insufficient or outdated;
-- compare changed dependency usage to dependency-documented examples and documented project examples;
-- require a precise technical reason before accepting deviations from documented examples or documented dependency best practices;
-- verify existing owners before accepting new logic, components, schemas, services, hooks, or utilities;
-- search for near-duplicates when the PR adds a component, hook, service, validator, schema, utility, or business rule;
-- compare added lines to deleted lines and challenge large avoidable net additions when a smaller reuse/deletion path or user-approved concession would preserve the PM scope;
-- report duplication as a finding when it appears in changed code.
+| Category | Required evidence |
+| --- | --- |
+| Instruction-file compliance | Confirm relevant instruction files were loaded and name the governing basis in review notes. |
+| Reuse | Verify existing owners before accepting new logic, components, schemas, services, hooks, utilities, or workflows. |
+| Reuse | Search for near-duplicates when the PR adds a component, hook, service, validator, schema, utility, or business rule. |
+| Dependency docs | Verify changed dependency usage with Context7 MCP when available, then GitHub README/changelog/issues when useful. |
+| Dependency docs | Require a precise technical reason before accepting deviations from documented examples or best practices. |
+| Maintainability and style | Load `../../implement-pm/references/development-rules.md`, then check focus, naming, typing, dead code, hidden behavior, scope creep, and added/deleted line balance. |
+| Security | Check authn/authz, input validation, secrets, privacy, unsafe redirects, uploads, dynamic queries, user-generated content, and server-side enforcement. |
+| Edge cases | Check PM scope boundaries, empty states, error states, invalid input, unavailable dependencies, migration/rollback paths, and likely regressions. |

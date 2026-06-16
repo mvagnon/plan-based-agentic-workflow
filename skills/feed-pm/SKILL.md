@@ -66,7 +66,6 @@ Preserve the language used by the user to describe the requested work for PM tas
 
 Load only the references needed for the current PM tool and request:
 
-- `references/architecture-rules.md` before task decomposition.
 - `references/codebase-analysis.md` for Serena exploration.
 - `references/task-specification.md` for execution-ready PM task bodies.
 - `references/pm-tools.md` for PM discovery, source retrieval, item creation, and approved update commands.
@@ -79,7 +78,7 @@ Load only the references needed for the current PM tool and request:
 
 Load and respect all governing global and project-specific `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files. Treat them as authoritative repository instructions; if they conflict, surface the conflict instead of silently choosing.
 
-Load relevant architecture, design, security, framework, and provider resources before decomposing tasks when the request touches those areas.
+Load relevant design, security, framework, and provider resources before decomposing tasks when the request touches those areas. The project `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files are the architecture rules.
 
 Recommend Plan Mode when the runner supports it. Use the runner-native question or clarification tool when available; otherwise ask directly in chat.
 
@@ -95,11 +94,11 @@ Do not mutate PM tasks during retrieval. If the cited tasks span multiple PM too
 
 Use Serena before drafting tasks. If Serena is unavailable, stop instead of creating implementation-ready tasks from local search alone.
 
-Load and apply `references/architecture-rules.md` before task decomposition. Use it to identify ownership, reuse, duplication, validation, typing, design-system, data, backend, frontend, security, and task-boundary concerns.
-
 Discover repository facts before final questions: files, ownership, schemas, routes, services, components, validators, conventions, check commands, and PM target signals.
 
-Correlate the plan tightly to the project. Each task should name the owner area and expected new, modified, and deleted files using exact paths when discoverable and owner folders otherwise. If the project lacks enough architecture direction to plan safely, ask the user for the missing architecture decision instead of inventing it from the codebase.
+Use governing project instruction files as the architecture source of truth. Use Serena and repository evidence to identify ownership, reuse, duplication, validation, typing, design-system, data, backend, frontend, security, and task-boundary concerns.
+
+Correlate the plan tightly to the project. Each task should name the owner area and expected new, modified, and deleted files using exact paths when discoverable and owner folders otherwise. If `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or equivalent project instructions lack enough architecture direction to plan safely, ask the user for the missing architecture decision instead of inventing it from the codebase.
 
 Do not write local planning Markdown.
 
